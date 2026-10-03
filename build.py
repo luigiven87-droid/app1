@@ -5,6 +5,7 @@ Uso:
     python3 build.py              # report sintetico + build
     python3 build.py --report     # report dettagliato con esempi, poi build
     python3 build.py --materiali altra/cartella --out altro.html
+    python3 build.py --artifact   # versione da pubblicare come pagina ospitata
 
 Solo libreria standard. Non modifica i file in materiali/.
 """
@@ -57,6 +58,14 @@ def build_data(ripassi, quiz, sims):
     if sims:
         data["sims"] = [s for s in sims if s["questions"]]
     return data
+
+
+def to_fragment(page):
+    """Versione per pagina ospitata: niente <html>/<head>/<body>, solo titolo, stile e contenuto."""
+    title = re.search(r"<title>.*?</title>", page, re.S).group(0)
+    style = re.search(r"<style>.*?</style>", page, re.S).group(0)
+    body = re.search(r"<body>(.*)</body>", page, re.S).group(1)
+    return "%s\n%s\n%s" % (title, style, body.strip())
 
 
 def render_html(data):
@@ -204,12 +213,20 @@ def main(argv=None):
     ap.add_argument("--materiali", default=os.path.join(HERE, "materiali"))
     ap.add_argument("--out", default=os.path.join(HERE, "dist", "ripasso-sna12.html"))
     ap.add_argument("--report", action="store_true", help="report dettagliato con esempi")
+    ap.add_argument("--artifact", action="store_true",
+                    help="scrive dist/ripasso-sna12-artifact.html, frammento per pagina ospitata (senza download di file)")
     args = ap.parse_args(argv)
 
     ripassi, quiz, sims = collect(args.materiali)
     print(report(ripassi, quiz, sims, args.report))
     data = build_data(ripassi, quiz, sims)
+    if args.artifact:
+        data["hosted"] = True
+        if args.out == ap.get_default("out"):
+            args.out = os.path.join(HERE, "dist", "ripasso-sna12-artifact.html")
     html = render_html(data)
+    if args.artifact:
+        html = to_fragment(html)
     os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
     with open(args.out, "w", encoding="utf-8") as f:
         f.write(html)

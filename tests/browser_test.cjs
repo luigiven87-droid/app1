@@ -32,7 +32,7 @@ async function phone(browser) {
   page.errors = [];
   page.on('pageerror', e => page.errors.push(e.message));
   page.on('console', m => { if (m.type() === 'error') page.errors.push(m.text()); });
-  page.on('dialog', d => d.accept());
+  page.on('dialog', d => { page.errors.push('dialogo nativo: ' + d.message()); d.dismiss(); });
   return page;
 }
 async function noHScroll(page) {
@@ -101,6 +101,12 @@ async function noHScroll(page) {
     check(forced === 'dark', 'il pulsante forza il tema scuro');
     // progressi: export
     await page.click('[data-tab=prog]');
+    await page.click('[data-act=exportCopy]');
+    const exported = await page.inputValue('#exp-text');
+    check(/"cards":\{"[0-9a-f]{10}/.test(exported), 'esporta progressi: testo JSON con le carte');
+    await page.click('[data-act=resetAll]');
+    await page.click('#modal-no');
+    check(Object.keys(JSON.parse(await page.evaluate(() => localStorage.getItem('sna12-ripasso-v1'))).cards).length === 2, '«Annulla» non azzera');
     await page.screenshot({ path: path.join(SHOTS, '06-progressi.png'), fullPage: true });
     check(await noHScroll(page), 'Progressi: nessuno scroll orizzontale');
     check(page.errors.length === 0, 'nessun errore JavaScript (' + page.errors.join('; ') + ')');
@@ -170,6 +176,7 @@ async function noHScroll(page) {
   // simulazione
   await page.click('[data-tab=sim]');
   await page.click('[data-act=simStart]');
+  await page.click('#modal-yes');
   check(!!(await page.$('#sim-timer')), 'timer visibile');
   const t0 = await page.textContent('#sim-timer');
   check(/^(90:00|89:5\d)$/.test(t0), 'timer parte da 90:00 (' + t0 + ')');
@@ -196,6 +203,8 @@ async function noHScroll(page) {
   check(!!revMarked, 'quesito segnato «da rivedere» nell\'indice');
   await page.screenshot({ path: path.join(SHOTS, '12-sim-grid.png'), fullPage: true });
   await page.click('[data-act=simSubmitAsk]');
+  check(!!(await page.$('#modal-yes')), 'consegna: conferma dentro la pagina');
+  await page.click('#modal-yes');
   const simScore = await page.textContent('.score');
   check(simScore.startsWith('2,44'), 'punteggio simulazione = 2,44 calcolato a mano (' + simScore + ')');
   const partRows = await page.$$eval('table tbody tr', rs => rs.map(r => r.textContent));

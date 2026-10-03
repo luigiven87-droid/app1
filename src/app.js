@@ -59,6 +59,30 @@
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function () { t.classList.remove('show'); }, 2600);
   }
+  /* Conferma dentro la pagina: confirm() non funziona ovunque (pagine ospitate). */
+  var $modal = document.getElementById('modal');
+  var modalYes = null;
+  var modalFocus = null;
+  function ask(msg, yesLabel, onYes, danger) {
+    modalYes = onYes;
+    modalFocus = document.activeElement;
+    $modal.innerHTML = '<div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-msg">' +
+      '<p id="modal-msg">' + esc(msg).replace(/\n/g, '<br>') + '</p>' +
+      '<div class="row"><button class="btn" type="button" id="modal-no">Annulla</button>' +
+      '<button class="btn ' + (danger ? 'ko' : 'primary') + '" type="button" id="modal-yes">' + esc(yesLabel) + '</button></div></div>';
+    $modal.hidden = false;
+    document.getElementById('modal-yes').focus();
+  }
+  function closeModal() {
+    $modal.hidden = true;
+    $modal.innerHTML = '';
+    modalYes = null;
+    if (modalFocus && modalFocus.focus) { try { modalFocus.focus(); } catch (e) { /* elemento sparito */ } }
+  }
+  $modal.addEventListener('click', function (e) {
+    if (e.target.id === 'modal-yes') { var f = modalYes; closeModal(); if (f) f(); }
+    else if (e.target.id === 'modal-no' || e.target === $modal) closeModal();
+  });
   function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
   function copyText(text) {
     function fallback() {
@@ -68,7 +92,7 @@
       var ok = false;
       try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
       document.body.removeChild(ta);
-      toast(ok ? 'Copiato' : 'Copia non riuscita: seleziona il testo a mano');
+      toast(ok ? 'Copiato' : 'Copia non riuscita: tieni premuto sul testo e copialo a mano');
     }
     if (navigator.clipboard && window.isSecureContext) {
       navigator.clipboard.writeText(text).then(function () { toast('Copiato'); }, fallback);
@@ -100,9 +124,13 @@
   /* ============================================================ tema e testata */
 
   var THEMES = ['auto', 'light', 'dark'];
+  var HOST_THEME = document.documentElement.getAttribute('data-theme');
   function applyTheme() {
     var t = S.prefs.theme || 'auto';
-    if (t === 'auto') document.documentElement.removeAttribute('data-theme');
+    if (t === 'auto') {
+      if (HOST_THEME) document.documentElement.setAttribute('data-theme', HOST_THEME);
+      else document.documentElement.removeAttribute('data-theme');
+    }
     else document.documentElement.setAttribute('data-theme', t);
     var btn = document.getElementById('theme-btn');
     btn.textContent = t === 'auto' ? '◐' : (t === 'light' ? '☀' : '☾');
@@ -145,9 +173,6 @@
     var b = e.target.closest('[data-tab]');
     if (!b) return;
     var t = b.getAttribute('data-tab');
-    if (session && session.kind && view.tab !== t && session.live) {
-      if (!confirm('Interrompere la sessione in corso? Le risposte già date restano salvate.')) return;
-    }
     session = null;
     stopTimer();
     view = { tab: t, screen: 'home' };
@@ -690,16 +715,18 @@
 
   ACTIONS.simStart = function (t) {
     var id = t.getAttribute('data-id');
-    if (!confirm('Iniziare la simulazione? Il timer di ' + SIM_MINUTES + ' minuti parte subito.')) return;
-    S.sims[id] = { start: Date.now(), ans: {}, rev: {}, cur: simById[id].questions[0].n, submitted: null };
-    save();
-    openSim(id);
+    ask('Iniziare la simulazione? Il timer di ' + SIM_MINUTES + ' minuti parte subito.', 'Inizia', function () {
+      S.sims[id] = { start: Date.now(), ans: {}, rev: {}, cur: simById[id].questions[0].n, submitted: null };
+      save();
+      openSim(id);
+    });
   };
   ACTIONS.simResume = function (t) { openSim(t.getAttribute('data-id')); };
   ACTIONS.simReset = function (t) {
     var id = t.getAttribute('data-id');
-    if (!confirm('Cancellare risposte ed esito di questa simulazione e ricominciare da capo?')) return;
-    delete S.sims[id]; save(); render();
+    ask('Cancellare risposte ed esito di questa simulazione e ricominciare da capo?', 'Cancella', function () {
+      delete S.sims[id]; save(); render();
+    }, true);
   };
   ACTIONS.simResult = function (t) {
     session = { kind: 'simres', sim: t.getAttribute('data-id'), filter: 'all' };
@@ -815,7 +842,8 @@
     var nRev = sim.questions.filter(function (q) { return st.rev[q.n]; }).length;
     var msg = 'Consegnare la simulazione?\n\nRisposte date: ' + nAns + ' su ' + sim.questions.length +
       (nRev ? '\nSegnati da rivedere: ' + nRev : '') + '\n\nDopo la consegna le risposte non si possono più cambiare.';
-    if (confirm(msg)) simSubmit(session.sim, false);
+    var id = session.sim;
+    ask(msg, 'Consegna', function () { simSubmit(id, false); });
   };
   function simSubmit(id, auto) {
     var st = simState(id);
@@ -945,9 +973,11 @@
       }).join('') + '</div></div>';
     }
     h += '<div class="panel"><h2 style="margin-top:0">Esporta / Importa progressi</h2>' +
-      '<p class="small muted">I progressi stanno solo in questo browser. Per spostarli su un altro dispositivo esporta il file (o copia il testo) e importalo dall\'altra parte: l\'import unisce i dati e, per ogni carta o quesito, tiene la risposta più recente.</p>' +
+      '<p class="small muted">I progressi stanno solo in questo browser. Per spostarli su un altro dispositivo esportali, conserva il testo (per esempio in una nota o in un messaggio a te stesso) e importalo dall\'altra parte: l\'import unisce i dati e, per ogni carta o quesito, tiene la risposta più recente.</p>' +
       (storageOk ? '' : '<div class="note">Questo browser non permette di salvare: esporta prima di chiudere la pagina.</div>') +
-      '<div class="row"><button class="btn primary" data-act="exportFile">Esporta file JSON</button><button class="btn" data-act="exportCopy">Copia come testo</button></div>' +
+      '<div class="row"><button class="btn primary" data-act="exportCopy">Esporta e copia il testo</button>' +
+      (DATA.hosted ? '' : '<button class="btn" data-act="exportFile">Scarica file JSON</button>') + '</div>' +
+      '<div class="field" style="margin-top:10px"><label for="exp-text">Testo esportato</label><textarea id="exp-text" readonly placeholder="Tocca «Esporta e copia il testo»"></textarea></div>' +
       '<hr>' +
       '<div class="field"><label for="imp-file">Importa da file</label><input id="imp-file" type="file" accept=".json,application/json" data-change="importFile" style="min-height:48px"></div>' +
       '<div class="field"><label for="imp-text">…oppure incolla il testo esportato</label><textarea id="imp-text" placeholder="{&quot;v&quot;:1,…}"></textarea></div>' +
@@ -976,7 +1006,12 @@
     setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
     toast('File esportato');
   };
-  ACTIONS.exportCopy = function () { copyText(exportJson()); };
+  ACTIONS.exportCopy = function () {
+    var ta = document.getElementById('exp-text');
+    var text = exportJson();
+    if (ta) { ta.value = text; ta.focus(); ta.select(); }
+    copyText(text);
+  };
   function mergeMap(dst, src) {
     var n = 0;
     Object.keys(src || {}).forEach(function (k) {
@@ -1008,14 +1043,16 @@
     importJson(v);
   };
   ACTIONS.resetAll = function () {
-    if (!confirm('Cancellare tutti i progressi (flashcard, quiz, simulazioni) da questo browser?')) return;
-    var theme = S.prefs.theme;
-    S = blankState(); S.prefs.theme = theme; save(); render(); toast('Progressi azzerati');
+    ask('Cancellare tutti i progressi (flashcard, quiz, simulazioni) da questo browser?', 'Azzera', function () {
+      var theme = S.prefs.theme;
+      S = blankState(); S.prefs.theme = theme; save(); render(); toast('Progressi azzerati');
+    }, true);
   };
 
   /* ============================================================ tastiera */
 
   document.addEventListener('keydown', function (e) {
+    if (!$modal.hidden) { if (e.key === 'Escape') closeModal(); return; }
     if (e.target && /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName) && e.target.type !== 'checkbox') return;
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     if (!session) return;

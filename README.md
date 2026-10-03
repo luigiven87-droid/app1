@@ -14,6 +14,7 @@ che si apre con un doppio clic su computer e telefono. Nessuna chiamata esterna.
 ```sh
 python3 build.py            # report sintetico + dist/ripasso-sna12.html
 python3 build.py --report   # report con esempi per tipo
+python3 build.py --artifact # dist/ripasso-sna12-artifact.html, versione per pagina ospitata
 ```
 
 Serve solo Python 3 (libreria standard). Lo script legge `materiali/*.md` senza
