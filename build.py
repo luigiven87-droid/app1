@@ -20,6 +20,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
+from sna12.figure import attach  # noqa: E402
 from sna12.ripassi import iter_points, parse_ripasso  # noqa: E402
 
 # Volumi lasciati fuori di proposito.
@@ -28,7 +29,9 @@ ESCLUSI = ("RIPASSO_5_dettagli_di_nicchia.md",)
 
 def collect(materiali):
     paths = sorted(glob.glob(os.path.join(materiali, "RIPASSO_*.md")))
-    return [parse_ripasso(p) for p in paths if os.path.basename(p) not in ESCLUSI]
+    volumes = [parse_ripasso(p) for p in paths if os.path.basename(p) not in ESCLUSI]
+    collect.figures = attach(volumes)
+    return volumes
 
 
 def build_data(volumes):
@@ -75,6 +78,9 @@ def report(volumes):
             sum(1 for p in pts if p["t"] == "row"), sum(1 for p in pts if p.get("nov")),
             sum(1 for p in pts if p.get("num"))))
     lines.append("%-36s %13d" % ("TOTALE PUNTI", tot))
+    figs = getattr(collect, "figures", [])
+    lines.append("")
+    lines.append("Grafici e schemi: %d (%s)" % (len(figs), ", ".join(c for c, _ in figs)))
     return "\n".join(lines)
 
 

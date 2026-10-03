@@ -24,6 +24,9 @@
   --nov-soft: #f2e4f5;
   --scrim: rgba(10, 16, 28, .5);
   --shadow: 0 1px 2px rgba(15, 25, 45, .06), 0 2px 8px rgba(15, 25, 45, .05);
+  --s1: #2a78d6;
+  --s2: #eb6834;
+  --s3: #1baf7a;
   --read: "Charter", "Bitstream Charter", "Iowan Old Style", "Sitka Text", Cambria, Georgia, "Noto Serif", serif;
   --ui: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
@@ -55,6 +58,9 @@
     --nov-soft: #35233b;
     --scrim: rgba(0, 0, 0, .6);
     --shadow: 0 1px 2px rgba(0, 0, 0, .4);
+    --s1: #3987e5;
+    --s2: #d95926;
+    --s3: #199e70;
     color-scheme: dark;
   }
 }
@@ -82,6 +88,9 @@
   --nov-soft: #35233b;
   --scrim: rgba(0, 0, 0, .6);
   --shadow: 0 1px 2px rgba(0, 0, 0, .4);
+  --s1: #3987e5;
+  --s2: #d95926;
+  --s3: #199e70;
   color-scheme: dark;
 }
 
@@ -255,6 +264,40 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 16px 0; }
   display: inline-block; font-family: var(--ui); font-size: 11.5px; font-weight: 750; letter-spacing: .05em; text-transform: uppercase;
   color: var(--nov); background: var(--nov-soft); border-radius: 999px; padding: 1px 7px; vertical-align: 2px; white-space: nowrap;
 }
+
+/* grafici e schemi */
+.fig { margin: 18px 0 22px; padding: 12px 8px 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; }
+.fig svg { display: block; width: 100%; max-width: 470px; height: auto; margin: 0 auto; overflow: visible; }
+.fig figcaption { font-family: var(--ui); font-size: 14px; line-height: 1.45; color: var(--muted); margin: 8px 6px 0; max-width: 40em; }
+.fig text { fill: var(--text); font-family: var(--ui); font-size: 12px; }
+.fig text.tm { fill: var(--muted); }
+.fig text.tb { font-weight: 700; }
+.fig text.sm { font-size: 11px; }
+.fig text.hl { paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; }
+.fig polyline, .fig path { fill: none; }
+.fig .c1, .fig .c2, .fig .c3 { stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+.fig .c1 { stroke: var(--s1); }
+.fig .c2 { stroke: var(--s2); }
+.fig .c3 { stroke: var(--s3); }
+.fig .dash { stroke-dasharray: 6 5; }
+.fig .ax { stroke: var(--muted); stroke-width: 1.5; }
+.fig .gd { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 3; }
+.fig .ln { stroke: var(--muted); stroke-width: 1.5; }
+.fig .ah { fill: var(--muted); }
+.fig .sh { fill: var(--text); fill-opacity: .13; }
+.fig .pt { fill: var(--text); stroke: var(--surface); stroke-width: 2; }
+.fig .pto { fill: var(--surface); stroke: var(--text); stroke-width: 1.5; }
+.fig .bx { fill: var(--surface); stroke: var(--border); stroke-width: 1.5; }
+.fig .bx.acc { fill: var(--accent-soft); stroke: var(--accent); }
+.fig .bx.dashb { stroke-dasharray: 5 4; }
+.fig .band { fill: var(--brief); stroke: none; }
+.fig .ide { fill: var(--surface-2); stroke: var(--border); stroke-width: 1.5; }
+.fig .str { stroke-width: 3; }
+.fig .lv0 { fill: var(--accent); }
+.fig .lv0 + text, .fig text.on-acc { fill: var(--accent-ink); }
+.fig .lv1 { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1; }
+.fig .lv2 { fill: var(--brief); stroke: var(--border); stroke-width: 1; }
+.fig .lv3 { fill: var(--surface-2); stroke: var(--border); stroke-width: 1; }
 
 /* gruppi (Da ripassare, Cerca) */
 .grp { margin: 0 0 22px; }

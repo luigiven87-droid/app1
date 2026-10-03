@@ -92,6 +92,20 @@ const shot = (page, name, full) => page.screenshot({ path: path.join(SHOTS, name
   await shot(page, '04-essenziale.png', true);
   await page.click('[data-act=seg][data-name=mode][data-val=all]');
 
+  // grafici: visibili in «Tutto», nascosti nelle viste filtrate
+  await page.click('[data-tab=idx]');
+  await page.click('.srow[data-k="4:E2"]');
+  const nFig = await page.$$eval('.rd .fig svg', e => e.length);
+  check(nFig === 2, 'E2: 2 grafici (costi e monopolio)');
+  const figW = await page.$eval('.rd .fig svg', el => el.getBoundingClientRect().width);
+  check(figW > 300 && figW <= 370, 'grafico largo quanto lo schermo (' + Math.round(figW) + ' px)');
+  await page.locator('.rd .fig').first().scrollIntoViewIfNeeded();
+  await shot(page, '04b-grafico.png');
+  check(await noHScroll(page), 'scheda con grafici: nessuno scroll orizzontale');
+  await page.click('[data-act=seg][data-name=mode][data-val=ess]');
+  check((await page.$$eval('.rd .fig', e => e.length)) === 0, 'vista Essenziale: niente grafici');
+  await page.click('[data-act=seg][data-name=mode][data-val=all]');
+
   // giro di ripasso
   await page.click('[data-tab=rip]');
   check((await page.textContent('#rv-count')).trim() === '1 punto', '«Da ripassare»: 1 punto');

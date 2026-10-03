@@ -357,6 +357,10 @@
         if (all) out.push('<p class="sub">' + b.h + '</p>'); else heads.push('<p class="sub">' + b.h + '</p>');
         return;
       }
+      if (b.t === 'fig') {
+        if (all) out.push('<figure class="fig">' + b.svg + '<figcaption>' + esc(b.cap) + '</figcaption></figure>');
+        return;
+      }
       var inner = '';
       if (b.t === 'box') {
         var x = blocksHtml(b.b, keep, all);

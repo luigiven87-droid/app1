@@ -75,6 +75,40 @@ class TestRipassi(unittest.TestCase):
             self.assertIn(frase, allt + " " + " ".join(r[1] for p in self.points for r in p.get("a", [])))
 
 
+class TestFigure(unittest.TestCase):
+    def test_figure_agganciate_e_ben_formate(self):
+        import xml.etree.ElementTree as ET
+        from sna12 import figure
+        vols = collect(REAL)  # collect() aggancia le figure; un aggancio mancante solleva errore
+        figs = []
+
+        def walk(bs):
+            for b in bs:
+                if b["t"] == "fig":
+                    figs.append(b)
+                elif b["t"] == "box":
+                    walk(b["b"])
+        for v in vols:
+            for sc in v["schede"]:
+                walk(sc["b"])
+        self.assertEqual(len(figs), len(figure.FIGURES))
+        for f in figs:
+            root = ET.fromstring(f["svg"])
+            self.assertTrue(root.get("aria-label"))
+            self.assertTrue(f["cap"])
+            self.assertNotIn("<script", f["svg"])
+
+    def test_costi_minimi(self):
+        """Il CMa taglia CVMe e CMe esattamente nel loro minimo (come dice la scheda E2)."""
+        from sna12.figure import curve_costi
+        cvme, cma, cme, q_cv, q_ce = curve_costi()
+        self.assertAlmostEqual(cma(q_cv), cvme(q_cv), places=6)
+        self.assertAlmostEqual(cma(q_ce), cme(q_ce), places=6)
+        for d in (-0.05, 0.05):
+            self.assertGreater(cvme(q_cv + d), cvme(q_cv))
+            self.assertGreater(cme(q_ce + d), cme(q_ce))
+
+
 class TestInline(unittest.TestCase):
     def test_inline(self):
         self.assertEqual(md_inline("**a** e *b* \\* c"), "<b>a</b> e <i>b</i> * c")

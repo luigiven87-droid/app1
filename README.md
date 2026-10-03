@@ -11,6 +11,14 @@ si rilegge solo quello che manca.
 - **Da ripassare**: tutti i punti segnati, raggruppati per scheda; filtri per
   volume, novità, pagine dei numeri.
 - **Cerca**: parole, articoli e numeri in tutti i volumi.
+- **Grafici e schemi** (22, in `sna12/figure.py`): i grafici di economia che il vol. 4
+  cita (prezzo massimo, curve di costo, IS-LM) più casi limite IS-LM, AD-AS,
+  Phillips, Laffer, ottimo del consumatore, monopolio; schemi per procedimento
+  (D4), termini processuali in scala (D10), fonti (C1), revisione costituzionale
+  (C3), Mintzberg, Maslow, Kingdon, catena del valore, matrici 2×2 (Wilson,
+  Thompson-Tuden, Matland, beni), fasi di entrata e spesa. Ogni figura è
+  agganciata a un punto della scheda: se il testo cambia e l'aggancio non si
+  trova più, la build si ferma e lo dice.
 - Volumi letti: `RIPASSO_1` … `RIPASSO_4`. Il vol. 5 (dettagli di nicchia) è
   escluso di proposito (`ESCLUSI` in `build.py`).
 
@@ -52,4 +60,5 @@ tests/run_all.sh   # build + test del parser + browser headless in vista telefon
 
 - `build.py` — legge i materiali, stampa il riepilogo, scrive la pagina
 - `sna12/ripassi.py` — parser: schede, sezioni, riquadri, tabelle, punti
+- `sna12/figure.py` — grafici e schemi in SVG, con i loro agganci
 - `src/app.html`, `src/app.css`, `src/app.js` — interfaccia
