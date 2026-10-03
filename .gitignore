@@ -1,5 +1,5 @@
 # Materiali di studio e pagina generata: restano in locale (il repository è pubblico).
-materiali/
-dist/
+/materiali/
+/dist/
 __pycache__/
 *.pyc
