@@ -120,7 +120,7 @@
     var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     var days = Math.round((EXAM - today) / 86400000);
     var el = document.getElementById('countdown');
-    if (days > 1) el.textContent = 'Preselettiva 6 ottobre 2026 · mancano ' + days + ' giorni';
+    if (days > 1) el.textContent = 'Preselettiva del 6 ottobre · mancano ' + days + ' giorni';
     else if (days === 1) el.textContent = 'Preselettiva domani, 6 ottobre 2026';
     else if (days === 0) el.textContent = 'Preselettiva oggi · in bocca al lupo';
     else el.textContent = 'Preselettiva del 6 ottobre 2026';
@@ -281,7 +281,7 @@
       '<div class="field"><span class="lbl">Carte per sessione</span>' + seg('fcSize', [10, 20, 40, 'all'], p.size, ['10', '20', '40', 'Tutte']) + '</div>' +
       '</div>' +
       '<div class="panel">' +
-      '<div class="lbl">Nel filtro: ' + plural(n, 'carta', 'carte') + ' · nuove ' + fresh + ' · sbagliate ' + wrong + '</div>' +
+      '<div class="lbl" id="fc-count">Nel filtro: ' + plural(n, 'carta', 'carte') + ' · nuove ' + fresh + ' · sbagliate ' + wrong + '</div>' +
       '<div class="boxes" aria-label="Carte per scatola">' +
       '<div><span class="n">' + fresh + '</span><span class="l">nuove</span></div>' +
       [1, 2, 3, 4, 5].map(function (b) { return '<div><span class="n">' + boxes[b] + '</span><span class="l">scatola ' + b + '</span></div>'; }).join('') +
@@ -853,8 +853,10 @@
     var codes = uniq(wrongQs.map(function (q) { return simCode(sim, q); }));
     var used = Math.min(SIM_MINUTES * 60000, st.submitted - st.start);
     function line(t) {
-      return '<td class="num">' + t.ok + (t.best ? '+' + t.best : '') + '</td><td class="num">' + (t.ko + t.worst + t.neu + t.nc) + '</td><td class="num">' + t.om + '</td><td class="num"><b>' + Scoring.fmt(t.p) + '</b></td><td class="num muted">' + Scoring.fmt(t.max) + '</td>';
+      return '<td class="num">' + (t.ok + t.best) + ' · ' + (t.ko + t.worst + t.neu + t.nc) + ' · ' + t.om + '</td>' +
+        '<td class="num"><b>' + Scoring.fmt(t.p) + '</b><br><span class="small muted">su ' + (t.max / 100) + '</span></td>';
     }
+    var thead = '<thead><tr><th>Parte</th><th class="num">G · S · O</th><th class="num">Punti</th></tr></thead>';
     var h = '' +
       '<h1>Esito · ' + esc(sim.title) + '</h1>' +
       '<div class="panel"><div class="score">' + Scoring.fmt(R.all.p) + '<span class="muted" style="font-size:20px"> / ' + Scoring.fmt(R.all.max) + '</span></div>' +
@@ -866,12 +868,12 @@
       '<span>Situazionali: migliore / neutra / peggiore</span><span>' + R.all.best + ' / ' + (R.all.neu + R.all.nc) + ' / ' + R.all.worst + '</span>' +
       '<span>Omesse</span><span>' + R.all.om + '</span>' +
       '</div></div>' +
-      '<div class="panel"><h2 style="margin-top:0">Per parte</h2><div class="tw"><table><thead><tr><th>Parte</th><th class="num">Giuste</th><th class="num">Sbagl.</th><th class="num">Omesse</th><th class="num">Punti</th><th class="num">Max</th></tr></thead><tbody>' +
+      '<div class="panel"><h2 style="margin-top:0">Per parte</h2><div class="tw"><table>' + thead + '<tbody>' +
       R.parts.map(function (x) {
-        return '<tr><td>' + esc(x.part.roman) + ' · ' + esc(x.part.title) + '</td>' + line(x.t) + '</tr>';
+        return '<tr><td><b>' + esc(x.part.roman) + '</b> · ' + esc(x.part.title) + '</td>' + line(x.t) + '</tr>';
       }).join('') + '</tbody></table></div>' +
-      '<p class="small muted">«Giuste» = esatte + risposte migliori; nei situazionali le neutre contano fra le sbagliate ma valgono 0,50.</p></div>' +
-      '<div class="panel"><h2 style="margin-top:0">Archivio e Formez</h2><div class="tw"><table><thead><tr><th>Gruppo</th><th class="num">Giuste</th><th class="num">Sbagl.</th><th class="num">Omesse</th><th class="num">Punti</th><th class="num">Max</th></tr></thead><tbody>' +
+      '<p class="small muted">G · S · O = giuste · sbagliate · omesse. Giuste = esatte e risposte migliori; nei situazionali le neutre stanno fra le sbagliate ma valgono 0,50.</p></div>' +
+      '<div class="panel"><h2 style="margin-top:0">Archivio e Formez</h2><div class="tw"><table>' + thead.replace('Parte', 'Gruppo') + '<tbody>' +
       '<tr><td>Archivio (' + R.arch.n + ')</td>' + line(R.arch) + '</tr>' +
       '<tr><td>Formez «mai visti» (' + R.formez.n + ')</td>' + line(R.formez) + '</tr>' +
       '</tbody></table></div></div>' +
