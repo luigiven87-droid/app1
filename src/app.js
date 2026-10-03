@@ -4,15 +4,46 @@
   var DATA = JSON.parse(document.getElementById('data').textContent);
   var $app = document.getElementById('app');
   var $tabs = document.getElementById('tabs');
-  var STORE_KEY = 'sna12-ripasso-v1';
+  var $bar = document.getElementById('bar');
+  var $modal = document.getElementById('modal');
+  var STORE_KEY = 'sna12-rilettura-v1';
   var EXAM = new Date(2026, 9, 6); // 6 ottobre 2026
-  var SIM_MINUTES = 90;
+  var RIP = 1, OK = 2; // stati di un punto: 0 non segnato, 1 da ripassare, 2 lo so
+
+  /* ============================================================ indice dei contenuti */
+
+  var SCHEDE = [];          // [{vol, volTitle, sc}]
+  var schedaByKey = {};
+  var PT = {};              // id → {p, sk, vol, sec}
+  var ORDER = [];           // id in ordine di lettura
+  var ptsOfScheda = {};     // key → [id]
+
+  function stripTags(h) { return String(h).replace(/<[^>]+>/g, ''); }
+  function walk(blocks, fn, ctx) {
+    blocks.forEach(function (b) {
+      if (b.t === 'h') { ctx.sec = stripTags(b.h); return; }
+      if (b.t === 'box') { walk(b.b, fn, ctx); return; }
+      if (b.t === 'table') { b.rows.forEach(function (r) { fn(r, ctx); }); return; }
+      if (b.t === 'p' || b.t === 'li' || b.t === 'row') fn(b, ctx);
+    });
+  }
+  DATA.volumes.forEach(function (v) {
+    v.schede.forEach(function (sc) {
+      var entry = { vol: v.vol, volTitle: v.title, sc: sc };
+      SCHEDE.push(entry);
+      schedaByKey[sc.key] = entry;
+      ptsOfScheda[sc.key] = [];
+      walk(sc.b, function (p, ctx) {
+        PT[p.id] = { p: p, sk: sc.key, vol: v.vol, sec: ctx.sec };
+        ORDER.push(p.id);
+        ptsOfScheda[sc.key].push(p.id);
+      }, { sec: '' });
+    });
+  });
 
   /* ============================================================ stato */
 
-  function blankState() {
-    return { v: 1, cards: {}, quiz: {}, sims: {}, prefs: {} };
-  }
+  function blankState() { return { v: 1, marks: {}, resetAt: 0, prefs: {} }; }
   var storageOk = true;
   function loadState() {
     try {
@@ -21,7 +52,9 @@
         var s = JSON.parse(raw);
         if (s && s.v === 1) {
           var b = blankState();
-          ['cards', 'quiz', 'sims', 'prefs'].forEach(function (k) { if (s[k] && typeof s[k] === 'object') b[k] = s[k]; });
+          if (s.marks && typeof s.marks === 'object') b.marks = s.marks;
+          if (s.prefs && typeof s.prefs === 'object') b.prefs = s.prefs;
+          b.resetAt = Number(s.resetAt) || 0;
           return b;
         }
       }
@@ -29,12 +62,119 @@
     return blankState();
   }
   var S = loadState();
-  function save() {
+  function saveLocal() {
     try { localStorage.setItem(STORE_KEY, JSON.stringify(S)); }
-    catch (e) {
-      if (storageOk) toast('Attenzione: il browser non salva i progressi. Usa «Esporta progressi».');
-      storageOk = false;
+    catch (e) { storageOk = false; }
+  }
+  function st(id) { var m = S.marks[id]; return m ? m[0] : 0; }
+  function stamp(id) { var m = S.marks[id]; return m ? m[1] : 0; }
+
+  /* ============================================================ salvataggio nell'account (pagina su claude.ai) */
+
+  var sync = { mode: 'local', coll: null, pending: {}, busy: {}, timers: {}, first: true };
+
+  function syncLabel() {
+    if (sync.mode === 'cloud') return 'Progressi salvati nel tuo account Claude: li ritrovi su ogni dispositivo.';
+    if (sync.mode === 'connecting') return 'Collegamento al tuo account…';
+    if (sync.mode === 'error') return 'Salvataggio nell\'account non riuscito: i progressi restano in questo browser.';
+    return 'Progressi salvati in questo browser.';
+  }
+  function showSync() {
+    var els = document.querySelectorAll('[data-sync]');
+    for (var i = 0; i < els.length; i++) {
+      els[i].textContent = syncLabel();
+      els[i].setAttribute('data-mode', sync.mode);
     }
+  }
+
+  function startSync() {
+    if (!window.claude || typeof window.claude.use !== 'function') return;
+    sync.mode = 'connecting'; showSync();
+    Promise.all([window.claude.use('user'), window.claude.use('db')]).then(function (r) {
+      var user = r[0], db = r[1];
+      if (!user || !db) { sync.mode = 'local'; showSync(); return null; }
+      return user.id().then(function (uid) {
+        if (!uid) { sync.mode = 'local'; showSync(); return; }
+        sync.coll = db.collection('data/users/' + uid);
+        sync.coll.onSnapshot(onRemote, function () { sync.mode = 'error'; showSync(); });
+      });
+    }).catch(function () { sync.mode = 'error'; showSync(); });
+  }
+
+  function onRemote(snap) {
+    var changed = [];
+    var remote = {};
+    var resetAt = 0;
+    snap.docs.forEach(function (d) {
+      var data = d.data() || {};
+      if (d.id === 'meta') { resetAt = Number(data.resetAt) || 0; return; }
+      var m = data.m || {};
+      Object.keys(m).forEach(function (id) { remote[id] = m[id]; });
+    });
+    if (resetAt > (S.resetAt || 0)) {
+      S.resetAt = resetAt;
+      Object.keys(S.marks).forEach(function (id) {
+        if (stamp(id) <= resetAt) { delete S.marks[id]; changed.push(id); }
+      });
+    }
+    Object.keys(remote).forEach(function (id) {
+      var r = remote[id];
+      if (!Array.isArray(r) || r[1] <= (S.resetAt || 0)) return;
+      if (r[1] > stamp(id)) { S.marks[id] = [r[0], r[1]]; changed.push(id); }
+    });
+    if (sync.first) {
+      // punti segnati qui prima del collegamento (o più recenti): li porto nell'account
+      sync.first = false;
+      Object.keys(S.marks).forEach(function (id) {
+        var r = remote[id];
+        if (PT[id] && (!r || r[1] < stamp(id))) queue(id);
+      });
+    }
+    sync.mode = 'cloud';
+    showSync();
+    if (changed.length) { saveLocal(); changed.forEach(paintPoint); refreshProgress(); }
+  }
+
+  function queue(id) {
+    if (!sync.coll || !PT[id]) return;
+    var vol = PT[id].vol;
+    (sync.pending[vol] = sync.pending[vol] || {})[id] = S.marks[id] || [0, Date.now()];
+    clearTimeout(sync.timers[vol]);
+    sync.timers[vol] = setTimeout(function () { flush(vol); }, 700);
+  }
+  function flush(vol) {
+    if (!sync.coll || sync.busy[vol]) return;
+    var batch = sync.pending[vol];
+    if (!batch || !Object.keys(batch).length) return;
+    sync.pending[vol] = {};
+    sync.busy[vol] = true;
+    var ref = sync.coll.doc('v' + vol);
+    ref.update({ m: batch }).catch(function (e) {
+      if (!e || e.code !== 'invalid_argument') throw e;
+      // il documento del volume non esiste ancora: lo creo con tutti i segni del volume
+      var all = {};
+      Object.keys(S.marks).forEach(function (id) { if (PT[id] && PT[id].vol === vol) all[id] = S.marks[id]; });
+      return ref.set({ m: all });
+    }).then(function () {
+      if (sync.mode !== 'cloud') { sync.mode = 'cloud'; showSync(); }
+    }, function () {
+      sync.mode = 'error'; showSync();
+      var p = sync.pending[vol] || {};
+      Object.keys(batch).forEach(function (id) { if (!p[id]) p[id] = batch[id]; });
+      sync.pending[vol] = p;
+    }).then(function () {
+      sync.busy[vol] = false;
+      if (sync.pending[vol] && Object.keys(sync.pending[vol]).length && sync.mode === 'cloud') flush(vol);
+    });
+  }
+  function flushAll() { Object.keys(sync.pending).forEach(function (v) { clearTimeout(sync.timers[v]); flush(Number(v)); }); }
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') flushAll(); });
+
+  function setMark(id, s) {
+    S.marks[id] = [s, Date.now()];
+    S.prefs.last = { sk: PT[id].sk, id: id };
+    saveLocal();
+    queue(id);
   }
 
   /* ============================================================ utilità */
@@ -44,13 +184,6 @@
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
   }
-  function shuffle(a) {
-    for (var i = a.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var t = a[i]; a[i] = a[j]; a[j] = t;
-    }
-    return a;
-  }
   var toastTimer = null;
   function toast(msg) {
     var t = document.getElementById('toast');
@@ -59,66 +192,37 @@
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function () { t.classList.remove('show'); }, 2600);
   }
-  /* Conferma dentro la pagina: confirm() non funziona ovunque (pagine ospitate). */
-  var $modal = document.getElementById('modal');
+  function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   var modalYes = null;
-  var modalFocus = null;
   function ask(msg, yesLabel, onYes, danger) {
     modalYes = onYes;
-    modalFocus = document.activeElement;
     $modal.innerHTML = '<div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-msg">' +
-      '<p id="modal-msg">' + esc(msg).replace(/\n/g, '<br>') + '</p>' +
+      '<p id="modal-msg">' + esc(msg) + '</p>' +
       '<div class="row"><button class="btn" type="button" id="modal-no">Annulla</button>' +
-      '<button class="btn ' + (danger ? 'ko' : 'primary') + '" type="button" id="modal-yes">' + esc(yesLabel) + '</button></div></div>';
+      '<button class="btn ' + (danger ? 'danger' : 'primary') + '" type="button" id="modal-yes">' + esc(yesLabel) + '</button></div></div>';
     $modal.hidden = false;
     document.getElementById('modal-yes').focus();
   }
-  function closeModal() {
-    $modal.hidden = true;
-    $modal.innerHTML = '';
-    modalYes = null;
-    if (modalFocus && modalFocus.focus) { try { modalFocus.focus(); } catch (e) { /* elemento sparito */ } }
-  }
+  function closeModal() { $modal.hidden = true; $modal.innerHTML = ''; modalYes = null; }
   $modal.addEventListener('click', function (e) {
     if (e.target.id === 'modal-yes') { var f = modalYes; closeModal(); if (f) f(); }
     else if (e.target.id === 'modal-no' || e.target === $modal) closeModal();
   });
-  function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
-  function copyText(text) {
-    function fallback() {
-      var ta = document.createElement('textarea');
-      ta.value = text; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
-      document.body.appendChild(ta); ta.select();
-      var ok = false;
-      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
-      document.body.removeChild(ta);
-      toast(ok ? 'Copiato' : 'Copia non riuscita: tieni premuto sul testo e copialo a mano');
+
+  function copyText(text, fallbackEl) {
+    function manual() {
+      if (fallbackEl) { fallbackEl.focus(); fallbackEl.select(); }
+      toast('Copia automatica non riuscita: il testo è selezionato, copialo a mano');
     }
-    if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(text).then(function () { toast('Copiato'); }, fallback);
-    } else fallback();
-  }
-  function opt(value, label, selected) {
-    return '<option value="' + esc(value) + '"' + (selected ? ' selected' : '') + '>' + esc(label) + '</option>';
-  }
-  function check(name, label, on) {
-    return '<label class="check"><input type="checkbox" data-change="' + name + '"' + (on ? ' checked' : '') + '> <span>' + label + '</span></label>';
-  }
-  function seg(name, values, current, labels) {
-    return '<div class="seg" role="group">' + values.map(function (v, i) {
-      return '<button type="button" data-act="seg" data-name="' + name + '" data-val="' + v + '" aria-pressed="' + (String(v) === String(current)) + '">' + esc(labels ? labels[i] : v) + '</button>';
-    }).join('') + '</div>';
-  }
-  function scrollTop() { window.scrollTo(0, 0); }
-  function fmtClock(ms) {
-    if (ms < 0) ms = 0;
-    var s = Math.floor(ms / 1000);
-    var m = Math.floor(s / 60);
-    return String(m).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
-  }
-  function stamp() {
-    var d = new Date();
-    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () { toast('Copiato'); }, manual);
+        return;
+      }
+    } catch (e) { /* passa al metodo manuale */ }
+    manual();
   }
 
   /* ============================================================ tema e testata */
@@ -130,76 +234,77 @@
     if (t === 'auto') {
       if (HOST_THEME) document.documentElement.setAttribute('data-theme', HOST_THEME);
       else document.documentElement.removeAttribute('data-theme');
-    }
-    else document.documentElement.setAttribute('data-theme', t);
+    } else document.documentElement.setAttribute('data-theme', t);
     var btn = document.getElementById('theme-btn');
     btn.textContent = t === 'auto' ? '◐' : (t === 'light' ? '☀' : '☾');
-    btn.setAttribute('aria-label', 'Tema: ' + (t === 'auto' ? 'automatico' : t === 'light' ? 'chiaro' : 'scuro') + '. Tocca per cambiare');
+    btn.setAttribute('aria-label', 'Tema: ' + ({ auto: 'automatico', light: 'chiaro', dark: 'scuro' })[t] + '. Tocca per cambiare');
   }
   document.getElementById('theme-btn').addEventListener('click', function () {
     var t = S.prefs.theme || 'auto';
     S.prefs.theme = THEMES[(THEMES.indexOf(t) + 1) % THEMES.length];
-    save(); applyTheme();
+    saveLocal(); applyTheme();
     toast('Tema: ' + ({ auto: 'automatico', light: 'chiaro', dark: 'scuro' })[S.prefs.theme]);
   });
-
   function countdown() {
     var now = new Date();
-    var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    var days = Math.round((EXAM - today) / 86400000);
+    var days = Math.round((EXAM - new Date(now.getFullYear(), now.getMonth(), now.getDate())) / 86400000);
     var el = document.getElementById('countdown');
     if (days > 1) el.textContent = 'Preselettiva del 6 ottobre · mancano ' + days + ' giorni';
-    else if (days === 1) el.textContent = 'Preselettiva domani, 6 ottobre 2026';
+    else if (days === 1) el.textContent = 'Preselettiva domani, 6 ottobre';
     else if (days === 0) el.textContent = 'Preselettiva oggi · in bocca al lupo';
     else el.textContent = 'Preselettiva del 6 ottobre 2026';
   }
 
   /* ============================================================ navigazione */
 
-  var TABS = [{ id: 'flash', label: 'Flashcard' }];
-  if (DATA.quiz && DATA.quiz.questions.length) TABS.push({ id: 'quiz', label: 'Quiz' });
-  if (DATA.sims && DATA.sims.length) TABS.push({ id: 'sim', label: 'Simulazione' });
-  TABS.push({ id: 'prog', label: 'Progressi' });
-
-  var view = { tab: 'flash', screen: 'home' };
-  var session = null; // sessione in corso (flashcard o quiz)
+  var TABS = [
+    { id: 'idx', label: 'Indice' },
+    { id: 'rip', label: 'Da ripassare' },
+    { id: 'find', label: 'Cerca' },
+    { id: 'prog', label: 'Progressi' }
+  ];
+  var view = { tab: 'idx' };
+  var SCREENS = {}, ACTIONS = {}, CHANGES = {};
 
   function renderTabs() {
+    var tab = view.tab === 'sch' ? 'idx' : view.tab;
     $tabs.innerHTML = TABS.map(function (t) {
-      return '<button class="tab" role="tab" type="button" data-tab="' + t.id + '" aria-selected="' + (view.tab === t.id) + '">' + t.label + '</button>';
+      return '<button class="tab" role="tab" type="button" data-tab="' + t.id + '" aria-selected="' + (tab === t.id) + '">' + t.label + '</button>';
     }).join('');
   }
   $tabs.addEventListener('click', function (e) {
     var b = e.target.closest('[data-tab]');
     if (!b) return;
-    var t = b.getAttribute('data-tab');
-    session = null;
-    stopTimer();
-    view = { tab: t, screen: 'home' };
-    S.prefs.tab = t; save();
-    render();
+    go({ tab: b.getAttribute('data-tab') });
   });
-
+  function go(v, keepScroll) {
+    view = v;
+    S.prefs.view = v; saveLocal();
+    render();
+    if (!keepScroll) window.scrollTo(0, 0);
+  }
+  var after = [];
   function render() {
+    unfocus();
     renderTabs();
-    var fn = SCREENS[view.tab + ':' + view.screen] || SCREENS['flash:home'];
-    $app.innerHTML = fn();
-    afterRender();
-  }
-  var afterHooks = [];
-  function afterRender() {
-    var hs = afterHooks; afterHooks = [];
-    hs.forEach(function (f) { f(); });
+    $app.innerHTML = (SCREENS[view.tab] || SCREENS.idx)();
+    showSync();
+    var a = after; after = [];
+    a.forEach(function (f) { f(); });
   }
 
-  var ACTIONS = {};
-  var CHANGES = {};
-  var SCREENS = {};
   $app.addEventListener('click', function (e) {
     var t = e.target.closest('[data-act]');
-    if (!t || !$app.contains(t)) return;
-    var a = ACTIONS[t.getAttribute('data-act')];
-    if (a) { e.preventDefault(); a(t, e); }
+    if (t && $app.contains(t)) {
+      var a = ACTIONS[t.getAttribute('data-act')];
+      if (a) { e.preventDefault(); a(t, e); }
+      return;
+    }
+    var it = e.target.closest('.it');
+    if (it && $app.contains(it)) {
+      var id = it.getAttribute('data-id');
+      if (focusId === id) unfocus(); else focusPoint(id, false);
+    }
   });
   $app.addEventListener('change', function (e) {
     var t = e.target.closest('[data-change]');
@@ -208,844 +313,417 @@
     if (c) c(t, e);
   });
   ACTIONS.seg = function (t) {
-    var name = t.getAttribute('data-name');
-    var val = t.getAttribute('data-val');
-    var c = CHANGES[name];
-    if (c) c({ value: val, checked: true });
+    var c = CHANGES[t.getAttribute('data-name')];
+    if (c) c({ value: t.getAttribute('data-val') });
   };
-
-  /* ============================================================ FLASHCARD */
-
-  var TYPE_LABEL = { inbreve: 'In breve', trappola: 'Da non confondere', tabella: 'Tabella', dettaglio: 'Dettaglio di nicchia' };
-  var schedaByKey = {};
-  DATA.schede.forEach(function (s) { schedaByKey[s.key] = s; });
-  var volByN = {};
-  DATA.volumes.forEach(function (v) { volByN[v.vol] = v; });
-
-  function schedaName(key) {
-    var s = schedaByKey[key];
-    if (!s) return '';
-    return s.code ? s.code + ' — ' + s.title : s.title;
+  function seg(name, values, labels, current) {
+    return '<div class="seg" role="group">' + values.map(function (v, i) {
+      return '<button type="button" data-act="seg" data-name="' + name + '" data-val="' + v + '" aria-pressed="' + (String(v) === String(current)) + '">' + labels[i] + '</button>';
+    }).join('') + '</div>';
   }
-  function fcPrefs() {
-    var p = S.prefs.fc || (S.prefs.fc = {});
-    if (p.vol === undefined) p.vol = '';
-    if (p.scheda === undefined) p.scheda = '';
-    if (!p.size) p.size = 20;
-    return p;
+  function check(name, label, on) {
+    return '<label class="check"><input type="checkbox" data-change="' + name + '"' + (on ? ' checked' : '') + '> <span>' + label + '</span></label>';
   }
-  function cardState(id) { return S.cards[id] || null; }
-  function cardBox(id) { var s = S.cards[id]; return s ? s.b : 1; }
 
-  function fcFiltered(p) {
-    return DATA.cards.filter(function (c) {
-      if (p.vol && String(c.vol) !== String(p.vol)) return false;
-      if (p.scheda && c.schedaKey !== p.scheda) return false;
-      if (p.nov && !c.nov) return false;
-      if (p.num && !c.numeri) return false;
-      if (p.wrong) { var s = S.cards[c.id]; if (!s || !s.w) return false; }
-      return true;
+  /* ============================================================ punti: disegno e segni */
+
+  var NOV = '<span class="nov">novità</span>';
+  function pointHtml(p) {
+    var s = st(p.id);
+    var attrs = ' class="it ' + p.t + '" data-id="' + p.id + '" data-s="' + s + '" tabindex="0"';
+    if (p.t === 'row') {
+      var h = '<div' + attrs + '>';
+      if (p.q) h += '<div class="rq">' + (p.ql ? '<span class="rl">' + p.ql + '</span>' : '') + p.q + (p.nov ? ' ' + NOV : '') + '</div>';
+      h += '<dl class="ra">' + p.a.map(function (r) { return '<dt>' + r[0] + '</dt><dd>' + r[1] + '</dd>'; }).join('') + '</dl>';
+      if (!p.q && p.nov) h += NOV;
+      return h + '</div>';
+    }
+    return '<div' + attrs + '>' + (p.t === 'li' ? '<span class="mk" aria-hidden="true">' + (p.n || '•') + '</span>' : '') +
+      '<div class="tx">' + p.h + (p.nov ? ' ' + NOV : '') + '</div></div>';
+  }
+
+  /* Disegna i blocchi di una scheda; `keep(p)` decide quali punti mostrare.
+     In vista completa compare tutto; nelle viste filtrate titoli e riquadri
+     compaiono solo se contengono punti visibili. */
+  function blocksHtml(blocks, keep, all) {
+    var out = [], heads = [];
+    function flushHeads() { out.push(heads.join('')); heads = []; }
+    blocks.forEach(function (b) {
+      if (b.t === 'h') {
+        if (all) out.push('<h3 class="sec-h">' + b.h + '</h3>'); else heads = ['<h3 class="sec-h">' + b.h + '</h3>'];
+        return;
+      }
+      if (b.t === 'sub') {
+        if (all) out.push('<p class="sub">' + b.h + '</p>'); else heads.push('<p class="sub">' + b.h + '</p>');
+        return;
+      }
+      var inner = '';
+      if (b.t === 'box') {
+        var x = blocksHtml(b.b, keep, all);
+        if (x) inner = '<section class="box ' + b.k + '"><h4 class="box-t">' + esc(b.title) + '</h4>' + x + '</section>';
+      } else if (b.t === 'table') {
+        var rows = b.rows.filter(keep).map(pointHtml).join('');
+        if (rows) inner = '<div class="tbl">' + rows + '</div>';
+      } else if (keep(b)) inner = pointHtml(b);
+      if (inner) { flushHeads(); out.push(inner); }
     });
+    return out.join('');
   }
 
-  function buildFcSession(cards, size, docOrder) {
-    var byBox = [[], [], [], [], [], []];
-    var pool = docOrder ? cards.slice() : shuffle(cards.slice());
-    pool.forEach(function (c) { byBox[cardBox(c.id)].push(c); });
-    var out = [];
-    for (var b = 1; b <= 5; b++) {
-      var wrong = [], seen = [], fresh = [];
-      byBox[b].forEach(function (c) {
-        var s = S.cards[c.id];
-        if (!s) fresh.push(c); else if (s.w) wrong.push(c); else seen.push(c);
+  function counts(ids) {
+    var c = { n: ids.length, ok: 0, rip: 0, none: 0 };
+    ids.forEach(function (id) { var s = st(id); if (s === OK) c.ok++; else if (s === RIP) c.rip++; else c.none++; });
+    return c;
+  }
+  function pbar(c) {
+    if (!c.n) return '<div class="pbar"></div>';
+    return '<div class="pbar" role="img" aria-label="' + c.ok + ' lo so, ' + c.rip + ' da ripassare, ' + c.none + ' non segnati">' +
+      '<i class="ok" style="width:' + (100 * c.ok / c.n) + '%"></i><i class="rip" style="width:' + (100 * c.rip / c.n) + '%"></i></div>';
+  }
+  function progHtml(scope) {
+    var ids = scope === 'all' ? ORDER : scope.indexOf('sk:') === 0 ? ptsOfScheda[scope.slice(3)] :
+      ORDER.filter(function (id) { return 'vol:' + PT[id].vol === scope; });
+    var c = counts(ids);
+    return pbar(c) + '<div class="pnums"><span><b>' + c.rip + '</b> da ripassare</span><span><b>' + c.ok + '</b> lo so</span><span><b>' + c.none + '</b> non segnati</span></div>';
+  }
+  function miniProg(key) {
+    var c = counts(ptsOfScheda[key]);
+    return pbar(c) + '<span class="mini">' + (c.rip ? '<b class="r">' + c.rip + ' da ripassare</b> · ' : '') +
+      (c.none === c.n ? plural(c.n, 'punto', 'punti') : c.ok + ' di ' + c.n + ' lo so') + '</span>';
+  }
+  function refreshProgress() {
+    var els = document.querySelectorAll('[data-prog]');
+    for (var i = 0; i < els.length; i++) els[i].innerHTML = progHtml(els[i].getAttribute('data-prog'));
+    var minis = document.querySelectorAll('[data-mini]');
+    for (var j = 0; j < minis.length; j++) minis[j].innerHTML = miniProg(minis[j].getAttribute('data-mini'));
+  }
+  function paintPoint(id) {
+    var el = $app.querySelector('.it[data-id="' + id + '"]');
+    if (el) el.setAttribute('data-s', st(id));
+    if (id === focusId) paintBar();
+  }
+
+  /* ---- punto selezionato e barra in basso */
+  var focusId = null;
+  function headerBottom() { return document.querySelector('.top').getBoundingClientRect().bottom; }
+  function focusPoint(id, scroll) {
+    var prev = $app.querySelector('.it.focus');
+    if (prev) prev.classList.remove('focus');
+    var el = $app.querySelector('.it[data-id="' + id + '"]');
+    if (!el) { unfocus(); return; }
+    el.classList.add('focus');
+    focusId = id;
+    $bar.hidden = false;
+    document.body.classList.add('with-bar');
+    paintBar();
+    if (scroll) {
+      var r = el.getBoundingClientRect();
+      var top = headerBottom();
+      var bottom = window.innerHeight - $bar.getBoundingClientRect().height;
+      if (r.top < top + 8 || r.bottom > bottom - 8) {
+        window.scrollTo({ top: window.scrollY + r.top - top - 24, behavior: reduceMotion ? 'auto' : 'smooth' });
+      }
+    }
+  }
+  function unfocus() {
+    var prev = $app.querySelector('.it.focus');
+    if (prev) prev.classList.remove('focus');
+    focusId = null;
+    $bar.hidden = true;
+    document.body.classList.remove('with-bar');
+  }
+  function paintBar() {
+    var s = st(focusId);
+    $bar.querySelector('[data-mark="1"]').setAttribute('aria-pressed', String(s === RIP));
+    $bar.querySelector('[data-mark="2"]').setAttribute('aria-pressed', String(s === OK));
+  }
+  function nextPoint(dir) {
+    var els = Array.prototype.slice.call($app.querySelectorAll('.it'));
+    if (!els.length) return null;
+    var i = -1;
+    for (var k = 0; k < els.length; k++) if (els[k].getAttribute('data-id') === focusId) { i = k; break; }
+    var j = i < 0 ? (dir > 0 ? 0 : els.length - 1) : i + dir;
+    return j >= 0 && j < els.length ? els[j].getAttribute('data-id') : null;
+  }
+  function mark(s) {
+    if (!focusId) return;
+    var id = focusId;
+    var ns = st(id) === s ? 0 : s;
+    setMark(id, ns);
+    paintPoint(id);
+    refreshProgress();
+    if (ns) {
+      var nx = nextPoint(1);
+      if (nx) focusPoint(nx, true); else { unfocus(); toast('Fine della pagina'); }
+    }
+  }
+  $bar.addEventListener('click', function (e) {
+    var b = e.target.closest('button');
+    if (!b) return;
+    if (b.hasAttribute('data-mark')) mark(Number(b.getAttribute('data-mark')));
+    else if (b.getAttribute('data-nav') === 'close') unfocus();
+  });
+
+  /* ============================================================ INDICE */
+
+  SCREENS.idx = function () {
+    var last = S.prefs.last && schedaByKey[S.prefs.last.sk] ? schedaByKey[S.prefs.last.sk] : null;
+    var nrip = counts(ORDER).rip;
+    var h = '<h1>Indice</h1>' +
+      '<div class="panel">' +
+      '<div data-prog="all">' + progHtml('all') + '</div>' +
+      '<p class="small muted sync" data-sync></p>' +
+      '<div class="row">' +
+      (last ? '<button class="btn primary" data-act="open" data-k="' + esc(last.sc.key) + '" data-resume="1">Riprendi: ' + esc(last.sc.code || last.sc.title) + '</button>' : '') +
+      '<button class="btn" data-act="tab" data-t="rip">' + (nrip ? 'Rileggi i ' + nrip + ' da ripassare' : 'Da ripassare') + '</button>' +
+      '</div></div>' +
+      '<p class="hint">Apri una scheda e leggi. Tocca un punto per segnarlo <b>«Da ripassare»</b> o <b>«Lo so»</b>: nei giri successivi rileggi solo quello che ti manca.</p>';
+    DATA.volumes.forEach(function (v) {
+      h += '<section class="vol"><h2 class="vol-t"><span class="vol-n">Vol. ' + v.vol + '</span> ' + esc(v.title) + '</h2>';
+      var parte = null;
+      v.schede.forEach(function (sc) {
+        if (sc.parte && sc.parte !== parte) { parte = sc.parte; h += '<h3 class="parte">' + esc(parte) + '</h3>'; }
+        h += '<button class="srow" data-act="open" data-k="' + esc(sc.key) + '">' +
+          '<span class="code">' + esc(sc.code || (sc.numeri ? 'Σ' : '◆')) + '</span>' +
+          '<span class="st"><span class="stt">' + esc(sc.title) + '</span><span class="sp" data-mini="' + esc(sc.key) + '">' + miniProg(sc.key) + '</span></span>' +
+          '</button>';
       });
-      seen.sort(function (x, y) { return (S.cards[x.id].t || 0) - (S.cards[y.id].t || 0); });
-      out = out.concat(wrong, seen, fresh);
-    }
-    if (size && size !== 'all') out = out.slice(0, Number(size));
-    return out.map(function (c) { return c.id; });
-  }
-  var cardById = {};
-  DATA.cards.forEach(function (c) { cardById[c.id] = c; });
-
-  CHANGES.fcVol = function (t) { var p = fcPrefs(); p.vol = t.value; p.scheda = ''; save(); render(); };
-  CHANGES.fcScheda = function (t) { fcPrefs().scheda = t.value; save(); render(); };
-  CHANGES.fcNov = function (t) { fcPrefs().nov = t.checked; save(); render(); };
-  CHANGES.fcNum = function (t) { fcPrefs().num = t.checked; save(); render(); };
-  CHANGES.fcWrong = function (t) { fcPrefs().wrong = t.checked; save(); render(); };
-  CHANGES.fcSize = function (t) { fcPrefs().size = t.value; save(); render(); };
-
-  SCREENS_DEF('flash:home', function () {
-    var p = fcPrefs();
-    var cards = fcFiltered(p);
-    var boxes = [0, 0, 0, 0, 0, 0];
-    var fresh = 0, wrong = 0;
-    cards.forEach(function (c) {
-      var s = S.cards[c.id];
-      if (!s) fresh++; else { boxes[s.b]++; if (s.w) wrong++; }
+      h += '</section>';
     });
-    var vols = '<option value="">Tutti i volumi</option>' + DATA.volumes.map(function (v) {
-      return opt(v.vol, 'Vol. ' + v.vol + ' — ' + v.title, String(p.vol) === String(v.vol));
-    }).join('');
-    var schede = DATA.schede.filter(function (s) { return !p.vol || String(s.vol) === String(p.vol); });
-    var schedeOpts = '<option value="">Tutte le schede</option>' + schede.map(function (s) {
-      return opt(s.key, (p.vol ? '' : 'Vol. ' + s.vol + ' · ') + (s.code ? s.code + ' — ' : '') + s.title, p.scheda === s.key);
-    }).join('');
-    var n = cards.length;
-    var size = p.size === 'all' ? n : Math.min(n, Number(p.size));
-    return '' +
-      '<h1>Flashcard</h1>' +
-      '<div class="panel">' +
-      '<div class="field"><label for="fc-vol">Volume</label><select id="fc-vol" data-change="fcVol">' + vols + '</select></div>' +
-      '<div class="field"><label for="fc-sch">Scheda</label><select id="fc-sch" data-change="fcScheda">' + schedeOpts + '</select></div>' +
-      '<div class="checks">' +
-      check('fcNov', 'Solo <span class="badge nov">NOVITÀ</span>', p.nov) +
-      check('fcNum', 'Solo tabelle dei numeri (pagine di sintesi)', p.num) +
-      check('fcWrong', 'Solo carte sbagliate («Non sapevo» all\'ultima risposta)', p.wrong) +
-      '</div>' +
-      '<div class="field"><span class="lbl">Carte per sessione</span>' + seg('fcSize', [10, 20, 40, 'all'], p.size, ['10', '20', '40', 'Tutte']) + '</div>' +
-      '</div>' +
-      '<div class="panel">' +
-      '<div class="lbl" id="fc-count">Nel filtro: ' + plural(n, 'carta', 'carte') + ' · nuove ' + fresh + ' · sbagliate ' + wrong + '</div>' +
-      '<div class="boxes" aria-label="Carte per scatola">' +
-      '<div><span class="n">' + fresh + '</span><span class="l">nuove</span></div>' +
-      [1, 2, 3, 4, 5].map(function (b) { return '<div><span class="n">' + boxes[b] + '</span><span class="l">scatola ' + b + '</span></div>'; }).join('') +
-      '</div>' +
-      '<p class="small muted">Le nuove partono dalla scatola 1. «Sapevo» fa salire di una scatola, «Non sapevo» riporta alla 1, «Incerto» lascia dov\'è. Ogni sessione comincia dalle scatole basse.</p>' +
-      '<button class="btn primary block" data-act="fcStart"' + (n ? '' : ' disabled') + '>' + (n ? 'Inizia: ' + plural(size, 'carta', 'carte') : 'Nessuna carta con questi filtri') + '</button>' +
-      '</div>';
-  });
-
-  ACTIONS.fcStart = function () {
-    var p = fcPrefs();
-    var ids = buildFcSession(fcFiltered(p), p.size, !!p.scheda);
-    startFc(ids);
+    return h;
   };
-  function startFc(ids) {
-    if (!ids.length) return;
-    session = { kind: 'fc', live: true, ids: ids, i: 0, revealed: false, res: { ok: 0, mid: 0, ko: 0 }, missed: [] };
-    view = { tab: 'flash', screen: 'run' };
-    render(); scrollTop();
+  ACTIONS.tab = function (t) { go({ tab: t.getAttribute('data-t') }); };
+  ACTIONS.open = function (t) {
+    var k = t.getAttribute('data-k');
+    var resume = t.hasAttribute('data-resume') && S.prefs.last && S.prefs.last.sk === k ? S.prefs.last.id : null;
+    openScheda(k, resume);
+  };
+  function openScheda(k, scrollTo) {
+    if (!S.prefs.last || S.prefs.last.sk !== k) S.prefs.last = { sk: k, id: null };
+    go({ tab: 'sch', k: k });
+    if (scrollTo && $app.querySelector('.it[data-id="' + scrollTo + '"]')) focusPoint(scrollTo, true);
   }
 
-  function cardBody(c) {
-    if (c.type === 'tabella') {
-      var h = '';
-      if (c.caption) h += '<div class="ctx">' + c.caption + '</div>';
-      h += '<div class="tq">' + (c.qLabel ? '<span class="ql">' + c.qLabel + '</span>' : '') + c.q + '</div>';
-      if (!session.revealed) {
-        h += '<div class="asks">' + c.ask.map(function (a) { return '<span>' + a + '?</span>'; }).join('') + '</div>';
-      } else {
-        h += '<dl class="ta">' + c.a.map(function (r) { return '<dt>' + r[0] + '</dt><dd>' + r[1] + '</dd>'; }).join('') + '</dl>';
-      }
-      return h;
-    }
-    return '<div>' + c.html + '</div>';
-  }
+  /* ============================================================ SCHEDA */
 
-  SCREENS_DEF('flash:run', function () {
-    var s = session;
-    if (!s || s.kind !== 'fc') { view.screen = 'home'; return SCREENS['flash:home'](); }
-    if (s.i >= s.ids.length) return fcEnd();
-    var c = cardById[s.ids[s.i]];
-    var st = cardState(c.id);
-    var box = st ? st.b : 1;
-    var sch = schedaByKey[c.schedaKey];
-    var ctx = 'Vol. ' + c.vol + ' · ' + esc(schedaName(c.schedaKey)) + (c.sezione ? ' · ' + esc(c.sezione) : '');
-    var badges = '<span class="badge box">' + (st ? 'Scatola ' + box : 'Nuova') + '</span>' +
-      '<span class="badge">' + TYPE_LABEL[c.type] + (c.part ? ' ' + c.part[0] + '/' + c.part[1] : '') + '</span>' +
-      (c.nov ? '<span class="badge nov">NOVITÀ</span>' : '') +
-      (c.numeri ? '<span class="badge">Numeri</span>' : '') +
-      (st && st.w ? '<span class="badge ko">sbagliata l\'ultima volta</span>' : '');
-    var pct = Math.round(100 * s.i / s.ids.length);
-    var bar = s.revealed
-      ? '<button class="btn ko" data-act="fcRate" data-r="ko">Non sapevo</button>' +
-        '<button class="btn warn" data-act="fcRate" data-r="mid">Incerto</button>' +
-        '<button class="btn ok" data-act="fcRate" data-r="ok">Sapevo</button>'
-      : '<button class="btn primary" data-act="fcShow">Mostra risposta</button>';
-    return '' +
-      '<div class="qhead"><span class="muted small">Carta ' + (s.i + 1) + ' di ' + s.ids.length + '</span>' +
-      '<button class="linkish" data-act="fcQuit">Termina</button></div>' +
-      '<div class="progress"><i style="width:' + pct + '%"></i></div>' +
-      '<div class="badges">' + badges + '</div>' +
-      '<p class="ctx">' + ctx + '</p>' +
-      '<div class="card' + (s.revealed ? ' revealed' : '') + '" id="fc-card">' + cardBody(c) + '</div>' +
-      (sch && sch.parte ? '<p class="small muted">' + esc(sch.parte) + '</p>' : '') +
-      '<p class="small muted hide-touch">Tastiera: <kbd>spazio</kbd> mostra · <kbd>1</kbd> non sapevo · <kbd>2</kbd> incerto · <kbd>3</kbd> sapevo</p>' +
-      '<div class="actionbar"><div class="actionbar-in">' + bar + '</div></div>';
-  });
-
-  ACTIONS.fcShow = function () {
-    if (!session || session.revealed) return;
-    session.revealed = true;
-    render();
-  };
-  ACTIONS.fcRate = function (t) { fcRate(t.getAttribute('data-r')); };
-  function fcRate(r) {
-    var s = session;
-    if (!s || !s.revealed) return;
-    var id = s.ids[s.i];
-    var st = S.cards[id] || { b: 1, n: 0 };
-    if (r === 'ok') { st.b = Math.min(5, (st.b || 1) + 1); st.w = false; s.res.ok++; }
-    else if (r === 'ko') { st.b = 1; st.w = true; s.res.ko++; s.missed.push(id); }
-    else { st.b = st.b || 1; s.res.mid++; }
-    st.n = (st.n || 0) + 1;
-    st.t = Date.now();
-    S.cards[id] = st;
-    save();
-    s.i++; s.revealed = false;
-    render(); scrollTop();
+  var MODES = ['all', 'ess', 'rip', 'none'];
+  var MODE_LABELS = ['Tutto', 'Essenziale', 'Da ripassare', 'Non segnati'];
+  function modeFilter(mode) {
+    if (mode === 'ess') return function (p) { return !!p.ess; };
+    if (mode === 'rip') return function (p) { return st(p.id) === RIP; };
+    if (mode === 'none') return function (p) { return st(p.id) === 0; };
+    return function () { return true; };
   }
-  ACTIONS.fcQuit = function () {
-    if (!session) return;
-    session.ids = session.ids.slice(0, session.i);
-    render();
-  };
-  function fcEnd() {
-    var s = session;
-    s.live = false;
-    var done = s.res.ok + s.res.mid + s.res.ko;
-    return '' +
-      '<h1>Sessione finita</h1>' +
-      '<div class="panel"><div class="kv">' +
-      '<span>Carte viste</span><span>' + done + '</span>' +
-      '<span>Sapevo</span><span>' + s.res.ok + '</span>' +
-      '<span>Incerto</span><span>' + s.res.mid + '</span>' +
-      '<span>Non sapevo</span><span>' + s.res.ko + '</span>' +
-      '</div></div>' +
+  CHANGES.mode = function (t) { S.prefs.mode = t.value; saveLocal(); go(view, true); };
+
+  SCREENS.sch = function () {
+    var e = schedaByKey[view.k];
+    if (!e) { view = { tab: 'idx' }; return SCREENS.idx(); }
+    var sc = e.sc;
+    var mode = MODES.indexOf(S.prefs.mode) >= 0 ? S.prefs.mode : 'all';
+    var body = blocksHtml(sc.b, modeFilter(mode), mode === 'all');
+    var i = SCHEDE.indexOf(e);
+    var prev = SCHEDE[i - 1], next = SCHEDE[i + 1];
+    var heads = sc.b.filter(function (b) { return b.t === 'h'; }).map(function (b) { return stripTags(b.h); });
+    var empty = {
+      ess: 'Questa scheda non ha «In breve» né «Da non confondere».',
+      rip: 'Nessun punto da ripassare in questa scheda.',
+      none: 'Hai già segnato tutti i punti di questa scheda.'
+    }[mode];
+    return '<nav class="crumb"><button class="linkish" data-act="tab" data-t="idx">← Indice</button>' +
+      '<span>Vol. ' + e.vol + (sc.parte ? ' · ' + esc(sc.parte) : '') + '</span></nav>' +
+      '<h1>' + (sc.code ? '<span class="code">' + esc(sc.code) + '</span> ' : '') + esc(sc.title) + '</h1>' +
+      '<div class="panel slim"><div data-prog="sk:' + esc(sc.key) + '">' + progHtml('sk:' + sc.key) + '</div>' +
+      '<div class="field"><span class="lbl">Mostra</span>' + seg('mode', MODES, MODE_LABELS, mode) + '</div>' +
+      (mode === 'all' && heads.length > 1 ? '<details class="toc"><summary>Sezioni</summary><ol>' +
+        heads.map(function (t, j) { return '<li><button class="linkish" data-act="jump" data-j="' + j + '">' + esc(t) + '</button></li>'; }).join('') +
+        '</ol></details>' : '') +
+      '</div>' +
+      '<article class="rd">' + (body || '<p class="empty">' + empty + '</p>') + '</article>' +
+      '<div class="endbox">' +
+      (counts(ptsOfScheda[sc.key]).none ? '<button class="btn block" data-act="restOk">Segna «lo so» tutti i punti non segnati</button>' : '') +
       '<div class="row">' +
-      (s.missed.length ? '<button class="btn primary" data-act="fcMissed">Ripassa le ' + s.missed.length + ' non sapute</button>' : '') +
-      '<button class="btn" data-act="fcAgain">Nuova sessione</button>' +
-      '<button class="btn ghost" data-act="fcHome">Filtri</button>' +
-      '</div>';
-  }
-  ACTIONS.fcMissed = function () { startFc(shuffle(session.missed.slice())); };
-  ACTIONS.fcAgain = function () { ACTIONS.fcStart(); };
-  ACTIONS.fcHome = function () { session = null; view = { tab: 'flash', screen: 'home' }; render(); };
+      (prev ? '<button class="btn" data-act="open" data-k="' + esc(prev.sc.key) + '">← ' + esc(prev.sc.code || 'Precedente') + '</button>' : '') +
+      (next ? '<button class="btn primary" data-act="open" data-k="' + esc(next.sc.key) + '">' + esc(next.sc.code || 'Successiva') + ' →</button>' : '') +
+      '</div></div>';
+  };
+  ACTIONS.jump = function (t) {
+    var el = $app.querySelectorAll('.rd .sec-h')[Number(t.getAttribute('data-j'))];
+    if (el) window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - headerBottom() - 12, behavior: reduceMotion ? 'auto' : 'smooth' });
+  };
+  ACTIONS.restOk = function () {
+    var ids = ptsOfScheda[view.k].filter(function (id) { return st(id) === 0; });
+    ask('Segnare «lo so» i ' + ids.length + ' punti non ancora segnati di questa scheda? Quelli «da ripassare» restano come sono.', 'Segna «lo so»', function () {
+      ids.forEach(function (id) { setMark(id, OK); });
+      go(view, true);
+      toast(plural(ids.length, 'punto segnato', 'punti segnati') + ' «lo so»');
+    });
+  };
 
-  /* ============================================================ QUIZ */
+  /* ============================================================ DA RIPASSARE (giri successivi) */
 
-  var QZ = DATA.quiz ? DATA.quiz.questions : [];
-  var qById = {};
-  QZ.forEach(function (q) { qById[q.id] = q; });
-  function qzPrefs() {
-    var p = S.prefs.qz || (S.prefs.qz = {});
-    if (p.materia === undefined) p.materia = '';
-    if (p.arg === undefined) p.arg = '';
-    if (p.fonte === undefined) p.fonte = '';
-    if (p.random === undefined) p.random = true;
-    if (!p.size) p.size = 20;
+  function rvPrefs() {
+    var p = S.prefs.rv || (S.prefs.rv = {});
+    if (!p.s) p.s = 'rip';
+    if (p.vol === undefined) p.vol = '';
     return p;
   }
-  function qWrong(id) {
-    var s = S.quiz[id];
-    return !!(s && (s.g || s.r === 'ko' || s.r === 'worst' || s.r === 'neu' || s.r === 'nc'));
+  CHANGES.rvS = function (t) { rvPrefs().s = t.value; saveLocal(); go(view, true); };
+  CHANGES.rvVol = function (t) { rvPrefs().vol = t.value; saveLocal(); go(view, true); };
+  CHANGES.rvNov = function (t) { rvPrefs().nov = t.checked; saveLocal(); go(view, true); };
+  CHANGES.rvNum = function (t) { rvPrefs().num = t.checked; saveLocal(); go(view, true); };
+  CHANGES.rvEss = function (t) { rvPrefs().ess = t.checked; saveLocal(); go(view, true); };
+
+  function listByScheda(match, emptyMsg) {
+    var h = '', tot = 0;
+    SCHEDE.forEach(function (e) {
+      var ids = ptsOfScheda[e.sc.key].filter(function (id) { return match(PT[id].p); });
+      if (!ids.length) return;
+      tot += ids.length;
+      var set = {};
+      ids.forEach(function (id) { set[id] = 1; });
+      h += '<section class="grp"><button class="grp-h" data-act="open" data-k="' + esc(e.sc.key) + '">' +
+        '<span class="code">' + esc(e.sc.code || ('Vol. ' + e.vol)) + '</span> <span class="gt">' + esc(e.sc.title) + '</span> <span class="muted">· ' + ids.length + '</span></button>' +
+        '<div class="rd">' + blocksHtml(e.sc.b, function (p) { return !!set[p.id]; }, false) + '</div></section>';
+    });
+    return { html: tot ? h : '<p class="empty">' + emptyMsg + '</p>', n: tot };
   }
-  function qzFiltered(p) {
-    return QZ.filter(function (q) {
-      if (p.materia && q.materia !== p.materia) return false;
-      if (p.arg && q.argomento !== p.arg) return false;
-      if (p.fonte && q.fonte !== p.fonte) return false;
-      if (p.wrong && !qWrong(q.id)) return false;
+
+  SCREENS.rip = function () {
+    var p = rvPrefs();
+    var want = { rip: RIP, none: 0, ok: OK }[p.s];
+    var match = function (pt) {
+      if (st(pt.id) !== want) return false;
+      if (p.vol && String(PT[pt.id].vol) !== String(p.vol)) return false;
+      if (p.nov && !pt.nov) return false;
+      if (p.num && !pt.num) return false;
+      if (p.ess && !pt.ess) return false;
       return true;
-    });
-  }
-  function uniq(arr) {
-    var seen = {}, out = [];
-    arr.forEach(function (x) { if (x && !seen[x]) { seen[x] = 1; out.push(x); } });
-    return out;
-  }
-  CHANGES.qzMat = function (t) { var p = qzPrefs(); p.materia = t.value; p.arg = ''; save(); render(); };
-  CHANGES.qzArg = function (t) { qzPrefs().arg = t.value; save(); render(); };
-  CHANGES.qzFonte = function (t) { qzPrefs().fonte = t.value; save(); render(); };
-  CHANGES.qzWrong = function (t) { qzPrefs().wrong = t.checked; save(); render(); };
-  CHANGES.qzRandom = function (t) { qzPrefs().random = t.checked; save(); render(); };
-  CHANGES.qzSize = function (t) { qzPrefs().size = t.value; save(); render(); };
-
-  function exportCodesAll() {
-    return QZ.filter(function (q) { return qWrong(q.id); }).map(function (q) { return q.id; });
-  }
-
-  SCREENS_DEF('quiz:home', function () {
-    var p = qzPrefs();
-    var qs = qzFiltered(p);
-    var materie = uniq(QZ.map(function (q) { return q.materia; }));
-    var args = uniq(QZ.filter(function (q) { return !p.materia || q.materia === p.materia; }).map(function (q) { return q.argomento; }));
-    var n = qs.length;
-    var size = p.size === 'all' ? n : Math.min(n, Number(p.size));
-    var answered = QZ.filter(function (q) { return S.quiz[q.id]; }).length;
-    var codes = exportCodesAll();
-    return '' +
-      '<h1>Quiz d\'archivio</h1>' +
-      '<div class="panel">' +
-      '<div class="field"><label for="qz-mat">Materia</label><select id="qz-mat" data-change="qzMat"><option value="">Tutte le materie</option>' +
-      materie.map(function (m) { return opt(m, m, p.materia === m); }).join('') + '</select></div>' +
-      '<div class="field"><label for="qz-arg">Argomento</label><select id="qz-arg" data-change="qzArg"><option value="">Tutti gli argomenti</option>' +
-      args.map(function (a) { return opt(a, a, p.arg === a); }).join('') + '</select></div>' +
-      '<div class="field"><span class="lbl">Fonte</span>' + seg('qzFonte', ['', 'SNA', 'Formez'], p.fonte, ['Tutte', 'SNA', 'Formez']) + '</div>' +
-      '<div class="checks">' +
-      check('qzWrong', 'Solo sbagliati o indovinati a caso', p.wrong) +
-      check('qzRandom', 'Ordine casuale', p.random) +
-      '</div>' +
-      '<div class="field"><span class="lbl">Numero di domande</span>' + seg('qzSize', [10, 20, 30, 60, 'all'], p.size, ['10', '20', '30', '60', 'Tutte']) + '</div>' +
-      '</div>' +
-      '<div class="panel">' +
-      '<p class="lbl">Nel filtro: ' + plural(n, 'quesito', 'quesiti') + ' · già risposti in totale ' + answered + ' di ' + QZ.length + '</p>' +
-      '<p class="small muted">Punteggio ufficiale: esatta +1, errata −0,53, omessa 0; situazionali 1 / 0,50 / 0.</p>' +
-      '<button class="btn primary block" data-act="qzStart"' + (n ? '' : ' disabled') + '>' + (n ? 'Inizia: ' + plural(size, 'quesito', 'quesiti') : 'Nessun quesito con questi filtri') + '</button>' +
-      '</div>' +
-      '<div class="panel"><h2 style="margin-top:0">Esporta codici</h2>' +
-      '<p class="small muted">Codici dei quesiti sbagliati o indovinati a caso (tutte le sessioni).</p>' +
-      (codes.length ? '<p class="codes" id="codes-all">' + esc(codes.join(', ')) + '</p><button class="btn sm" data-act="copyCodes" data-src="codes-all">Copia ' + plural(codes.length, 'codice', 'codici') + '</button>'
-        : '<p class="muted small">Ancora nessuno.</p>') +
-      '</div>';
-  });
-
-  ACTIONS.qzStart = function () {
-    var p = qzPrefs();
-    var qs = qzFiltered(p);
-    if (p.random) qs = shuffle(qs.slice());
-    if (p.size !== 'all') qs = qs.slice(0, Number(p.size));
-    session = { kind: 'qz', live: true, ids: qs.map(function (q) { return q.id; }), i: 0, ans: {}, done: {}, guess: {} };
-    view = { tab: 'quiz', screen: 'run' };
-    render(); scrollTop();
-  };
-
-  var ROLE_LABEL = { best: 'migliore', neu: 'neutra', worst: 'peggiore' };
-  function optionsHtml(q, chosen, revealed, act, disabled) {
-    return '<div class="opts">' + q.opts.map(function (o) {
-      var cls = 'opt', tag = '';
-      if (revealed) {
-        var role = Scoring.role(q, o.k);
-        if (q.rank) {
-          if (role === 'best') cls += ' right';
-          else if (role === 'neu') cls += ' neu';
-          else if (role === 'worst') cls += ' wrong';
-          if (role) tag = '<span class="tag ' + role + '">' + ROLE_LABEL[role] + '</span>';
-          if (o.k === chosen) tag += '<span class="tag mine">tua</span>';
-        } else {
-          if (o.k === q.key) { cls += ' right'; tag = '<span class="tag best">chiave</span>'; }
-          else if (o.k === chosen) cls += ' wrong';
-          if (o.k === chosen) tag += '<span class="tag mine">tua</span>';
-        }
-      } else if (o.k === chosen) cls += ' sel';
-      return '<button type="button" class="' + cls + '" data-act="' + act + '" data-k="' + o.k + '"' + (disabled ? ' disabled' : '') + '>' +
-        '<span class="k">' + o.k + '</span><span class="t">' + o.h + '</span>' + tag + '</button>';
-    }).join('') + '</div>';
-  }
-  function keyText(q) {
-    if (q.rank) {
-      if (q.rank.length === 1) return 'migliore ' + q.rank[0] + ' (neutra e peggiore non indicate nel materiale)';
-      return 'migliore ' + q.rank[0] + ' · ' + (q.rank.length > 2 ? 'neutra ' + q.rank.slice(1, -1).join(', ') + ' · ' : '') + 'peggiore ' + q.rank[q.rank.length - 1];
-    }
-    return q.key;
-  }
-  function verdictHtml(q, ans) {
-    var r = Scoring.score(q, ans);
-    var map = {
-      ok: ['ok', 'Esatta · +1'], ko: ['ko', 'Errata · −0,53'], om: ['om', 'Omessa · 0'],
-      best: ['ok', 'Risposta migliore · +1'], neu: ['neu', 'Risposta neutra · +0,50'], worst: ['ko', 'Risposta peggiore · 0'],
-      nc: ['neu', 'Non è la migliore · 0 (neutra e peggiore non indicate nel materiale)']
     };
-    var m = map[r.e];
-    return '<div class="verdict ' + m[0] + '">' + m[1] + '</div>';
-  }
-  function braniHtml(id, brani, open) {
-    if (!id || !brani[id]) return '';
-    return '<details class="brano"' + (open ? ' open' : '') + '><summary>Brano</summary>' + brani[id] + '</details>';
-  }
+    var empty = {
+      rip: 'Nessun punto da ripassare con questi filtri. Segnali mentre leggi le schede.',
+      none: 'Nessun punto non segnato con questi filtri.',
+      ok: 'Nessun punto segnato «lo so» con questi filtri.'
+    }[p.s];
+    var L = listByScheda(match, empty);
+    return '<h1>' + ({ rip: 'Da ripassare', none: 'Non ancora segnati', ok: 'Già saputi' })[p.s] + '</h1>' +
+      '<div class="panel">' +
+      '<div class="field"><span class="lbl">Punti</span>' + seg('rvS', ['rip', 'none', 'ok'], ['Da ripassare', 'Non segnati', 'Lo so'], p.s) + '</div>' +
+      '<div class="field"><label class="lbl" for="rv-vol">Volume</label><select id="rv-vol" data-change="rvVol"><option value="">Tutti i volumi</option>' +
+      DATA.volumes.map(function (v) { return '<option value="' + v.vol + '"' + (String(p.vol) === String(v.vol) ? ' selected' : '') + '>Vol. ' + v.vol + ' — ' + esc(v.title) + '</option>'; }).join('') +
+      '</select></div>' +
+      '<div class="checks">' + check('rvEss', 'Solo «In breve» e «Da non confondere»', p.ess) +
+      check('rvNov', 'Solo <span class="nov">novità</span>', p.nov) + check('rvNum', 'Solo pagine dei numeri', p.num) + '</div>' +
+      '<p class="lbl" id="rv-count">' + plural(L.n, 'punto', 'punti') + '</p>' +
+      '</div>' + L.html;
+  };
 
-  SCREENS_DEF('quiz:run', function () {
-    var s = session;
-    if (!s || s.kind !== 'qz') { view.screen = 'home'; return SCREENS['quiz:home'](); }
-    if (s.i >= s.ids.length) return qzEnd();
-    var q = qById[s.ids[s.i]];
-    var done = !!s.done[q.id];
-    var ans = s.ans[q.id];
-    var running = 0;
-    s.ids.forEach(function (id) { if (s.done[id]) running += Scoring.score(qById[id], s.ans[id]).p; });
-    var badges = '<span class="badge">' + esc(q.fonte) + '</span>' +
-      (q.rank ? '<span class="badge">situazionale</span>' : '') +
-      (q.nov ? '<span class="badge nov">NOVITÀ</span>' : '') +
-      (q.vig === 'A' ? '<span class="badge warn">contesto cambiato</span>' : '');
-    var h = '' +
-      '<div class="qhead"><span class="muted small">Quesito ' + (s.i + 1) + ' di ' + s.ids.length + ' · punti ' + Scoring.fmt(running) + '</span>' +
-      '<button class="linkish" data-act="qzQuit">Termina</button></div>' +
-      '<div class="progress"><i style="width:' + Math.round(100 * s.i / s.ids.length) + '%"></i></div>' +
-      '<div class="qhead"><span class="qid">' + esc(q.id) + '</span></div>' +
-      '<div class="badges">' + badges + '</div>' +
-      '<p class="ctx">' + esc(q.materia) + (q.argomento && q.argomento !== q.materia ? ' · ' + esc(q.argomento) : '') + '</p>' +
-      (q.lowRel ? '<div class="note">Attenzione: chiave ragionata con affidabilità media.</div>' : '') +
-      braniHtml(q.brano, DATA.quiz.brani, true) +
-      '<div class="qtext">' + q.text + '</div>' +
-      optionsHtml(q, ans, done, 'qzAns', done);
-    h += check('qzGuess', 'Indovinata a caso', !!s.guess[q.id]);
-    if (done) {
-      h += verdictHtml(q, ans) +
-        '<div class="panel"><p><b>Chiave:</b> ' + esc(keyText(q)) + (q.keyNote ? ' <span class="muted">(' + esc(q.keyNote) + ')</span>' : '') + '</p>' +
-        '<div class="expl">' + (q.expl || '<p class="muted">Nessuna spiegazione nel materiale.</p>') + '</div>' +
-        '<hr><p class="small muted">Fonte: [' + esc(q.label) + '] · Vigenza ' + esc(q.vig) + '</p></div>';
-    }
-    var bar = done
-      ? '<button class="btn primary" data-act="qzNext">' + (s.i + 1 < s.ids.length ? 'Avanti' : 'Risultato') + '</button>'
-      : '<button class="btn" data-act="qzSkip">Salta (omessa)</button>';
-    h += '<div class="actionbar"><div class="actionbar-in">' + bar + '</div></div>';
-    return h;
+  /* ============================================================ CERCA */
+
+  function norm(s) { return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+  var SEARCH = null;
+  function searchIndex() {
+    if (SEARCH) return SEARCH;
+    SEARCH = {};
+    ORDER.forEach(function (id) {
+      var p = PT[id].p;
+      var txt = p.t === 'row' ? [p.ql || '', p.q].concat(p.a.map(function (r) { return r[0] + ' ' + r[1]; })).join(' ') : p.h;
+      SEARCH[id] = norm(stripTags(txt).replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>'));
+    });
+    return SEARCH;
+  }
+  SCREENS.find = function () {
+    after.push(runSearch);
+    return '<h1>Cerca</h1>' +
+      '<div class="panel"><label class="lbl" for="q">Parola, articolo o numero (per esempio «21-nonies», «silenzio», «72 ore»)</label>' +
+      '<input id="q" type="search" autocomplete="off" value="' + esc(S.prefs.q || '') + '" placeholder="Cerca nei ripassi"></div>' +
+      '<div id="results"></div>';
+  };
+  var searchTimer = null;
+  $app.addEventListener('input', function (e) {
+    if (e.target.id !== 'q') return;
+    S.prefs.q = e.target.value; saveLocal();
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(runSearch, 150);
   });
-
-  ACTIONS.qzAns = function (t) {
-    var s = session;
-    var id = s.ids[s.i];
-    if (s.done[id]) return;
-    s.ans[id] = t.getAttribute('data-k');
-    qzRecord(id);
-    render();
-    var v = document.querySelector('.verdict');
-    if (v) v.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-  };
-  ACTIONS.qzSkip = function () {
-    var s = session;
-    var id = s.ids[s.i];
-    s.ans[id] = null;
-    qzRecord(id);
-    render();
-  };
-  function qzRecord(id) {
-    var s = session;
-    s.done[id] = true;
-    var r = Scoring.score(qById[id], s.ans[id]);
-    var prev = S.quiz[id] || { n: 0 };
-    S.quiz[id] = { r: r.e, g: !!s.guess[id], n: (prev.n || 0) + 1, t: Date.now() };
-    save();
-  }
-  CHANGES.qzGuess = function (t) {
-    var s = session;
-    var id = s.ids[s.i];
-    s.guess[id] = t.checked;
-    if (s.done[id] && S.quiz[id]) { S.quiz[id].g = t.checked; S.quiz[id].t = Date.now(); save(); }
-  };
-  ACTIONS.qzNext = function () { session.i++; render(); scrollTop(); };
-  ACTIONS.qzQuit = function () {
-    var s = session;
-    s.ids = s.ids.filter(function (id) { return s.done[id]; });
-    s.i = s.ids.length;
-    render(); scrollTop();
-  };
-
-  function qzEnd() {
-    var s = session;
-    s.live = false;
-    var qs = s.ids.map(function (id) { return qById[id]; });
-    var tot = Scoring.total(qs, s.ans, function (q) { return q.id; });
-    var codes = s.ids.filter(function (id) {
-      var r = Scoring.score(qById[id], s.ans[id]).e;
-      return s.guess[id] || r === 'ko' || r === 'worst' || r === 'neu' || r === 'nc';
+  function runSearch() {
+    var box = document.getElementById('results');
+    if (!box) return;
+    unfocus();
+    var words = norm(S.prefs.q || '').split(/\s+/).filter(function (w) { return w.length > 1 || /\d/.test(w); });
+    if (!words.length) { box.innerHTML = '<p class="empty">Scrivi almeno due lettere.</p>'; return; }
+    var idx = searchIndex();
+    var hits = {}, n = 0;
+    ORDER.forEach(function (id) {
+      if (n >= 200) return;
+      var t = idx[id];
+      if (words.every(function (w) { return t.indexOf(w) >= 0; })) { hits[id] = 1; n++; }
     });
-    var rows = qs.map(function (q) {
-      var r = Scoring.score(q, s.ans[q.id]);
-      var cls = { ok: 'ok', best: 'ok', ko: 'ko', worst: 'ko', neu: 'warn', nc: 'warn', om: '' }[r.e];
-      return '<tr><td class="qid">' + esc(q.id) + '</td><td>' + (s.ans[q.id] || '—') + '</td><td>' + esc(keyText(q).split(' (')[0]) + '</td>' +
-        '<td class="num"><span class="badge ' + cls + '">' + Scoring.fmt(r.p) + '</span>' + (s.guess[q.id] ? ' <span class="badge warn">a caso</span>' : '') + '</td></tr>';
-    }).join('');
-    return '' +
-      '<h1>Risultato del quiz</h1>' +
-      '<div class="panel"><div class="score">' + Scoring.fmt(tot.p) + '<span class="muted" style="font-size:20px"> / ' + Scoring.fmt(tot.max) + '</span></div>' +
-      '<div class="kv" style="margin-top:10px">' +
-      '<span>Esatte</span><span>' + tot.ok + '</span>' +
-      '<span>Errate</span><span>' + tot.ko + '</span>' +
-      (tot.best + tot.neu + tot.worst + tot.nc ? '<span>Situazionali: migliore / neutra / peggiore</span><span>' + tot.best + ' / ' + (tot.neu + tot.nc) + ' / ' + tot.worst + '</span>' : '') +
-      '<span>Omesse</span><span>' + tot.om + '</span>' +
-      '</div></div>' +
-      '<div class="panel"><h2 style="margin-top:0">Codici da ripassare</h2><p class="small muted">Sbagliati o indovinati a caso in questa sessione.</p>' +
-      (codes.length ? '<p class="codes" id="codes-sess">' + esc(codes.join(', ')) + '</p><button class="btn sm" data-act="copyCodes" data-src="codes-sess">Esporta codici</button>' : '<p class="muted small">Nessuno.</p>') +
-      '</div>' +
-      '<div class="panel"><div class="tw"><table><thead><tr><th>Quesito</th><th>Tua</th><th>Chiave</th><th class="num">Punti</th></tr></thead><tbody>' + rows + '</tbody></table></div></div>' +
-      '<div class="row"><button class="btn primary" data-act="qzAgain">Nuovo quiz</button><button class="btn ghost" data-act="qzHome">Filtri</button></div>';
+    var L = listByScheda(function (p) { return !!hits[p.id]; }, 'Nessun risultato.');
+    box.innerHTML = (n ? '<p class="lbl">' + (n >= 200 ? 'Primi 200 risultati' : plural(n, 'risultato', 'risultati')) + '</p>' : '') + L.html;
   }
-  ACTIONS.qzAgain = function () { ACTIONS.qzStart(); };
-  ACTIONS.qzHome = function () { session = null; view = { tab: 'quiz', screen: 'home' }; render(); };
-  ACTIONS.copyCodes = function (t) {
-    var el = document.getElementById(t.getAttribute('data-src'));
-    if (el) copyText(el.textContent);
-  };
-
-  /* ============================================================ SIMULAZIONE */
-
-  var SIMS = DATA.sims || [];
-  var simById = {};
-  SIMS.forEach(function (s) { simById[s.id] = s; });
-  var timerHandle = null;
-  function stopTimer() { if (timerHandle) { clearInterval(timerHandle); timerHandle = null; } }
-  function simState(id) { return S.sims[id] || null; }
-  function simRemaining(st) { return SIM_MINUTES * 60000 - (Date.now() - st.start); }
-  function simQ(sim, n) {
-    for (var i = 0; i < sim.questions.length; i++) if (sim.questions[i].n === n) return sim.questions[i];
-    return null;
-  }
-  function partOf(sim, n) {
-    for (var i = 0; i < sim.parts.length; i++) if (sim.parts[i].n === n) return sim.parts[i];
-    return null;
-  }
-
-  SCREENS_DEF('sim:home', function () {
-    var h = '<h1>Simulazione a tempo</h1>' +
-      '<p class="muted">' + SIM_MINUTES + ' minuti, navigazione libera, risposte modificabili fino alla consegna. Il tempo scorre anche se chiudi la pagina.</p>';
-    SIMS.forEach(function (sim) {
-      var st = simState(sim.id);
-      var status, btns;
-      if (!st) {
-        status = 'Non iniziata · ' + sim.questions.length + ' quesiti';
-        btns = '<button class="btn primary" data-act="simStart" data-id="' + sim.id + '">Inizia</button>';
-      } else if (!st.submitted) {
-        var rem = simRemaining(st);
-        status = rem > 0 ? 'In corso · restano ' + fmtClock(rem) : 'Tempo scaduto: da consegnare';
-        btns = '<button class="btn primary" data-act="simResume" data-id="' + sim.id + '">' + (rem > 0 ? 'Riprendi' : 'Vedi esito') + '</button>' +
-          '<button class="btn ghost" data-act="simReset" data-id="' + sim.id + '">Ricomincia</button>';
-      } else {
-        var tot = simTotals(sim, st).all;
-        status = 'Consegnata · punteggio ' + Scoring.fmt(tot.p) + ' su ' + Scoring.fmt(tot.max);
-        btns = '<button class="btn primary" data-act="simResult" data-id="' + sim.id + '">Esito e revisione</button>' +
-          '<button class="btn ghost" data-act="simReset" data-id="' + sim.id + '">Rifai</button>';
-      }
-      h += '<div class="panel"><h2 style="margin-top:0">' + esc(sim.title) + '</h2><p class="small muted">' + esc(sim.file) + '</p>' +
-        '<p>' + status + '</p><div class="row">' + btns + '</div></div>';
-    });
-    return h;
-  });
-
-  ACTIONS.simStart = function (t) {
-    var id = t.getAttribute('data-id');
-    ask('Iniziare la simulazione? Il timer di ' + SIM_MINUTES + ' minuti parte subito.', 'Inizia', function () {
-      S.sims[id] = { start: Date.now(), ans: {}, rev: {}, cur: simById[id].questions[0].n, submitted: null };
-      save();
-      openSim(id);
-    });
-  };
-  ACTIONS.simResume = function (t) { openSim(t.getAttribute('data-id')); };
-  ACTIONS.simReset = function (t) {
-    var id = t.getAttribute('data-id');
-    ask('Cancellare risposte ed esito di questa simulazione e ricominciare da capo?', 'Cancella', function () {
-      delete S.sims[id]; save(); render();
-    }, true);
-  };
-  ACTIONS.simResult = function (t) {
-    session = { kind: 'simres', sim: t.getAttribute('data-id'), filter: 'all' };
-    view = { tab: 'sim', screen: 'result' };
-    render(); scrollTop();
-  };
-  function openSim(id) {
-    var st = simState(id);
-    if (simRemaining(st) <= 0) { simSubmit(id, true); return; }
-    session = { kind: 'sim', live: true, sim: id, grid: false };
-    view = { tab: 'sim', screen: 'run' };
-    render(); scrollTop();
-    startTimer();
-  }
-  function startTimer() {
-    stopTimer();
-    timerHandle = setInterval(function () {
-      if (!session || session.kind !== 'sim') { stopTimer(); return; }
-      var st = simState(session.sim);
-      var rem = simRemaining(st);
-      var el = document.getElementById('sim-timer');
-      if (el) { el.textContent = fmtClock(rem); el.classList.toggle('low', rem < 5 * 60000); }
-      if (rem <= 0) { stopTimer(); toast('Tempo scaduto: simulazione consegnata'); simSubmit(session.sim, true); }
-    }, 1000);
-  }
-
-  SCREENS_DEF('sim:run', function () {
-    var s = session;
-    if (!s || s.kind !== 'sim') { view.screen = 'home'; return SCREENS['sim:home'](); }
-    var sim = simById[s.sim];
-    var st = simState(s.sim);
-    var q = simQ(sim, st.cur) || sim.questions[0];
-    var idx = sim.questions.indexOf(q);
-    var part = partOf(sim, q.part);
-    var nAns = Object.keys(st.ans).filter(function (k) { return st.ans[k]; }).length;
-    var nRev = Object.keys(st.rev).filter(function (k) { return st.rev[k]; }).length;
-    var rem = simRemaining(st);
-    var h = '' +
-      '<div class="panel" style="padding:10px 14px">' +
-      '<div class="qhead" style="margin:0"><span>Tempo <span class="timer' + (rem < 300000 ? ' low' : '') + '" id="sim-timer">' + fmtClock(rem) + '</span></span>' +
-      '<span class="small muted">risposte ' + nAns + '/' + sim.questions.length + (nRev ? ' · da rivedere ' + nRev : '') + '</span></div>' +
-      '<div class="row" style="margin-top:6px"><button class="btn sm ghost" data-act="simGrid">' + (s.grid ? 'Nascondi indice' : 'Indice dei quesiti') + '</button>' +
-      '<button class="btn sm" data-act="simSubmitAsk">Consegna</button></div>' +
-      (s.grid ? simGrid(sim, st, q.n, null) +
-        '<div class="legend"><span>■ risposta data</span><span>● da rivedere</span></div>' : '') +
-      '</div>' +
-      (part ? '<p class="ctx">Parte ' + esc(part.roman) + ' — ' + esc(part.title) + '</p>' : '') +
-      '<div class="qhead"><span class="qid">Quesito ' + q.n + '</span>' +
-      (q.nov ? '<span class="badge nov">NOVITÀ</span>' : '') + '</div>' +
-      braniHtml(q.brano, sim.brani, true) +
-      (q.fig ? '<div class="fig">figura: vedi il PDF della simulazione</div>' : '') +
-      '<div class="qtext">' + q.text + '</div>' +
-      optionsHtml(q, st.ans[q.n], false, 'simAns', false) +
-      '<div class="row">' +
-      '<label class="check" style="flex:1"><input type="checkbox" data-change="simRev"' + (st.rev[q.n] ? ' checked' : '') + '> <span>Da rivedere</span></label>' +
-      (st.ans[q.n] ? '<button class="btn sm ghost" data-act="simClear">Cancella risposta</button>' : '') +
-      '</div>' +
-      '<div class="actionbar"><div class="actionbar-in">' +
-      '<button class="btn" data-act="simGo" data-d="-1"' + (idx <= 0 ? ' disabled' : '') + '>← Indietro</button>' +
-      '<button class="btn primary" data-act="simGo" data-d="1"' + (idx >= sim.questions.length - 1 ? ' disabled' : '') + '>Avanti →</button>' +
-      '</div></div>';
-    return h;
-  });
-
-  function simGrid(sim, st, cur, results) {
-    return '<div class="grid">' + sim.questions.map(function (q) {
-      var cls = [];
-      if (results) {
-        var e = results[q.n];
-        cls.push(e === 'ok' || e === 'best' ? 'r-ok' : e === 'ko' || e === 'worst' ? 'r-ko' : e === 'neu' || e === 'nc' ? 'r-neu' : '');
-      } else {
-        if (st.ans[q.n]) cls.push('ans');
-        if (st.rev[q.n]) cls.push('rev');
-        if (q.n === cur) cls.push('cur');
-      }
-      return '<button type="button" class="' + cls.join(' ') + '" data-act="' + (results ? 'simJumpRev' : 'simJump') + '" data-n="' + q.n + '" aria-label="Quesito ' + q.n + '">' + q.n + '</button>';
-    }).join('') + '</div>';
-  }
-  ACTIONS.simGrid = function () { session.grid = !session.grid; render(); };
-  ACTIONS.simJump = function (t) {
-    var st = simState(session.sim);
-    st.cur = Number(t.getAttribute('data-n')); save();
-    session.grid = false;
-    render(); scrollTop();
-  };
-  ACTIONS.simGo = function (t) {
-    var sim = simById[session.sim];
-    var st = simState(session.sim);
-    var i = sim.questions.indexOf(simQ(sim, st.cur)) + Number(t.getAttribute('data-d'));
-    if (i < 0 || i >= sim.questions.length) return;
-    st.cur = sim.questions[i].n; save();
-    render(); scrollTop();
-  };
-  ACTIONS.simAns = function (t) {
-    var st = simState(session.sim);
-    if (simRemaining(st) <= 0) return;
-    st.ans[st.cur] = t.getAttribute('data-k');
-    save(); render();
-  };
-  ACTIONS.simClear = function () {
-    var st = simState(session.sim);
-    delete st.ans[st.cur]; save(); render();
-  };
-  CHANGES.simRev = function (t) {
-    var st = simState(session.sim);
-    if (t.checked) st.rev[st.cur] = true; else delete st.rev[st.cur];
-    save(); render();
-  };
-  ACTIONS.simSubmitAsk = function () {
-    var sim = simById[session.sim];
-    var st = simState(session.sim);
-    var nAns = sim.questions.filter(function (q) { return st.ans[q.n]; }).length;
-    var nRev = sim.questions.filter(function (q) { return st.rev[q.n]; }).length;
-    var msg = 'Consegnare la simulazione?\n\nRisposte date: ' + nAns + ' su ' + sim.questions.length +
-      (nRev ? '\nSegnati da rivedere: ' + nRev : '') + '\n\nDopo la consegna le risposte non si possono più cambiare.';
-    var id = session.sim;
-    ask(msg, 'Consegna', function () { simSubmit(id, false); });
-  };
-  function simSubmit(id, auto) {
-    var st = simState(id);
-    st.submitted = Date.now();
-    st.auto = !!auto;
-    save();
-    stopTimer();
-    session = { kind: 'simres', sim: id, filter: 'all' };
-    view = { tab: 'sim', screen: 'result' };
-    render(); scrollTop();
-  }
-
-  function simTotals(sim, st) {
-    var key = function (q) { return q.n; };
-    var res = { all: Scoring.total(sim.questions, st.ans, key), parts: [], arch: null, formez: null };
-    res.parts = sim.parts.map(function (p) {
-      return { part: p, t: Scoring.total(sim.questions.filter(function (q) { return q.part === p.n; }), st.ans, key) };
-    });
-    res.arch = Scoring.total(sim.questions.filter(function (q) { return !q.formez; }), st.ans, key);
-    res.formez = Scoring.total(sim.questions.filter(function (q) { return q.formez; }), st.ans, key);
-    return res;
-  }
-  function simCode(sim, q) { return q.code || (sim.id + '-' + q.n); }
-
-  SCREENS_DEF('sim:result', function () {
-    var s = session;
-    if (!s || s.kind !== 'simres') { view.screen = 'home'; return SCREENS['sim:home'](); }
-    var sim = simById[s.sim];
-    var st = simState(s.sim);
-    if (!st || !st.submitted) { view.screen = 'home'; return SCREENS['sim:home'](); }
-    var R = simTotals(sim, st);
-    var results = {};
-    sim.questions.forEach(function (q) { results[q.n] = Scoring.score(q, st.ans[q.n]).e; });
-    var wrongQs = sim.questions.filter(function (q) { var e = results[q.n]; return e === 'ko' || e === 'worst' || e === 'neu' || e === 'nc'; });
-    var codes = uniq(wrongQs.map(function (q) { return simCode(sim, q); }));
-    var used = Math.min(SIM_MINUTES * 60000, st.submitted - st.start);
-    function line(t) {
-      return '<td class="num">' + (t.ok + t.best) + ' · ' + (t.ko + t.worst + t.neu + t.nc) + ' · ' + t.om + '</td>' +
-        '<td class="num"><b>' + Scoring.fmt(t.p) + '</b><br><span class="small muted">su ' + (t.max / 100) + '</span></td>';
-    }
-    var thead = '<thead><tr><th>Parte</th><th class="num">G · S · O</th><th class="num">Punti</th></tr></thead>';
-    var h = '' +
-      '<h1>Esito · ' + esc(sim.title) + '</h1>' +
-      '<div class="panel"><div class="score">' + Scoring.fmt(R.all.p) + '<span class="muted" style="font-size:20px"> / ' + Scoring.fmt(R.all.max) + '</span></div>' +
-      '<p class="small muted" style="margin-top:6px">' + (st.auto ? 'Consegnata allo scadere del tempo' : 'Consegnata dopo ' + fmtClock(used)) +
-      ' · esatta +1, errata −0,53, omessa 0; situazionali 1 / 0,50 / 0</p>' +
-      '<div class="kv">' +
-      '<span>Esatte (scelta multipla)</span><span>' + R.all.ok + '</span>' +
-      '<span>Errate (scelta multipla)</span><span>' + R.all.ko + '</span>' +
-      '<span>Situazionali: migliore / neutra / peggiore</span><span>' + R.all.best + ' / ' + (R.all.neu + R.all.nc) + ' / ' + R.all.worst + '</span>' +
-      '<span>Omesse</span><span>' + R.all.om + '</span>' +
-      '</div></div>' +
-      '<div class="panel"><h2 style="margin-top:0">Per parte</h2><div class="tw"><table>' + thead + '<tbody>' +
-      R.parts.map(function (x) {
-        return '<tr><td><b>' + esc(x.part.roman) + '</b> · ' + esc(x.part.title) + '</td>' + line(x.t) + '</tr>';
-      }).join('') + '</tbody></table></div>' +
-      '<p class="small muted">G · S · O = giuste · sbagliate · omesse. Giuste = esatte e risposte migliori; nei situazionali le neutre stanno fra le sbagliate ma valgono 0,50.</p></div>' +
-      '<div class="panel"><h2 style="margin-top:0">Archivio e Formez</h2><div class="tw"><table>' + thead.replace('Parte', 'Gruppo') + '<tbody>' +
-      '<tr><td>Archivio (' + R.arch.n + ')</td>' + line(R.arch) + '</tr>' +
-      '<tr><td>Formez «mai visti» (' + R.formez.n + ')</td>' + line(R.formez) + '</tr>' +
-      '</tbody></table></div></div>' +
-      '<div class="panel"><h2 style="margin-top:0">Codici sbagliati</h2><p class="small muted">Codici per il ripasso dei quesiti errati, peggiori o neutri.</p>' +
-      (codes.length ? '<p class="codes" id="codes-sim">' + esc(codes.join(', ')) + '</p><button class="btn sm" data-act="copyCodes" data-src="codes-sim">Esporta codici</button>' : '<p class="muted small">Nessuno.</p>') +
-      '</div>' +
-      '<h2>Revisione</h2>' +
-      simGrid(sim, st, null, results) +
-      '<div class="field"><span class="lbl">Mostra</span>' + seg('simFilter', ['all', 'wrong', 'om'], s.filter, ['Tutti', 'Sbagliati', 'Omessi']) + '</div>';
-    sim.questions.forEach(function (q) {
-      var e = results[q.n];
-      if (s.filter === 'wrong' && !(e === 'ko' || e === 'worst' || e === 'neu' || e === 'nc')) return;
-      if (s.filter === 'om' && e !== 'om') return;
-      var part = partOf(sim, q.part);
-      h += '<div class="panel" id="rev-' + q.n + '">' +
-        '<div class="qhead"><span class="qid">Quesito ' + q.n + '</span><span class="small muted">' + (part ? 'Parte ' + esc(part.roman) : '') + (q.formez ? ' · Formez' : '') + '</span></div>' +
-        braniHtml(q.brano, sim.brani, false) +
-        (q.fig ? '<div class="fig">figura: vedi il PDF della simulazione</div>' : '') +
-        '<div class="qtext">' + q.text + '</div>' +
-        optionsHtml(q, st.ans[q.n], true, 'noop', true) +
-        verdictHtml(q, st.ans[q.n]) +
-        '<p><b>Chiave:</b> ' + esc(keyText(q)) + (q.code ? ' · <b>codice per il ripasso:</b> <span class="qid">' + esc(q.code) + '</span>' : '') + '</p>' +
-        '<div class="expl">' + (q.expl || '<p class="muted">Nessuna spiegazione nel materiale.</p>') + '</div>' +
-        '</div>';
-    });
-    h += '<div class="row"><button class="btn ghost" data-act="simBack">Torna alle simulazioni</button></div>';
-    return h;
-  });
-  CHANGES.simFilter = function (t) { session.filter = t.value; render(); };
-  ACTIONS.simJumpRev = function (t) {
-    var n = t.getAttribute('data-n');
-    var el = document.getElementById('rev-' + n);
-    if (!el) { session.filter = 'all'; render(); el = document.getElementById('rev-' + n); }
-    if (el) el.scrollIntoView({ block: 'start' });
-  };
-  ACTIONS.simBack = function () { session = null; view = { tab: 'sim', screen: 'home' }; render(); };
-  ACTIONS.noop = function () {};
 
   /* ============================================================ PROGRESSI */
 
-  SCREENS_DEF('prog:home', function () {
-    var seen = 0, boxes = [0, 0, 0, 0, 0, 0], wrong = 0;
-    DATA.cards.forEach(function (c) {
-      var s = S.cards[c.id];
-      if (s) { seen++; boxes[s.b]++; if (s.w) wrong++; }
-    });
-    var h = '<h1>Progressi</h1>' +
-      '<div class="panel"><h2 style="margin-top:0">Flashcard</h2>' +
-      '<div class="kv"><span>Carte viste</span><span>' + seen + ' / ' + DATA.cards.length + '</span>' +
-      '<span>Sbagliate all\'ultima risposta</span><span>' + wrong + '</span>' +
-      '<span>Nella scatola 5</span><span>' + boxes[5] + '</span></div>' +
-      '<div class="boxes" style="margin-top:10px"><div><span class="n">' + (DATA.cards.length - seen) + '</span><span class="l">nuove</span></div>' +
-      [1, 2, 3, 4, 5].map(function (b) { return '<div><span class="n">' + boxes[b] + '</span><span class="l">scatola ' + b + '</span></div>'; }).join('') +
-      '</div></div>';
-    if (QZ.length) {
-      var ans = 0, ok = 0, ko = 0;
-      QZ.forEach(function (q) { var s = S.quiz[q.id]; if (s) { ans++; if (s.r === 'ok' || s.r === 'best') ok++; else if (s.r !== 'om') ko++; } });
-      h += '<div class="panel"><h2 style="margin-top:0">Quiz</h2><div class="kv">' +
-        '<span>Quesiti risposti</span><span>' + ans + ' / ' + QZ.length + '</span>' +
-        '<span>Giusti all\'ultima risposta</span><span>' + ok + '</span>' +
-        '<span>Sbagliati o non migliori</span><span>' + ko + '</span>' +
-        '<span>Da ripassare (sbagliati o a caso)</span><span>' + exportCodesAll().length + '</span></div></div>';
-    }
-    if (SIMS.length) {
-      h += '<div class="panel"><h2 style="margin-top:0">Simulazioni</h2><div class="kv">' + SIMS.map(function (sim) {
-        var st = simState(sim.id);
-        var v = !st ? 'non iniziata' : !st.submitted ? 'in corso' : Scoring.fmt(simTotals(sim, st).all.p) + ' / ' + Scoring.fmt(sim.questions.length * 100);
-        return '<span>' + esc(sim.title) + '</span><span>' + v + '</span>';
-      }).join('') + '</div></div>';
-    }
-    h += '<div class="panel"><h2 style="margin-top:0">Esporta / Importa progressi</h2>' +
-      '<p class="small muted">I progressi stanno solo in questo browser. Per spostarli su un altro dispositivo esportali, conserva il testo (per esempio in una nota o in un messaggio a te stesso) e importalo dall\'altra parte: l\'import unisce i dati e, per ogni carta o quesito, tiene la risposta più recente.</p>' +
-      (storageOk ? '' : '<div class="note">Questo browser non permette di salvare: esporta prima di chiudere la pagina.</div>') +
-      '<div class="row"><button class="btn primary" data-act="exportCopy">Esporta e copia il testo</button>' +
-      (DATA.hosted ? '' : '<button class="btn" data-act="exportFile">Scarica file JSON</button>') + '</div>' +
-      '<div class="field" style="margin-top:10px"><label for="exp-text">Testo esportato</label><textarea id="exp-text" readonly placeholder="Tocca «Esporta e copia il testo»"></textarea></div>' +
-      '<hr>' +
-      '<div class="field"><label for="imp-file">Importa da file</label><input id="imp-file" type="file" accept=".json,application/json" data-change="importFile" style="min-height:48px"></div>' +
-      '<div class="field"><label for="imp-text">…oppure incolla il testo esportato</label><textarea id="imp-text" placeholder="{&quot;v&quot;:1,…}"></textarea></div>' +
-      '<button class="btn block" data-act="importText">Importa testo incollato</button>' +
-      '<hr><button class="btn ghost block" data-act="resetAll">Azzera tutti i progressi</button>' +
+  SCREENS.prog = function () {
+    return '<h1>Progressi</h1>' +
+      '<div class="panel"><p class="sync" data-sync></p>' +
+      (DATA.hosted ? '<p class="small muted">Entri con il tuo account Claude: i segni stanno nella tua area privata di questa pagina, che nessun altro può leggere.</p>' :
+        '<p class="small muted">Questa copia del file salva solo in questo browser. Per ritrovare i segni su più dispositivi usa la pagina su claude.ai, oppure esporta e importa il testo qui sotto.</p>') +
+      (storageOk ? '' : '<p class="note">Questo browser non permette di salvare in locale.</p>') +
       '</div>' +
-      '<div class="panel small muted"><h2 style="margin-top:0">Dati</h2>' +
-      '<p>Generato il ' + esc(DATA.generated) + ' da ' + DATA.volumes.length + ' volumi di ripasso' +
-      (QZ.length ? ', ' + QZ.length + ' quesiti d\'archivio' : '') + (SIMS.length ? ', ' + SIMS.length + ' simulazioni' : '') + '.</p>' +
-      '<p>' + DATA.volumes.map(function (v) { return 'Vol. ' + v.vol + ' — ' + esc(v.title) + ' (' + DATA.cards.filter(function (c) { return c.vol === v.vol; }).length + ' carte)'; }).join('<br>') + '</p>' +
-      (QZ.length ? '' : '<p>Quiz d\'archivio non disponibile: mancano i file DOSSIER_* / ADDENDA* fra i materiali.</p>') +
-      (SIMS.length ? '' : '<p>Simulazione non disponibile: mancano i file SIMULAZIONE_MISTA_* fra i materiali.</p>') +
-      '</div>';
-    return h;
-  });
-
-  function exportJson() {
-    return JSON.stringify({ v: 1, app: 'ripasso-sna12', exported: new Date().toISOString(), cards: S.cards, quiz: S.quiz, sims: S.sims, prefs: S.prefs });
-  }
-  ACTIONS.exportFile = function () {
-    var blob = new Blob([exportJson()], { type: 'application/json' });
-    var a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'progressi-sna12-' + stamp() + '.json';
-    document.body.appendChild(a); a.click();
-    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
-    toast('File esportato');
+      '<div class="panel"><h2>Per volume</h2><div class="tw"><table><thead><tr><th>Volume</th><th class="num">Da ripassare</th><th class="num">Lo so</th><th class="num">Non segnati</th></tr></thead><tbody>' +
+      DATA.volumes.map(function (v) {
+        var c = counts(ORDER.filter(function (id) { return PT[id].vol === v.vol; }));
+        return '<tr><td>Vol. ' + v.vol + ' — ' + esc(v.title) + '</td><td class="num">' + c.rip + '</td><td class="num">' + c.ok + '</td><td class="num">' + c.none + '</td></tr>';
+      }).join('') + '</tbody></table></div></div>' +
+      '<div class="panel"><h2>Copia di sicurezza</h2>' +
+      '<p class="small muted">Esporta i segni come testo e conservalo dove vuoi; per ripristinarli, incollalo qui sotto e importa. L\'import unisce i dati e per ogni punto tiene il segno più recente.</p>' +
+      '<button class="btn primary" data-act="exportCopy">Esporta e copia il testo</button>' +
+      '<div class="field" style="margin-top:10px"><label class="lbl" for="exp-text">Testo esportato</label><textarea id="exp-text" readonly></textarea></div>' +
+      '<div class="field"><label class="lbl" for="imp-text">Testo da importare</label><textarea id="imp-text" placeholder="Incolla qui il testo esportato"></textarea></div>' +
+      '<button class="btn" data-act="importText">Importa</button>' +
+      '<hr><button class="btn ghost block" data-act="resetAll">Cancella tutti i segni</button></div>' +
+      '<p class="small muted">Materiali: ' + DATA.volumes.map(function (v) { return esc(v.file); }).join(', ') +
+      ' · pagina generata il ' + esc(DATA.generated) + ' · ' + ORDER.length + ' punti.</p>';
   };
   ACTIONS.exportCopy = function () {
+    var text = JSON.stringify({ v: 1, app: 'sna12-rilettura', exported: new Date().toISOString(), resetAt: S.resetAt || 0, marks: S.marks });
     var ta = document.getElementById('exp-text');
-    var text = exportJson();
-    if (ta) { ta.value = text; ta.focus(); ta.select(); }
-    copyText(text);
-  };
-  function mergeMap(dst, src) {
-    var n = 0;
-    Object.keys(src || {}).forEach(function (k) {
-      var a = dst[k], b = src[k];
-      if (!b || typeof b !== 'object') return;
-      if (!a || (b.t || b.submitted || b.start || 0) > (a.t || a.submitted || a.start || 0)) { dst[k] = b; n++; }
-    });
-    return n;
-  }
-  function importJson(text) {
-    var d;
-    try { d = JSON.parse(text); } catch (e) { toast('Testo non valido: non è un JSON'); return; }
-    if (!d || d.v !== 1 || typeof d.cards !== 'object') { toast('Il file non sembra un export di questa app'); return; }
-    var n = mergeMap(S.cards, d.cards) + mergeMap(S.quiz, d.quiz || {}) + mergeMap(S.sims, d.sims || {});
-    save();
-    toast('Importati ' + n + ' elementi');
-    render();
-  }
-  CHANGES.importFile = function (t) {
-    var f = t.files && t.files[0];
-    if (!f) return;
-    var r = new FileReader();
-    r.onload = function () { importJson(String(r.result)); };
-    r.readAsText(f);
+    ta.value = text;
+    copyText(text, ta);
   };
   ACTIONS.importText = function () {
     var v = document.getElementById('imp-text').value.trim();
     if (!v) { toast('Incolla prima il testo esportato'); return; }
-    importJson(v);
+    var d;
+    try { d = JSON.parse(v); } catch (e) { toast('Il testo non è un export valido'); return; }
+    if (!d || d.v !== 1 || !d.marks || typeof d.marks !== 'object') { toast('Il testo non è un export di questa pagina'); return; }
+    var n = 0;
+    Object.keys(d.marks).forEach(function (id) {
+      var r = d.marks[id];
+      if (PT[id] && Array.isArray(r) && r[1] > stamp(id) && r[1] > (S.resetAt || 0)) { S.marks[id] = [r[0], r[1]]; queue(id); n++; }
+    });
+    saveLocal();
+    toast(n ? plural(n, 'segno importato', 'segni importati') : 'Niente di nuovo da importare');
+    render();
   };
   ACTIONS.resetAll = function () {
-    ask('Cancellare tutti i progressi (flashcard, quiz, simulazioni) da questo browser?', 'Azzera', function () {
-      var theme = S.prefs.theme;
-      S = blankState(); S.prefs.theme = theme; save(); render(); toast('Progressi azzerati');
+    ask('Cancellare tutti i segni «lo so» e «da ripassare»' + (sync.mode === 'cloud' ? ', anche dal tuo account' : '') + '?', 'Cancella', function () {
+      var now = Date.now();
+      S.marks = {};
+      S.resetAt = now;
+      S.prefs.last = null;
+      saveLocal();
+      if (sync.coll) {
+        sync.pending = {};
+        var vols = DATA.volumes.map(function (v) { return v.vol; });
+        sync.coll.doc('meta').set({ resetAt: now }).then(function () {
+          return Promise.all(vols.map(function (vol) { return sync.coll.doc('v' + vol).set({ m: {} }); }));
+        }).catch(function () { sync.mode = 'error'; showSync(); });
+      }
+      render();
+      toast('Segni cancellati');
     }, true);
   };
 
@@ -1053,33 +731,31 @@
 
   document.addEventListener('keydown', function (e) {
     if (!$modal.hidden) { if (e.key === 'Escape') closeModal(); return; }
-    if (e.target && /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName) && e.target.type !== 'checkbox') return;
+    var tag = e.target && e.target.tagName;
+    if (/^(INPUT|SELECT|TEXTAREA)$/.test(tag) && e.target.type !== 'checkbox') return;
     if (e.ctrlKey || e.metaKey || e.altKey) return;
-    if (!session) return;
-    if (session.kind === 'fc' && view.screen === 'run' && session.i < session.ids.length) {
-      if ((e.key === ' ' || e.key === 'Enter') && !session.revealed) { e.preventDefault(); ACTIONS.fcShow(); }
-      else if (session.revealed && (e.key === '1' || e.key === '2' || e.key === '3')) {
-        e.preventDefault(); fcRate({ 1: 'ko', 2: 'mid', 3: 'ok' }[e.key]);
-      }
-    } else if (session.kind === 'qz' && view.screen === 'run' && session.i < session.ids.length) {
-      var q = qById[session.ids[session.i]];
-      var k = e.key.toUpperCase();
-      if (!session.done[q.id] && /^[A-E]$/.test(k) && q.opts.some(function (o) { return o.k === k; })) {
-        e.preventDefault(); ACTIONS.qzAns({ getAttribute: function () { return k; } });
-      } else if (session.done[q.id] && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); ACTIONS.qzNext(); }
-    } else if (session.kind === 'sim' && view.screen === 'run') {
-      if (e.key === 'ArrowRight') ACTIONS.simGo({ getAttribute: function () { return '1'; } });
-      else if (e.key === 'ArrowLeft') ACTIONS.simGo({ getAttribute: function () { return '-1'; } });
+    if (e.key === 'ArrowDown' || e.key === 'j') {
+      var n = nextPoint(1); if (n) { e.preventDefault(); focusPoint(n, true); }
+    } else if (e.key === 'ArrowUp' || e.key === 'k') {
+      var p = nextPoint(-1); if (p) { e.preventDefault(); focusPoint(p, true); }
+    } else if (focusId && (e.key === '1' || e.key === 'r')) { e.preventDefault(); mark(RIP); }
+    else if (focusId && (e.key === '2' || e.key === 's')) { e.preventDefault(); mark(OK); }
+    else if (focusId && e.key === 'Escape') unfocus();
+    else if (e.key === 'Enter' && e.target.classList && e.target.classList.contains('it')) {
+      e.preventDefault(); focusPoint(e.target.getAttribute('data-id'), false);
     }
   });
 
   /* ============================================================ avvio */
 
-  function SCREENS_DEF(name, fn) { SCREENS[name] = fn; }
-
   applyTheme();
   countdown();
-  if (S.prefs.tab && TABS.some(function (t) { return t.id === S.prefs.tab; })) view.tab = S.prefs.tab;
+  var pv = S.prefs.view;
+  if (pv && SCREENS[pv.tab] && (pv.tab !== 'sch' || schedaByKey[pv.k])) view = pv;
   render();
-  window.addEventListener('pageshow', countdown);
+  if (view.tab === 'sch' && S.prefs.last && S.prefs.last.sk === view.k && S.prefs.last.id) {
+    var el0 = $app.querySelector('.it[data-id="' + S.prefs.last.id + '"]');
+    if (el0) window.scrollTo(0, window.scrollY + el0.getBoundingClientRect().top - headerBottom() - 24);
+  }
+  startSync();
 })();

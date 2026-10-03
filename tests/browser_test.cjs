@@ -1,9 +1,8 @@
 /* Test nel browser headless (Playwright, Chromium) con vista da telefono.
    Uso:  node tests/browser_test.cjs [cartella-screenshot]
-   Richiede: dist/ripasso-sna12.html (python3 build.py) e la build delle fixture
-   (la crea da sé in una cartella temporanea). */
+   Richiede dist/ripasso-sna12.html e dist/ripasso-sna12-artifact.html
+   (python3 build.py && python3 build.py --artifact). */
 'use strict';
-const { execFileSync } = require('child_process');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
@@ -16,16 +15,14 @@ try { ({ chromium } = require('playwright')); } catch (e) {
 const ROOT = path.resolve(__dirname, '..');
 const SHOTS = process.argv[2] || fs.mkdtempSync(path.join(os.tmpdir(), 'sna12-shots-'));
 fs.mkdirSync(SHOTS, { recursive: true });
-const REAL = path.join(ROOT, 'dist', 'ripasso-sna12.html');
-const FIXTURE = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'sna12-fx-')), 'fixture.html');
-execFileSync('python3', [path.join(ROOT, 'build.py'), '--materiali', path.join(ROOT, 'tests', 'fixtures', 'materiali'), '--out', FIXTURE], { stdio: 'ignore' });
+const LOCAL = path.join(ROOT, 'dist', 'ripasso-sna12.html');
+const HOSTED = path.join(ROOT, 'dist', 'ripasso-sna12-artifact.html');
 
 let failures = 0;
 function check(cond, msg) {
   console.log((cond ? '  ok   ' : '  FAIL ') + msg);
   if (!cond) failures++;
 }
-
 async function phone(browser) {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, locale: 'it-IT' });
   const page = await ctx.newPage();
@@ -35,188 +32,155 @@ async function phone(browser) {
   page.on('dialog', d => { page.errors.push('dialogo nativo: ' + d.message()); d.dismiss(); });
   return page;
 }
-async function noHScroll(page) {
-  return page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth);
-}
+const noHScroll = page => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth);
+const state = page => page.evaluate(() => JSON.parse(localStorage.getItem('sna12-rilettura-v1') || '{}'));
+const shot = (page, name, full) => page.screenshot({ path: path.join(SHOTS, name), fullPage: !!full });
 
 (async () => {
+  for (const f of [LOCAL, HOSTED]) if (!fs.existsSync(f)) { console.error('Manca ' + f + ': esegui la build'); process.exit(2); }
   const browser = await chromium.launch();
 
-  /* ---------------- flashcard sui materiali reali */
-  if (fs.existsSync(REAL)) {
-    console.log('Flashcard (materiali reali)');
-    const page = await phone(browser);
-    await page.goto('file://' + REAL);
-    await page.screenshot({ path: path.join(SHOTS, '01-flash-home.png'), fullPage: true });
-    check(await noHScroll(page), 'nessuno scroll orizzontale a 390 px');
-    const tabs = await page.$$eval('.tab', b => b.map(x => x.textContent));
-    check(tabs.join('|') === 'Flashcard|Progressi', 'quiz e simulazione nascosti senza i loro file (' + tabs.join(', ') + ')');
-    // filtro: un volume e una scheda, così la prima carta è una carta a lacune nota
-    await page.selectOption('#fc-vol', '1');
-    await page.selectOption('#fc-sch', '1:D4');
-    await page.click('[data-act=seg][data-name=fcSize][data-val="10"]');
-    await page.click('[data-act=fcStart]');
-    const lac = await page.$('.card .lac');
-    check(!!lac, 'la prima carta di D4 è a lacune');
-    const hidden = await page.$eval('.card .lac', el => getComputedStyle(el).color);
-    check(/rgba\(0, 0, 0, 0\)|transparent/.test(hidden), 'le lacune sono nascoste prima di «Mostra risposta»');
-    await page.screenshot({ path: path.join(SHOTS, '02-flash-cloze.png') });
-    const btnH = await page.$eval('[data-act=fcShow]', el => el.getBoundingClientRect().height);
-    check(btnH >= 48, 'tasto «Mostra risposta» alto almeno 48 px (' + Math.round(btnH) + ')');
-    await page.click('[data-act=fcShow]');
-    const shown = await page.$eval('.card .lac', el => getComputedStyle(el).color);
-    check(!/rgba\(0, 0, 0, 0\)/.test(shown), 'le lacune compaiono dopo «Mostra risposta»');
-    await page.screenshot({ path: path.join(SHOTS, '03-flash-revealed.png') });
-    await page.click('[data-act=fcRate][data-r=ko]');
-    await page.click('[data-act=fcShow]');
-    await page.click('[data-act=fcRate][data-r=ok]');
-    const st = await page.evaluate(() => JSON.parse(localStorage.getItem('sna12-ripasso-v1')));
-    const vals = Object.values(st.cards);
-    check(vals.length === 2, 'due carte salvate in localStorage');
-    check(vals.some(v => v.b === 1 && v.w === true), '«Non sapevo» → scatola 1 e segnata sbagliata');
-    check(vals.some(v => v.b === 2 && !v.w), '«Sapevo» → sale alla scatola 2');
-    // termina e torna ai filtri: «solo sbagliate» deve contare 1 carta
-    await page.click('[data-act=fcQuit]');
-    await page.click('[data-act=fcHome]');
-    await page.check('[data-change=fcWrong]');
-    const lbl = await page.textContent('#fc-count');
-    check(/1 carta/.test(lbl), 'filtro «solo carte sbagliate» → 1 carta (' + lbl.trim() + ')');
-    await page.uncheck('[data-change=fcWrong]');
-    // tabella dei numeri
-    await page.selectOption('#fc-vol', '');
-    await page.check('[data-change=fcNum]');
-    await page.click('[data-act=fcStart]');
-    check(!!(await page.$('.tq')), 'filtro numeri → carta-tabella');
-    await page.click('[data-act=fcShow]');
-    await page.screenshot({ path: path.join(SHOTS, '04-flash-table.png') });
-    // tema scuro
-    await page.emulateMedia({ colorScheme: 'dark' });
-    const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-    check(bg === 'rgb(20, 22, 26)', 'tema scuro automatico (' + bg + ')');
-    await page.screenshot({ path: path.join(SHOTS, '05-flash-dark.png') });
-    await page.emulateMedia({ colorScheme: 'light' });
-    await page.click('#theme-btn'); // auto → chiaro
-    await page.click('#theme-btn'); // chiaro → scuro
-    const forced = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
-    check(forced === 'dark', 'il pulsante forza il tema scuro');
-    // progressi: export
-    await page.click('[data-tab=prog]');
-    await page.click('[data-act=exportCopy]');
-    const exported = await page.inputValue('#exp-text');
-    check(/"cards":\{"[0-9a-f]{10}/.test(exported), 'esporta progressi: testo JSON con le carte');
-    await page.click('[data-act=resetAll]');
-    await page.click('#modal-no');
-    check(Object.keys(JSON.parse(await page.evaluate(() => localStorage.getItem('sna12-ripasso-v1'))).cards).length === 2, '«Annulla» non azzera');
-    await page.screenshot({ path: path.join(SHOTS, '06-progressi.png'), fullPage: true });
-    check(await noHScroll(page), 'Progressi: nessuno scroll orizzontale');
-    check(page.errors.length === 0, 'nessun errore JavaScript (' + page.errors.join('; ') + ')');
-    await page.close();
-  } else {
-    console.log('dist/ripasso-sna12.html assente: esegui prima python3 build.py');
-    failures++;
-  }
-
-  /* ---------------- quiz e simulazione sulle fixture */
-  console.log('Quiz e simulazione (fixture sintetiche)');
+  /* ---------------- lettura e segni (file locale) */
+  console.log('Lettura e segni');
   const page = await phone(browser);
-  await page.goto('file://' + FIXTURE);
+  await page.goto('file://' + LOCAL);
   const tabs = await page.$$eval('.tab', b => b.map(x => x.textContent));
-  check(tabs.join('|') === 'Flashcard|Quiz|Simulazione|Progressi', 'con i file, compaiono Quiz e Simulazione');
-  await page.click('[data-tab=quiz]');
-  await page.uncheck('[data-change=qzRandom]');
-  await page.click('[data-act=seg][data-name=qzSize][data-val=all]');
-  await page.screenshot({ path: path.join(SHOTS, '07-quiz-home.png'), fullPage: true });
-  await page.click('[data-act=qzStart]');
-  // D1-M1 (situazionale, solo la migliore: C)
-  check((await page.textContent('.qid')) === 'D1-M1', 'primo quesito D1-M1');
-  await page.click('[data-act=qzAns][data-k=C]');
-  check(/migliore · \+1/.test(await page.textContent('.verdict')), 'situazionale: migliore +1');
-  await page.click('[data-act=qzNext]');
-  // D1-M2: rispondo B (non migliore; neutra/peggiore non indicate) → 0
-  await page.click('[data-act=qzAns][data-k=B]');
-  check(/Non è la migliore · 0/.test(await page.textContent('.verdict')), 'situazionale senza neutra indicata: 0');
-  await page.click('[data-act=qzNext]');
-  // D5-11 chiave A: rispondo B → errata −0,53; segno «indovinata a caso»
-  check((await page.textContent('.qid')) === 'D5-11', 'terzo quesito D5-11');
-  await page.check('[data-change=qzGuess]');
-  await page.click('[data-act=qzAns][data-k=B]');
-  check(/Errata · −0,53/.test(await page.textContent('.verdict')), 'errata −0,53');
-  check(/Secondo paragrafo/.test(await page.textContent('.expl')), 'spiegazione integrale (anche il secondo paragrafo)');
-  check(/UFFICIALE SNA-11 \| busta 3, 2025, Q37/.test(await page.textContent('.panel')), 'etichetta della fonte');
-  await page.screenshot({ path: path.join(SHOTS, '08-quiz-answer.png'), fullPage: true });
-  await page.click('[data-act=qzNext]');
-  // D5-13: avviso affidabilità media; salto (omessa)
-  check(!!(await page.$('.note')), 'avviso «affidabilità media»');
-  await page.click('[data-act=qzSkip]');
-  check(/Omessa · 0/.test(await page.textContent('.verdict')), 'omessa 0');
-  await page.click('[data-act=qzNext]');
-  // D6-1 con brano: chiave D → esatta
-  check(!!(await page.$('details.brano[open]')), 'brano mostrato con la domanda');
-  await page.click('[data-act=qzAns][data-k=D]');
-  check(/Esatta · \+1/.test(await page.textContent('.verdict')), 'esatta +1');
-  await page.click('[data-act=qzNext]');
-  await page.click('[data-act=qzAns][data-k=C]'); // D6-2 esatta
-  await page.click('[data-act=qzNext]');
-  await page.click('[data-act=qzAns][data-k=A]'); // D6-3 esatta
-  await page.click('[data-act=qzNext]');
-  // AD2-C.12: situazionale con neutra B
-  await page.click('[data-act=qzAns][data-k=B]');
-  check(/neutra · \+0,50/.test(await page.textContent('.verdict')), 'situazionale: neutra +0,50');
-  const tags = await page.$$eval('.opt .tag', t => t.map(x => x.textContent).join(','));
-  check(/migliore/.test(tags) && /neutra/.test(tags) && /peggiore/.test(tags), 'etichette migliore / neutra / peggiore');
-  await page.screenshot({ path: path.join(SHOTS, '09-quiz-sit.png'), fullPage: true });
-  await page.click('[data-act=qzNext]');
-  // risultato: 1 + 0 − 0,53 + 0 + 1 + 1 + 1 + 0,50 = 3,97
-  const score = await page.textContent('.score');
-  check(score.startsWith('3,97'), 'punteggio quiz = 3,97 calcolato a mano (' + score + ')');
-  const codes = await page.textContent('#codes-sess');
-  check(codes === 'D1-M2, D5-11, AD2-C.12', 'codici esportati = sbagliati o a caso (' + codes + ')');
-  await page.screenshot({ path: path.join(SHOTS, '10-quiz-result.png'), fullPage: true });
+  check(tabs.join('|') === 'Indice|Da ripassare|Cerca|Progressi', 'schede: ' + tabs.join(', '));
+  check(await noHScroll(page), 'indice: nessuno scroll orizzontale a 390 px');
+  const vols = await page.$$eval('.vol-t', v => v.length);
+  check(vols === 4, '4 volumi, senza i dettagli di nicchia');
+  await shot(page, '01-indice.png', true);
 
-  // simulazione
-  await page.click('[data-tab=sim]');
-  await page.click('[data-act=simStart]');
+  await page.click('.srow[data-k="1:D4"]');
+  check((await page.textContent('h1')).includes('Il procedimento amministrativo'), 'apre la scheda D4');
+  const nPts = await page.$$eval('.rd .it', e => e.length);
+  check(nPts > 80, 'tutti i punti visibili, niente lacune (' + nPts + ' punti)');
+  check(!(await page.$('.lac')), 'nessun testo nascosto');
+  await shot(page, '02-scheda.png');
+
+  const first = await page.getAttribute('.rd .it >> nth=0', 'data-id');
+  await page.click('.rd .it >> nth=0');
+  check(await page.isVisible('#bar'), 'tocco un punto: compare la barra «Da ripassare / Lo so»');
+  const barH = await page.$eval('#bar [data-mark="1"]', el => el.getBoundingClientRect().height);
+  check(barH >= 48, 'tasti della barra alti almeno 48 px (' + Math.round(barH) + ')');
+  await shot(page, '03-punto-selezionato.png');
+  await page.click('#bar [data-mark="1"]');
+  check((await page.getAttribute('.it[data-id="' + first + '"]', 'data-s')) === '1', '«Da ripassare» segnato');
+  const second = await page.getAttribute('.it.focus', 'data-id');
+  check(second && second !== first, 'la selezione passa da sola al punto successivo');
+  await page.click('#bar [data-mark="2"]');
+  check((await page.getAttribute('.it[data-id="' + second + '"]', 'data-s')) === '2', '«Lo so» segnato');
+  await page.click('#bar [data-mark="2"]'); // terzo punto: lo so
+  const third = await page.$$eval('.it[data-s="2"]', e => e.length);
+  check(third === 2, 'due punti «lo so»');
+  // toccare di nuovo lo stesso segno lo toglie
+  await page.click('.it[data-id="' + second + '"]');
+  await page.click('#bar [data-mark="2"]');
+  check((await page.getAttribute('.it[data-id="' + second + '"]', 'data-s')) === '0', 'ritoccare «Lo so» toglie il segno');
+  await page.click('#bar .close');
+  check(!(await page.isVisible('#bar')), '✕ chiude la barra');
+  let S = await state(page);
+  const vals = Object.values(S.marks);
+  check(vals.filter(v => v[0] === 1).length === 1 && vals.filter(v => v[0] === 2).length === 1, 'segni salvati nel browser');
+
+  // viste filtrate della scheda
+  await page.click('[data-act=seg][data-name=mode][data-val=rip]');
+  check((await page.$$eval('.rd .it', e => e.length)) === 1, 'Mostra «Da ripassare»: 1 punto');
+  await page.click('[data-act=seg][data-name=mode][data-val=ess]');
+  const ess = await page.$$eval('.rd .it', e => e.length);
+  check(ess === 12, 'Mostra «Essenziale»: In breve + Da non confondere (' + ess + ')');
+  await shot(page, '04-essenziale.png', true);
+  await page.click('[data-act=seg][data-name=mode][data-val=all]');
+
+  // giro di ripasso
+  await page.click('[data-tab=rip]');
+  check((await page.textContent('#rv-count')).trim() === '1 punto', '«Da ripassare»: 1 punto');
+  await shot(page, '05-da-ripassare.png', true);
+  await page.click('.rd .it >> nth=0');
+  await page.click('#bar [data-mark="2"]');
+  S = await state(page);
+  check(S.marks[first][0] === 2, 'nel giro di ripasso lo segno «lo so»');
+
+  // cerca
+  await page.click('[data-tab=find]');
+  await page.fill('#q', 'silenzio assenso');
+  await page.waitForTimeout(300);
+  const res = await page.$$eval('#results .it', e => e.length);
+  check(res > 5, 'cerca «silenzio assenso»: ' + res + ' risultati');
+  await page.fill('#q', '21-nonies');
+  await page.waitForTimeout(300);
+  check((await page.$$eval('#results .it', e => e.length)) > 0, 'cerca «21-nonies»');
+  await shot(page, '06-cerca.png', true);
+
+  // segna il resto «lo so» (conferma nella pagina) e riprendi
+  await page.click('[data-tab=idx]');
+  await page.click('[data-act=open][data-resume]');
+  check((await page.textContent('h1')).includes('D4'), '«Riprendi» riapre D4');
+  await page.click('[data-act=restOk]');
+  check(await page.isVisible('#modal-yes'), 'conferma dentro la pagina');
   await page.click('#modal-yes');
-  check(!!(await page.$('#sim-timer')), 'timer visibile');
-  const t0 = await page.textContent('#sim-timer');
-  check(/^(90:00|89:5\d)$/.test(t0), 'timer parte da 90:00 (' + t0 + ')');
-  await page.screenshot({ path: path.join(SHOTS, '11-sim-q1.png'), fullPage: true });
-  async function answer(n, k) {
-    await page.click('[data-act=simGrid]');
-    await page.click('.grid [data-n="' + n + '"]');
-    await page.click('[data-act=simAns][data-k=' + k + ']');
-  }
-  // Consegna di prova (chiavi della fixture):
-  //  1  A>C>B, risposta A → 1        2  B>A>C, risposta A → 0,50     3  C>B>A, risposta A → 0
-  // 13  E, risposta E → +1          14  C, risposta A → −0,53        15  A, risposta B → −0,53
-  // 20  (Formez) A, risposta A → +1  il resto omesso → 0
-  // Totale a mano: 1 + 0,5 + 0 + 1 − 0,53 − 0,53 + 1 = 2,44
-  // Parte I: 1,50 · Parte II: −0,06 · Parte III: 1,00 · Archivio 1,44 · Formez 1,00
-  await answer(1, 'A'); await answer(2, 'A'); await answer(3, 'A');
-  await answer(13, 'E');
-  check(/figura: vedi il PDF della simulazione/.test(await page.textContent('.fig')), 'figurale: nota «vedi il PDF»');
-  await answer(14, 'B'); await answer(14, 'A'); // risposta modificata
-  await answer(15, 'B'); await answer(20, 'A');
-  await page.check('[data-change=simRev]');
-  await page.click('[data-act=simGrid]');
-  const revMarked = await page.$('.grid button.rev');
-  check(!!revMarked, 'quesito segnato «da rivedere» nell\'indice');
-  await page.screenshot({ path: path.join(SHOTS, '12-sim-grid.png'), fullPage: true });
-  await page.click('[data-act=simSubmitAsk]');
-  check(!!(await page.$('#modal-yes')), 'consegna: conferma dentro la pagina');
-  await page.click('#modal-yes');
-  const simScore = await page.textContent('.score');
-  check(simScore.startsWith('2,44'), 'punteggio simulazione = 2,44 calcolato a mano (' + simScore + ')');
-  const partRows = await page.$$eval('table tbody tr', rs => rs.map(r => r.textContent));
-  check(partRows.length === 11 + 2, '11 righe per le parti + 2 (archivio/Formez)');
-  const pts = await page.$$eval('table tbody tr', rs => rs.map(r => r.querySelectorAll('td')[2].querySelector('b').textContent));
-  check(pts[0] === '1,50' && pts[1] === '−0,06' && pts[2] === '1,00', 'punti per parte I, II, III = 1,50 / −0,06 / 1,00 (' + pts.slice(0, 3).join(' / ') + ')');
-  check(pts[11] === '1,44' && pts[12] === '1,00', 'archivio 1,44 e Formez 1,00 (' + pts.slice(11).join(' / ') + ')');
-  const simCodes = await page.textContent('#codes-sim');
-  check(simCodes === 'COD-02, COD-03, COD-14, COD-15', 'codici sbagliati della simulazione (' + simCodes + ')');
-  await page.screenshot({ path: path.join(SHOTS, '13-sim-result.png'), fullPage: true });
-  check(await noHScroll(page), 'esito: nessuno scroll orizzontale');
+  const none = await page.$$eval('.rd .it[data-s="0"]', e => e.length);
+  check(none === 0, 'tutti i punti di D4 segnati');
+  await page.reload();
+  S = await state(page);
+  check(Object.keys(S.marks).length >= nPts, 'dopo il ricaricamento i segni restano (' + Object.keys(S.marks).length + ')');
+
+  // tema e progressi
+  await page.emulateMedia({ colorScheme: 'dark' });
+  const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+  check(bg === 'rgb(20, 22, 26)', 'tema scuro automatico');
+  await shot(page, '07-scuro.png');
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.click('[data-tab=prog]');
+  await page.click('[data-act=exportCopy]');
+  check(/"marks":\{"[0-9a-f]{10}/.test(await page.inputValue('#exp-text')), 'esporta i segni come testo');
+  await page.click('[data-act=resetAll]');
+  await page.click('#modal-no');
+  check(Object.keys((await state(page)).marks).length > 0, '«Annulla» non cancella');
+  await shot(page, '08-progressi.png', true);
+  check(await noHScroll(page), 'progressi: nessuno scroll orizzontale');
   check(page.errors.length === 0, 'nessun errore JavaScript (' + page.errors.join('; ') + ')');
+  await page.close();
+
+  /* ---------------- salvataggio nell'account (capacità db simulata) */
+  console.log('Salvataggio nell\'account (db simulato)');
+  const p2 = await phone(browser);
+  await p2.addInitScript(() => {
+    const log = window.__dbLog = [];
+    let listener = null;
+    const docs = {};
+    const remoteId = 'REMOTE';
+    window.__dbPush = (snapDocs) => listener && listener({ docs: snapDocs.map(d => ({ id: d.id, exists: true, data: () => d.data })) });
+    const coll = {
+      onSnapshot(next) { listener = next; setTimeout(() => window.__dbPush(window.__remoteDocs || []), 50); return () => {}; },
+      doc(id) {
+        return {
+          update(data) { log.push(['update', id, data]); return docs[id] ? Promise.resolve() : Promise.reject({ code: 'invalid_argument' }); },
+          set(data) { log.push(['set', id, data]); docs[id] = data; return Promise.resolve(); }
+        };
+      }
+    };
+    window.claude = { use: (name) => Promise.resolve(name === 'user' ? { id: () => Promise.resolve('u_test') } : name === 'db' ? { collection: (p) => { log.push(['collection', p]); return coll; } } : null) };
+  });
+  await p2.goto('file://' + HOSTED);
+  // un segno «da ripassare» arrivato da un altro dispositivo
+  const anyId = await p2.evaluate(() => JSON.parse(document.getElementById('data').textContent).volumes[0].schede[0].b.find(b => b.t === 'box').b[0].id);
+  await p2.evaluate((id) => { window.__dbPush([{ id: 'v1', data: { m: { [id]: [1, Date.now()] } } }]); }, anyId);
+  await p2.waitForTimeout(150);
+  check((await p2.textContent('[data-sync]')).includes('account Claude'), 'stato: «salvati nel tuo account Claude»');
+  check((await p2.textContent('[data-prog="all"]')).includes('1 da ripassare'), 'il segno arrivato dall\'account compare');
+  const coll = await p2.evaluate(() => window.__dbLog[0]);
+  check(coll[1] === 'data/users/u_test', 'area privata dell\'utente: ' + coll[1]);
+  await p2.click('.srow[data-k="1:D1"]');
+  await p2.click('.rd .it >> nth=1');
+  await p2.click('#bar [data-mark="2"]');
+  await p2.waitForTimeout(1000);
+  const log = await p2.evaluate(() => window.__dbLog.slice(1));
+  check(log.length === 2 && log[0][0] === 'update' && log[1][0] === 'set', 'primo salvataggio: crea il documento del volume');
+  const setDoc = log[1] && log[1][2].m;
+  check(setDoc && Object.keys(setDoc).length === 2, 'il documento contiene il segno nuovo e quello arrivato dall\'account');
+  await shot(p2, '09-account.png');
+  check(p2.errors.length === 0, 'nessun errore JavaScript (' + p2.errors.join('; ') + ')');
 
   await browser.close();
   console.log('\nScreenshot in ' + SHOTS);

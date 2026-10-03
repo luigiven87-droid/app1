@@ -1,422 +1,365 @@
-"""Parser dei ripassi di teoria (RIPASSO_n_*.md) → flashcard."""
+"""Parser dei ripassi di teoria (RIPASSO_n_*.md) → schede da rileggere.
 
-import math
+Ogni scheda è una sequenza di blocchi:
+  {"t": "h",   "h": html}                         titolo di sezione («## …»)
+  {"t": "sub", "h": html}                         didascalia in grassetto («**Le misure**»)
+  {"t": "box", "k": "inbreve|trappole|nota|novita", "title": testo, "b": [blocchi]}
+  {"t": "table", "rows": [punto…]}                tabella: un punto per riga
+  punto (segnabile «lo so» / «da ripassare»):
+  {"t": "p"|"li", "id", "h": html, "n": "1." (elenchi numerati), "nov", "ess", "num"}
+  {"t": "row", "id", "ql": etichetta, "q": html, "a": [[etichetta, html]…], "nov", "ess", "num"}
+"""
+
 import os
 import re
 
 from .common import (
-    NOV_MARK,
-    bold_segments,
+    CLEARPAGE,
+    clean_md_lines,
     fence_info,
     is_empty_cell,
     is_table_sep,
-    mark_nov,
     md_inline,
     md_plain,
-    segments_html,
     split_table_row,
     stable_id,
     take_nov,
 )
 
-MAX_GAPS = 3
-
-SCHEDA_RE = re.compile(r"^#\s+([A-Z]{1,3}\d+)\s+[—–-]\s+(.+?)\s*$")
-H1_RE = re.compile(r"^#\s+(.+?)\s*$")
-H2_RE = re.compile(r"^##\s+(.+?)\s*$")
+SCHEDA_RE = re.compile(r"^([A-Z]{1,3}\d+)\s+[—–-]\s+(.+)$")
+HEAD_RE = re.compile(r"^(#{1,6})\s+(.+?)\s*#*\s*$")
 PARTE_RE = re.compile(r"^\\parte\{(.+)\}\s*$")
-ITEM_RE = re.compile(r"^(\s*)(?:[-*+]|\d+[.)])\s+(.*)$")
-
-# Abbreviazioni dopo le quali un punto non chiude la frase.
-ABBR = {
-    "art", "artt", "c", "cc", "n", "nn", "sez", "cons", "st", "ad", "plen", "cost",
-    "cass", "un", "p", "pp", "par", "lett", "ss", "es", "cfr", "ecc", "sent", "ord",
-    "reg", "dir", "all", "cap", "vol", "cod", "civ", "pen", "proc", "l", "tab", "fig",
-    "sig", "dott", "prof", "min", "pres", "rel", "vs", "co", "nr", "succ", "mod",
-    "segg", "cit", "rif", "doc", "spa", "srl",
-}
+ITEM_RE = re.compile(r"^(\s*)([-*+]|\d+[.)])\s+(.*)$")
+BOXES = {"inbreve": "In breve", "trappole": "Da non confondere", "nota": "Nota", "novita": "Novità"}
 
 
-def _volume_meta(path, lines):
+def _volume_meta(path, raw_lines):
     base = os.path.basename(path)
     m = re.match(r"RIPASSO_(\d+)_", base)
     vol = int(m.group(1)) if m else 0
-    title = None
-    for ln in lines[:30]:
+    for ln in raw_lines[:30]:
         mm = re.search(r"\\color\{[^}]*\}\s*(.+?)\\par\}", ln)
         if mm:
-            title = re.sub(r"\\\\\[[^\]]*\]\s*", " · ", mm.group(1)).strip()
-            break
-    if not title:
-        for ln in lines[:10]:
-            mm = re.search(r"\\newcommand\{\\testataDX\}\{(.+)\}", ln)
-            if mm:
-                title = mm.group(1)
-    if not title:
-        title = base
-    return vol, title
+            return vol, re.sub(r"\\\\\[[^\]]*\]\s*", " · ", mm.group(1)).strip()
+    for ln in raw_lines[:10]:
+        mm = re.search(r"\\newcommand\{\\testataDX\}\{(.+)\}", ln)
+        if mm:
+            return vol, mm.group(1)
+    return vol, base
 
 
-def _clean_lines(lines):
-    """Toglie i comandi LaTeX di impaginazione; restituisce [(n_riga, testo)]."""
+# ------------------------------------------------------------------ blocchi grezzi
+
+def _starts_block(line):
+    s = line.strip()
+    return (not s or s == CLEARPAGE or fence_info(s) or HEAD_RE.match(s) or PARTE_RE.match(s)
+            or s.startswith("|") or (ITEM_RE.match(line) and len(ITEM_RE.match(line).group(1)) < 2))
+
+
+def raw_blocks(lines):
+    """Divide le righe in blocchi grezzi: div, h, parte, clearpage, table, li, p."""
     out = []
-    in_center = False
-    for i, raw in enumerate(lines, 1):
-        ln = raw.rstrip("\n")
-        s = ln.strip()
-        if in_center:
-            if s.startswith("\\end{center}"):
-                in_center = False
-            continue
-        if s.startswith("\\begin{center}"):
-            in_center = True
-            continue
-        if s.startswith("\\") and not s.startswith("\\parte") and not s.startswith("\\nov{}"):
-            # \newcommand, \thispagestyle, \setcounter, \tableofcontents, \clearpage,
-            # \condbreak, \includegraphics, \vspace…: impaginazione.
-            if s.startswith("\\clearpage") or s.startswith("\\newpage"):
-                out.append((i, "\x00CLEARPAGE"))
-            continue
-        out.append((i, ln))
-    return out
-
-
-def split_sentences(text):
-    """Divide un paragrafo markdown in frasi, senza spezzare grassetti né abbreviazioni."""
-    sents = []
-    start = 0
-    i = 0
-    bold = False
-    n = len(text)
+    i, n = 0, len(lines)
     while i < n:
-        if text.startswith("**", i):
-            bold = not bold
-            i += 2
-            continue
-        ch = text[i]
-        if ch in ".?!" and not bold:
-            j = i + 1
-            while j < n and text[j] in "»”\")":
-                j += 1
-            if j < n and text[j] in " \t":
-                k = j
-                while k < n and text[k] in " \t" + NOV_MARK:
-                    k += 1
-                nxt = text[k:k + 2]
-                starts_new = k < n and (nxt[:1].isupper() or nxt[:1] in "«“\"(" or nxt == "**")
-                if starts_new and (ch in "?!" or not _is_abbrev(text, i)):
-                    sents.append(text[start:j].strip())
-                    start = j  # l'eventuale \nov{} resta con la frase che segue
-                    i = k
-                    continue
-        i += 1
-    tail = text[start:].strip()
-    if tail:
-        sents.append(tail)
-    return [s for s in sents if s]
-
-
-def _is_abbrev(text, dot_pos):
-    k = dot_pos
-    while k > 0 and not text[k - 1].isspace() and text[k - 1] not in "(«“\"/" + NOV_MARK:
-        k -= 1
-    word = text[k:dot_pos].replace("*", "")
-    if not word:
-        return False
-    if len(word) == 1 and word.isalpha():
-        return True  # iniziale (F. W. Taylor) o sigla (L. 241/1990)
-    if word.lower() in ABBR:
-        return True
-    if "." in word and re.search(r"[A-Za-z]", word):
-        return True  # d.lgs, d.P.R, c.p.a
-    return False
-
-
-def _gap_groups(n_bold, exclude):
-    """Indici dei grassetti da trasformare in lacune, in gruppi di al massimo MAX_GAPS."""
-    cand = [i for i in range(n_bold) if i not in exclude]
-    if not cand:
-        return []
-    k = math.ceil(len(cand) / MAX_GAPS)
-    size, extra = divmod(len(cand), k)
-    groups, pos = [], 0
-    for g in range(k):
-        s = size + (1 if g < extra else 0)
-        groups.append(cand[pos:pos + s])
-        pos += s
-    return groups
-
-
-LABELS = re.compile(r"^(in breve\.?|da non confondere)$", re.I)
-
-
-def cloze_cards(unit_md, base, kind, stats):
-    """Crea le carte a lacune di un'unità (frase o punto). Restituisce una lista."""
-    text, nov = take_nov(unit_md)
-    segs, saved = bold_segments(text)
-    bolds = [i for i, (b, _) in enumerate(segs) if b]
-    n_bold = len(bolds)
-    exclude = set()
-    for bi, si in enumerate(bolds):
-        if LABELS.match(md_plain(segs[si][1]).strip()):
-            exclude.add(bi)
-    # Etichetta iniziale «**Tema**: …»: resta visibile come contesto se ci sono altre lacune.
-    if segs and segs[0][0] and len(segs) > 1 and segs[1][1].lstrip().startswith(":"):
-        if n_bold - len(exclude) > 1:
-            exclude.add(0)
-    groups = _gap_groups(n_bold, exclude)
-    if not groups:
-        stats["senza_grassetti"] = stats.get("senza_grassetti", 0) + 1
-        return []
-    plain = md_plain(text)
-    cards = []
-    for gi, grp in enumerate(groups):
-        gaps = {b: j for j, b in enumerate(grp)}
-        card = dict(base)
-        card.update(
-            id=stable_id(base["vol"], base["schedaKey"], kind, plain, gi),
-            type=kind,
-            nov=nov,
-            html=segments_html(segs, saved, gaps),
-            n=len(grp),
-            part=(gi + 1, len(groups)) if len(groups) > 1 else None,
-        )
-        cards.append(card)
-    return cards
-
-
-def _collect_items(block_lines):
-    """Raggruppa le righe di un blocco in paragrafi e voci di elenco (con continuazioni)."""
-    units = []  # (tipo, testo) tipo ∈ {'p','li'}
-    cur = None
-    for ln in block_lines:
-        if not ln.strip():
-            if cur:
-                units.append(cur)
-                cur = None
-            continue
-        m = ITEM_RE.match(ln)
-        if m and len(m.group(1)) < 2:
-            if cur:
-                units.append(cur)
-            cur = ["li", m.group(2).strip()]
-        elif m and cur and cur[0] == "li":
-            # sotto-voce: la tratto come voce autonoma
-            units.append(cur)
-            cur = ["li", m.group(2).strip()]
-        else:
-            if cur:
-                cur[1] += " " + ln.strip()
-            else:
-                cur = ["p", ln.strip()]
-    if cur:
-        units.append(cur)
-    return [tuple(u) for u in units]
-
-
-def _table_cards(rows_md, base, stats, caption):
-    """Trasforma una tabella pipe in carte domanda/risposta."""
-    header = split_table_row(rows_md[0])
-    body = [split_table_row(r) for r in rows_md[2:]]
-    ncol = len(header)
-    body = [(r + [""] * ncol)[:ncol] for r in body]
-    # Colonne-spaziatrici (intestazione e celle vuote): via.
-    keep = [c for c in range(ncol) if header[c].strip() or any(r[c].strip() for r in body)]
-    header = [header[c] for c in keep]
-    body = [[r[c] for c in keep] for r in body]
-    ncol = len(header)
-    # Coppie ripetute (Autore | Concetto | Autore | Concetto): una carta per coppia.
-    groups = [list(range(ncol))]
-    hp = [md_plain(h).lower() for h in header]
-    if ncol >= 4 and ncol % 2 == 0 and all(hp[i] == hp[i % 2] for i in range(ncol)):
-        groups = [[i, i + 1] for i in range(0, ncol, 2)]
-    cards = []
-    for ri, row in enumerate(body):
-        for g in groups:
-            cells = [row[c] for c in g]
-            heads = [header[c] for c in g]
-            q_raw = cells[0]
-            if is_empty_cell(q_raw):
-                stats["righe_saltate"] = stats.get("righe_saltate", 0) + 1
-                continue
-            answers = [(h, c) for h, c in zip(heads[1:], cells[1:]) if not is_empty_cell(c)]
-            if not answers:
-                stats["righe_saltate"] = stats.get("righe_saltate", 0) + 1
-                continue
-            q_plain = md_plain(take_nov(q_raw)[0])
-            if all(md_plain(take_nov(c)[0]) == q_plain for _, c in answers):
-                stats["righe_saltate"] = stats.get("righe_saltate", 0) + 1
-                continue
-            nov = any("\\nov{}" in x or NOV_MARK in x for x in cells)
-            q_txt, _ = take_nov(q_raw)
-            card = dict(base)
-            card.update(
-                id=stable_id(base["vol"], base["schedaKey"], "tabella", base.get("sezione", ""),
-                             md_plain(heads[0]), q_plain, ri, g[0]),
-                type="tabella",
-                nov=nov,
-                qLabel=md_inline(take_nov(heads[0])[0]) if not is_empty_cell(heads[0]) else "",
-                q=md_inline(q_txt),
-                ask=[md_inline(take_nov(h)[0]) for h, _ in answers],
-                a=[[md_inline(take_nov(h)[0]), md_inline(take_nov(c)[0])] for h, c in answers],
-                caption=caption,
-            )
-            cards.append(card)
-    return cards
-
-
-def parse_ripasso(path):
-    with open(path, encoding="utf-8") as f:
-        raw_lines = f.readlines()
-    vol, vol_title = _volume_meta(path, raw_lines)
-    is_niche = "dettagli" in os.path.basename(path).lower() or "nicchia" in os.path.basename(path).lower()
-    lines = _clean_lines(raw_lines)
-    stats = {}
-    cards = []
-    schede = []
-
-    parte = ""
-    scheda = None  # dict
-    sezione = ""
-    sub = ""
-    after_clearpage = False
-    stack = []  # recinti aperti
-    block_buf = []
-    last_para = ""
-
-    def new_scheda(code, title, numeri):
-        nonlocal scheda, sezione, sub
-        key = "%d:%s" % (vol, code or title)
-        scheda = {"key": key, "code": code, "title": title, "numeri": numeri, "parte": parte}
-        schede.append(scheda)
-        sezione = ""
-        sub = ""
-
-    def base():
-        return {
-            "vol": vol,
-            "schedaKey": scheda["key"] if scheda else "%d:" % vol,
-            "numeri": bool(scheda and scheda["numeri"]),
-            "sezione": sezione,
-        }
-
-    def flush_block(name, buf):
-        if not scheda:
-            return
-        units = _collect_items(buf)
-        if name == "inbreve":
-            for kind, txt in units:
-                txt = re.sub(r"^\*\*In breve\.?\*\*\s*", "", mark_nov(txt))
-                for s in split_sentences(txt):
-                    if "**" not in s:
-                        continue
-                    cards.extend(cloze_cards(s, base(), "inbreve", stats))
-        elif name == "trappole":
-            for kind, txt in units:
-                if kind == "p" and re.match(r"^\*\*Da non confondere\*\*", txt):
-                    continue
-                if kind != "li":
-                    continue
-                stats["punti_trappole"] = stats.get("punti_trappole", 0) + 1
-                cards.extend(cloze_cards(mark_nov(txt), base(), "trappola", stats))
-
-    i = 0
-    n = len(lines)
-    while i < n:
-        lineno, ln = lines[i]
+        ln = lines[i]
         s = ln.strip()
-        if ln == "\x00CLEARPAGE":
-            after_clearpage = True
+        if not s:
+            i += 1
+            continue
+        if s == CLEARPAGE:
+            out.append(("clearpage",))
             i += 1
             continue
         fi = fence_info(s)
         if fi:
-            ncol, name = fi
-            if name:
-                stack.append(name)
-                block_buf = []
-            elif stack:
-                name = stack.pop()
-                if name in ("inbreve", "trappole"):
-                    flush_block(name, block_buf)
-                block_buf = []
+            if not fi[1]:  # chiusura spaiata
+                i += 1
+                continue
+            depth, inner = 1, []
             i += 1
-            continue
-        if stack and stack[-1] in ("inbreve", "trappole"):
-            block_buf.append(ln)
+            while i < n:
+                f2 = fence_info(lines[i].strip())
+                if f2:
+                    depth += 1 if f2[1] else -1
+                    if depth == 0:
+                        break
+                inner.append(lines[i])
+                i += 1
+            out.append(("div", fi[1], inner))
             i += 1
             continue
         m = PARTE_RE.match(s)
         if m:
-            parte = m.group(1).strip()
+            out.append(("parte", m.group(1).strip()))
             i += 1
             continue
-        m = SCHEDA_RE.match(s)
+        m = HEAD_RE.match(s)
         if m:
-            new_scheda(m.group(1), take_nov(m.group(2))[0], False)
-            after_clearpage = False
+            out.append(("h", len(m.group(1)), m.group(2)))
             i += 1
             continue
-        m = H1_RE.match(s) if not s.startswith("##") else None
-        if m:
-            title = take_nov(m.group(1))[0]
-            numeri = (after_clearpage and not is_niche) or bool(
-                re.match(r"(I numeri|Colpo d'occhio)", title, re.I))
-            new_scheda("", title, numeri)
-            after_clearpage = False
-            i += 1
-            continue
-        m = H2_RE.match(s)
-        if m:
-            sezione = md_plain(take_nov(m.group(1))[0])
-            sub = ""
-            i += 1
-            continue
-        if s.startswith("|") and i + 1 < n and is_table_sep(lines[i + 1][1]):
+        if s.startswith("|") and i + 1 < n and is_table_sep(lines[i + 1]):
             rows = []
-            while i < n and lines[i][1].strip().startswith("|"):
-                rows.append(lines[i][1])
+            while i < n and lines[i].strip().startswith("|"):
+                rows.append(lines[i])
                 i += 1
-            caption = md_inline(take_nov(last_para)[0]) if last_para else ""
-            if scheda:
-                b = base()
-                stats["righe_tabella"] = stats.get("righe_tabella", 0) + len(rows) - 2
-                cards.extend(_table_cards(rows, b, stats, caption))
-            last_para = ""
+            out.append(("table", rows))
             continue
-        if is_niche and scheda:
-            if re.fullmatch(r"\*\*[^*]+\*\*", s):
-                sezione = md_plain(s)
-                i += 1
-                continue
-            mi = ITEM_RE.match(ln)
-            if mi and len(mi.group(1)) < 2:
-                txt = mi.group(2).strip()
-                # continuazioni
-                while i + 1 < n and lines[i + 1][1].startswith("  ") and not ITEM_RE.match(lines[i + 1][1]):
+        m = ITEM_RE.match(ln)
+        if m and len(m.group(1)) < 2:
+            item = [ln]
+            i += 1
+            while i < n:
+                nxt = lines[i]
+                if not nxt.strip():
+                    # elenco «largo»: prosegue solo se la riga dopo è indentata
+                    if i + 1 < n and lines[i + 1].startswith("  ") and lines[i + 1].strip():
+                        i += 1
+                        continue
+                    break
+                mm = ITEM_RE.match(nxt)
+                if mm and len(mm.group(1)) < 2:
+                    break
+                if nxt.startswith("  ") or not _starts_block(nxt):
+                    item.append(nxt)
                     i += 1
-                    txt += " " + lines[i][1].strip()
-                stats["punti_dettaglio"] = stats.get("punti_dettaglio", 0) + 1
-                cards.extend(cloze_cards(mark_nov(txt), base(), "dettaglio", stats))
-                i += 1
-                continue
-        if s:
-            last_para = s if (s.startswith("**") and len(md_plain(s)) < 120 and not ITEM_RE.match(ln)) else ""
+                    continue
+                break
+            out.append(("li", item))
+            continue
+        para = [s]
         i += 1
+        while i < n and not _starts_block(lines[i]):
+            para.append(lines[i].strip())
+            i += 1
+        out.append(("p", " ".join(para)))
+    return out
 
-    # ID univoci
-    seen = {}
-    for c in cards:
-        if c["id"] in seen:
-            seen[c["id"]] += 1
-            c["id"] = c["id"] + "-%d" % seen[c["id"]]
+
+# ------------------------------------------------------------------ conversione
+
+def _is_caption(text):
+    """Paragrafo-didascalia: «**Le misure**», «**SCIA** (art. 19)», «**Che cosa deve dire** (art. 8, c. 2):»."""
+    t = take_nov(text)[0]
+    if not t.startswith("**"):
+        return False
+    end = t.find("**", 2)
+    if end < 0:
+        return False
+    plain = md_plain(t)
+    rest = md_plain(t[end + 2:]).strip()
+    if len(plain) > 130:
+        return False
+    return rest == "" or rest.endswith(":") or bool(re.fullmatch(r"\(.*\)\s*:?", rest))
+
+
+def _lead_bold(text):
+    m = re.match(r"^\*\*(.+?)\*\*", take_nov(text)[0])
+    return md_plain(m.group(1)).rstrip(". ") if m else ""
+
+
+class _Ctx:
+    def __init__(self, vol):
+        self.vol = vol
+        self.seen = {}
+        self.counts = {}
+
+    def new_id(self, scheda_key, kind, plain):
+        base = stable_id(self.vol, scheda_key, kind, plain)
+        k = self.seen.get(base, 0)
+        self.seen[base] = k + 1
+        return base if k == 0 else "%s-%d" % (base, k)
+
+    def count(self, what, n=1):
+        self.counts[what] = self.counts.get(what, 0) + n
+
+
+def _li_html(item_lines):
+    m = ITEM_RE.match(item_lines[0])
+    marker = m.group(2)
+    main, subs = [m.group(3).strip()], []
+    for ln in item_lines[1:]:
+        mm = ITEM_RE.match(ln)
+        if mm and len(mm.group(1)) >= 2:
+            subs.append(mm.group(3).strip())
+        elif subs:
+            subs[-1] += " " + ln.strip()
         else:
-            seen[c["id"]] = 0
-    return {
-        "vol": vol,
-        "title": vol_title,
-        "file": os.path.basename(path),
-        "schede": [sc for sc in schede if any(c["schedaKey"] == sc["key"] for c in cards)],
-        "cards": cards,
-        "stats": stats,
-    }
+            main.append(ln.strip())
+    text = " ".join(main)
+    raw = text + " " + " ".join(subs)
+    nov = "\\nov{}" in raw
+    h = md_inline(take_nov(text)[0])
+    if subs:
+        h += "<ul>" + "".join("<li>%s</li>" % md_inline(take_nov(s)[0]) for s in subs) + "</ul>"
+    plain = md_plain(take_nov(raw)[0])
+    num = marker if marker[0].isdigit() else ""
+    return h, plain, nov, num
+
+
+def _table(rows_md, ctx, sk, flags):
+    header = split_table_row(rows_md[0])
+    body = [split_table_row(r) for r in rows_md[2:]]
+    ncol = len(header)
+    body = [(r + [""] * ncol)[:ncol] for r in body]
+    keep = [c for c in range(ncol) if header[c].strip() or any(r[c].strip() for r in body)]
+    header = [header[c] for c in keep]
+    body = [[r[c] for c in keep] for r in body]
+    ncol = len(header)
+    groups = [list(range(ncol))]
+    hp = [md_plain(h).lower() for h in header]
+    if ncol >= 4 and ncol % 2 == 0 and all(hp[i] == hp[i % 2] for i in range(ncol)):
+        groups = [[i, i + 1] for i in range(0, ncol, 2)]  # Autore | Concetto | Autore | Concetto
+    out = []
+    for g in groups:
+        for row in body:
+            cells = [row[c] for c in g]
+            heads = [header[c] for c in g]
+            if all(is_empty_cell(c) for c in cells):
+                ctx.count("righe vuote")
+                continue
+            nov = any("\\nov{}" in c for c in cells)
+            q = "" if is_empty_cell(cells[0]) else md_inline(take_nov(cells[0])[0])
+            a = [[md_inline(take_nov(h)[0]), md_inline(take_nov(c)[0])]
+                 for h, c in zip(heads[1:], cells[1:]) if not is_empty_cell(c)]
+            plain = " | ".join(md_plain(take_nov(c)[0]) for c in cells)
+            pt = {"t": "row", "id": ctx.new_id(sk, "row", plain), "q": q, "a": a}
+            if q and not is_empty_cell(heads[0]):
+                pt["ql"] = md_inline(take_nov(heads[0])[0])
+            _flags(pt, nov, flags)
+            out.append(pt)
+            ctx.count("righe di tabella")
+    return {"t": "table", "rows": out}
+
+
+def _flags(pt, nov, flags):
+    if nov or flags.get("nov"):
+        pt["nov"] = 1
+    if flags.get("ess"):
+        pt["ess"] = 1
+    if flags.get("num"):
+        pt["num"] = 1
+
+
+def _convert(blocks, ctx, sk, flags):
+    """Blocchi grezzi (dentro una scheda) → blocchi della scheda."""
+    out = []
+    for b in blocks:
+        kind = b[0]
+        if kind == "h":
+            out.append({"t": "h" if b[1] <= 2 else "sub", "h": md_inline(take_nov(b[2])[0])})
+        elif kind == "p":
+            text = b[1]
+            if _is_caption(text):
+                out.append({"t": "sub", "h": md_inline(take_nov(text)[0])})
+                continue
+            t, nov = take_nov(text)
+            pt = {"t": "p", "id": ctx.new_id(sk, "p", md_plain(t)), "h": md_inline(t)}
+            _flags(pt, nov, flags)
+            out.append(pt)
+            ctx.count("paragrafi")
+        elif kind == "li":
+            h, plain, nov, num = _li_html(b[1])
+            pt = {"t": "li", "id": ctx.new_id(sk, "li", plain), "h": h}
+            if num:
+                pt["n"] = num
+            _flags(pt, nov, flags)
+            out.append(pt)
+            ctx.count("punti elenco")
+        elif kind == "table":
+            out.append(_table(b[1], ctx, sk, flags))
+        elif kind == "div":
+            name, inner = b[1], raw_blocks(b[2])
+            if name not in BOXES:  # «piccolo» e altri contenitori di impaginazione
+                out.extend(_convert(inner, ctx, sk, flags))
+                continue
+            title = BOXES[name]
+            if inner and inner[0][0] == "p":
+                first = inner[0][1]
+                if name == "inbreve" and re.match(r"^\*\*In breve\.?\*\*", first):
+                    rest = re.sub(r"^\*\*In breve\.?\*\*\s*", "", first)
+                    inner = ([("p", rest)] if rest.strip() else []) + inner[1:]
+                elif name == "trappole" and re.match(r"^\*\*Da non confondere\*\*\s*$", first):
+                    inner = inner[1:]
+                elif name in ("nota", "novita") and _is_caption(first):
+                    title = take_nov(md_plain(first))[0]
+                    inner = inner[1:]
+            f2 = dict(flags)
+            if name in ("inbreve", "trappole"):
+                f2["ess"] = True
+                ctx.count("In breve" if name == "inbreve" else "Da non confondere",
+                          sum(1 for x in inner if x[0] in ("p", "li")))
+            if name == "novita":
+                f2["nov"] = True
+            out.append({"t": "box", "k": name, "title": title, "b": _convert(inner, ctx, sk, f2)})
+        # «clearpage» e «parte» sono gestiti a livello di volume
+    return out
+
+
+def iter_points(blocks):
+    """Tutti i punti segnabili di una lista di blocchi, in ordine di lettura."""
+    for b in blocks:
+        if b["t"] in ("p", "li", "row"):
+            yield b
+        elif b["t"] == "table":
+            yield from b["rows"]
+        elif b["t"] == "box":
+            yield from iter_points(b["b"])
+
+
+def parse_ripasso(path):
+    with open(path, encoding="utf-8") as f:
+        raw = f.readlines()
+    vol, title = _volume_meta(path, raw)
+    ctx = _Ctx(vol)
+    blocks = raw_blocks(clean_md_lines(raw))
+
+    schede = []
+    parte = ""
+    after_clearpage = False
+    pending = []  # blocchi prima della prima scheda (es. riquadro «novità» del volume)
+    cur = None
+
+    def open_scheda(code, title_, numeri):
+        sc = {"key": "%d:%s" % (vol, code or title_), "code": code, "title": title_,
+              "parte": parte, "numeri": numeri, "raw": []}
+        schede.append(sc)
+        return sc
+
+    for b in blocks:
+        if b[0] == "parte":
+            parte = b[1]
+            continue
+        if b[0] == "clearpage":
+            after_clearpage = True
+            continue
+        if b[0] == "h" and b[1] == 1:
+            text = md_plain(take_nov(b[2])[0])
+            m = SCHEDA_RE.match(text)
+            if m:
+                cur = open_scheda(m.group(1), m.group(2), False)
+            else:
+                numeri = after_clearpage or bool(re.match(r"(I numeri|Colpo d'occhio)", text, re.I))
+                cur = open_scheda("", text, numeri)
+            after_clearpage = False
+            continue
+        if cur is None:
+            pending.append(b)
+        else:
+            cur["raw"].append(b)
+
+    # Riquadro iniziale del volume (vol. 3 e 4: «Stato delle riforme…»): scheda a sé.
+    intro = [b for b in pending if b[0] == "div" and b[1] in BOXES]
+    if intro:
+        first_p = next((x for x in raw_blocks(intro[0][2]) if x[0] == "p"), None)
+        t = _lead_bold(first_p[1]) if first_p else "Aggiornamenti"
+        sc = {"key": "%d:intro" % vol, "code": "", "title": t, "parte": "", "numeri": False, "raw": intro}
+        schede.insert(0, sc)
+
+    out = []
+    for sc in schede:
+        flags = {"num": True} if sc["numeri"] else {}
+        sc["b"] = _convert(sc.pop("raw"), ctx, sc["key"], flags)
+        if any(True for _ in iter_points(sc["b"])):
+            out.append(sc)
+    return {"vol": vol, "title": title, "file": os.path.basename(path), "schede": out, "counts": ctx.counts}
