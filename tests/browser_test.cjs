@@ -45,7 +45,8 @@ const shot = (page, name, full) => page.screenshot({ path: path.join(SHOTS, name
   const page = await phone(browser);
   await page.goto('file://' + LOCAL);
   const tabs = await page.$$eval('.tab', b => b.map(x => x.textContent));
-  check(tabs.join('|') === 'Indice|Da ripassare|Cerca|Progressi', 'schede: ' + tabs.join(', '));
+  check(tabs.join('|') === 'Indice|Da ripassare|Cerca|Simulazioni', 'schede: ' + tabs.join(', '));
+  check(await page.$eval('#tabs', t => t.scrollWidth <= t.clientWidth + 1), 'le quattro schede stanno nella larghezza del telefono');
   check(await noHScroll(page), 'indice: nessuno scroll orizzontale a 390 px');
   const vols = await page.$$eval('.vol-t', v => v.length);
   check(vols === 4, '4 volumi, senza i dettagli di nicchia');
@@ -145,7 +146,8 @@ const shot = (page, name, full) => page.screenshot({ path: path.join(SHOTS, name
   check(bg === 'rgb(20, 22, 26)', 'tema scuro automatico');
   await shot(page, '07-scuro.png');
   await page.emulateMedia({ colorScheme: 'light' });
-  await page.click('[data-tab=prog]');
+  await page.click('[data-tab=idx]');
+  await page.click('[data-act=tab][data-t=prog]');
   await page.click('[data-act=exportCopy]');
   check(/"marks":\{"[0-9a-f]{10}/.test(await page.inputValue('#exp-text')), 'esporta i segni come testo');
   await page.click('[data-act=resetAll]');
@@ -155,6 +157,133 @@ const shot = (page, name, full) => page.screenshot({ path: path.join(SHOTS, name
   check(await noHScroll(page), 'progressi: nessuno scroll orizzontale');
   check(page.errors.length === 0, 'nessun errore JavaScript (' + page.errors.join('; ') + ')');
   await page.close();
+
+  /* ---------------- simulazioni */
+  console.log('Simulazioni');
+  const ps = await phone(browser);
+  await ps.goto('file://' + LOCAL);
+  const D = await ps.evaluate(() => JSON.parse(document.getElementById('data').textContent).sim);
+  check(D && D.q.length > 700, 'quesiti delle simulazioni: ' + (D ? D.q.length : 0));
+  check(D.q.every(q => q.inc === 'sì' || q.inc === 'riserva'), 'nessun quesito escluso come nicchia (includi = no)');
+  check(D.q.every(q => q.o.some(o => o[0] === q.k)), 'ogni chiave è una delle opzioni');
+  const QD = {}; D.q.forEach(q => { QD[q.id] = q; });
+  const simState = () => ps.evaluate(() => JSON.parse(localStorage.getItem('sna12-simulazioni-v1') || '{}'));
+  const tally = ids => { const c = {}; ids.forEach(id => { const a = QD[id].a; c[a] = (c[a] || 0) + 1; }); return c; };
+  await ps.click('[data-tab=sim]');
+  const plans = await ps.$$eval('[data-act=simStart][data-mode=tempo]', b => b.map(x => x.getAttribute('data-p')));
+  check(plans.join(',') === 'H1,H2,H3,H4,H5,H6', 'sei simulazioni dall\'analisi: ' + plans.join(', '));
+  await shot(ps, '10-simulazioni.png');
+
+  let cur0 = [];
+  for (const plan of D.plans) {
+    await ps.click('[data-act=simStart][data-p="' + plan.id + '"][data-mode=tempo]');
+    const cur = (await simState()).cur;
+    const t = tally(cur.ids);
+    const okAreas = Object.keys(plan.aree).every(a => t[a] === plan.aree[a]) && Object.keys(t).every(a => plan.aree[a]);
+    check(cur.ids.length === plan.n && okAreas && new Set(cur.ids).size === plan.n,
+      plan.id + ': ' + plan.n + ' quesiti, aree come da piano');
+    if (plan.id === 'H1') {
+      cur0 = cur.ids;
+      const brani = cur.ids.filter(id => QD[id].t === 'brano');
+      check(brani.length === 6 && new Set(brani.map(id => QD[id].p)).size === 2, 'H1: due brani da tre domande');
+      check(cur.ids.filter(id => /^figurale/.test(QD[id].t)).every(id => QD[id].img && QD[id].img.length), 'H1: i figurali hanno la figura');
+      const order = cur.ids.map(id => D.areas.findIndex(a => a[0] === QD[id].a));
+      check(order.every((v, i) => !i || v >= order[i - 1]), 'H1: ordine della busta (situazionali, ragionamento, materie, inglese)');
+      check(await noHScroll(ps), 'prova: nessuno scroll orizzontale');
+      const optH = await ps.$eval('.opt', el => el.getBoundingClientRect().height);
+      check(optH >= 48, 'opzioni alte almeno 48 px (' + Math.round(optH) + ')');
+      await shot(ps, '11-prova.png');
+      await ps.click('.opt[data-l="A"]');
+      check((await ps.getAttribute('.opt[data-l="A"]', 'aria-pressed')) === 'true', 'risposta scelta');
+      await ps.click('.opt[data-l="A"]');
+      check((await ps.getAttribute('.opt[data-l="A"]', 'aria-pressed')) === 'false', 'ritoccarla la lascia in bianco');
+      // rispondo con la chiave ai primi 10, sbaglio 5, poi lascio in bianco
+      for (let i = 0; i < 15; i++) {
+        const q = QD[cur.ids[i]];
+        const l = i < 10 ? q.k : q.o.map(o => o[0]).find(x => x !== q.k);
+        await ps.click('.opt[data-l="' + l + '"]');
+        await ps.click('[data-act=simNext]');
+      }
+      await ps.click('[data-act=simFlag]');
+      await ps.click('[data-act=simGrid]');
+      await shot(ps, '12-griglia.png');
+      await ps.click('[data-jump="40"]');
+      check((await ps.textContent('.qn')).trim() === '41', 'la griglia porta al quesito 41');
+      await ps.reload();
+      const after = (await simState()).cur;
+      check(after && Object.keys(after.ans).length === 15 && (await ps.textContent('.qn')).trim() === '41', 'dopo il ricaricamento la prova riprende dove era');
+      check((await ps.textContent('#countdown')).includes('rimasti'), 'il cronometro è nella testata');
+      await ps.click('[data-act=simEnd]');
+      await ps.click('#modal-yes');
+      let exp = 0;
+      cur.ids.slice(0, 15).forEach((id, i) => {
+        const q = QD[id];
+        if (i < 10) exp += 1;
+        else if (q.a === 'situazionali') { const l = q.o.map(o => o[0]).find(x => x !== q.k); exp += q.w ? (l === q.w ? 0 : 0.5) : 0; }
+        else exp -= 0.53;
+      });
+      const shown = (await ps.textContent('.score .big b')).replace('−', '-').replace(',', '.');
+      check(Math.abs(Number(shown) - exp) < 0.005, 'punteggio ufficiale: ' + shown + ' (atteso ' + exp.toFixed(2) + ')');
+      await shot(ps, '13-risultato.png');
+      await ps.click('[data-act=seg][data-name=simRev][data-val=ko]');
+      const nko = await ps.$$eval('article.rev', e => e.length);
+      check(nko === 5, 'correzione: 5 sbagliati o neutri (' + nko + ')');
+      check((await ps.$$eval('article.rev .opt.key', e => e.length)) === 5, 'la chiave è evidenziata');
+      check(await noHScroll(ps), 'risultato: nessuno scroll orizzontale');
+      await ps.click('[data-act=seg][data-name=simRev][data-val=all]');
+      const link = await ps.$('article.rev [data-act=open]');
+      check(!!link, 'dalla correzione si apre la scheda di ripasso');
+      await link.click();
+      check(!!(await ps.$('.rd .it')), 'la scheda si apre nel ripasso');
+      await ps.click('[data-tab=sim]');
+    } else {
+      await ps.click('[data-tab=sim]');
+      await ps.click('[data-act=simDrop]');
+      await ps.click('#modal-yes');
+    }
+  }
+  // H1 di nuovo: pesca prima quesiti non visti
+  const firstRun = (await simState()).hist[0].ids;
+  await ps.click('[data-act=simStart][data-p=H1][data-mode=tempo]');
+  const again = (await simState()).cur.ids;
+  const rep = again.filter(id => firstRun.indexOf(id) >= 0 && QD[id].a !== 'situazionali').length;
+  check(rep <= 6, 'seconda H1: tematici e ragionamento quasi tutti nuovi (' + rep + ' ripetuti)');
+  await ps.click('[data-tab=sim]');
+  await ps.click('[data-act=simDrop]');
+  await ps.click('#modal-yes');
+  // correzione subito
+  await ps.click('[data-act=simStart][data-p=H2][data-mode=studio]');
+  await ps.click('.opt[data-l="A"]');
+  check(!!(await ps.$('.fb')) && (await ps.$eval('.opt[data-l="B"]', b => b.disabled)), 'correzione subito: commento e opzioni bloccate');
+  await ps.emulateMedia({ colorScheme: 'dark' });
+  await shot(ps, '14-correzione-scuro.png', true);
+  await ps.emulateMedia({ colorScheme: 'light' });
+  await ps.click('[data-tab=sim]');
+  await ps.click('[data-act=simDrop]');
+  await ps.click('#modal-yes');
+  // ripresa degli errori
+  await ps.click('[data-act=simStart][data-p=R][data-mode=tempo]');
+  const rc = (await simState()).cur;
+  check(rc && rc.ids.length === 30 && rc.min === 45, 'ripresa degli errori: 30 dei 50 sbagliati od omessi, 45 minuti');
+  check(rc.ids.every(id => cur0.indexOf(id) >= 10), 'ripresa: solo quesiti sbagliati od omessi');
+  check(ps.errors.length === 0, 'nessun errore JavaScript (' + ps.errors.join('; ') + ')');
+  const ctxS = ps.context();
+  await ps.close();
+
+  // tempo scaduto: la prova si consegna da sola
+  const pt = await ctxS.newPage();
+  pt.errors = [];
+  pt.on('pageerror', e => pt.errors.push(e.message));
+  await pt.addInitScript(() => {
+    const s = JSON.parse(localStorage.getItem('sna12-simulazioni-v1') || 'null');
+    if (s && s.cur) { s.cur.el = s.cur.min * 60 - 1.5; localStorage.setItem('sna12-simulazioni-v1', JSON.stringify(s)); }
+  });
+  await pt.goto('file://' + LOCAL);
+  await pt.waitForTimeout(3500);
+  const ts = await pt.evaluate(() => JSON.parse(localStorage.getItem('sna12-simulazioni-v1')));
+  check(!ts.cur && ts.hist.length === 2, 'tempo scaduto: prova consegnata da sola');
+  check(pt.errors.length === 0, 'nessun errore JavaScript (' + pt.errors.join('; ') + ')');
+  await pt.close();
 
   /* ---------------- salvataggio nell'account (capacità db simulata) */
   console.log('Salvataggio nell\'account (db simulato)');
@@ -194,6 +323,22 @@ const shot = (page, name, full) => page.screenshot({ path: path.join(SHOTS, name
   const setDoc = log[1] && log[1][2].m;
   check(setDoc && Object.keys(setDoc).length === 2, 'il documento contiene il segno nuovo e quello arrivato dall\'account');
   await shot(p2, '09-account.png');
+  // simulazioni: una prova dall'altro dispositivo compare, una nuova si salva nell'account
+  const sq = await p2.evaluate(() => JSON.parse(document.getElementById('data').textContent).sim.q.slice(0, 3).map(q => q.id));
+  await p2.evaluate((ids) => {
+    const at = Date.now() - 3600e3;
+    window.__dbPush([{ id: 'sim', data: { v: 1, cur: null, resetAt: 0, hist: [{ id: 'H3-' + at, p: 'H3', at: at, end: at + 600e3, ids: ids, ans: { 0: 'A' }, fl: {}, el: 600, mode: 'tempo', min: 36, sc: 1, hi: 0 }] } }]);
+  }, sq);
+  await p2.click('[data-tab=sim]');
+  check((await p2.$$eval('.hist li', e => e.length)) === 1, 'la prova fatta su un altro dispositivo compare nello storico');
+  await p2.click('[data-act=simStart][data-p=H3][data-mode=tempo]');
+  await p2.click('.opt[data-l="A"]');
+  await p2.click('[data-act=simEnd]');
+  await p2.click('#modal-yes');
+  await p2.waitForTimeout(300);
+  const simSets = await p2.evaluate(() => window.__dbLog.filter(l => l[0] === 'set' && l[1] === 'sim'));
+  const lastSet = simSets[simSets.length - 1];
+  check(lastSet && lastSet[2].hist.length === 2 && !lastSet[2].cur, 'la prova consegnata si salva nell\'account (documento «sim»)');
   check(p2.errors.length === 0, 'nessun errore JavaScript (' + p2.errors.join('; ') + ')');
 
   await browser.close();

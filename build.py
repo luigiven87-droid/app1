@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-"""Genera la pagina di rilettura dai ripassi in materiali/.
+"""Genera la pagina di rilettura (ripassi) e simulazioni (dossier) da materiali/.
 
 Uso:
     python3 build.py              # dist/ripasso-sna12.html, file unico da aprire con un doppio clic
     python3 build.py --artifact   # dist/ripasso-sna12-artifact.html, versione per la pagina su claude.ai
     python3 build.py --materiali altra/cartella --out altro.html
+    python3 build.py --senza-simulazioni
 
-Solo libreria standard. Non modifica i file in materiali/.
+Solo libreria standard; per le simulazioni servono pdftotext e pdftohtml (poppler)
+e, per comprimere le figure, ImageMagick. Non modifica i file in materiali/.
 """
 
 import argparse
@@ -20,6 +22,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
+from sna12 import simulazioni  # noqa: E402
 from sna12.figure import attach  # noqa: E402
 from sna12.ripassi import iter_points, parse_ripasso  # noqa: E402
 
@@ -34,12 +37,15 @@ def collect(materiali):
     return volumes
 
 
-def build_data(volumes):
-    return {
+def build_data(volumes, sim=None):
+    data = {
         "generated": datetime.datetime.now().strftime("%d/%m/%Y %H:%M"),
         "volumes": [{"vol": v["vol"], "title": v["title"], "file": v["file"], "schede": v["schede"]}
                     for v in volumes],
     }
+    if sim:
+        data["sim"] = sim
+    return data
 
 
 def render_html(data, hosted=False):
@@ -51,8 +57,9 @@ def render_html(data, hosted=False):
 
     blob = json.dumps(dict(data, hosted=hosted), ensure_ascii=False, separators=(",", ":"))
     blob = blob.replace("</", "<\\/").replace("<!--", "<\\!--")
+    js = read("app.js").replace("/*__SIM__*/", read("sim.js") if data.get("sim") else "")
     page = read("app.html").replace("/*__CSS__*/", read("app.css"))
-    page = page.replace("/*__DATA__*/", blob).replace("/*__JS__*/", read("app.js"))
+    page = page.replace("/*__DATA__*/", blob).replace("/*__JS__*/", js)
     if hosted:
         page = to_fragment(page)
     return page
@@ -90,14 +97,19 @@ def main(argv=None):
     ap.add_argument("--out", default=None)
     ap.add_argument("--artifact", action="store_true",
                     help="versione per la pagina su claude.ai (progressi salvati nell'account)")
+    ap.add_argument("--senza-simulazioni", action="store_true",
+                    help="solo rilettura, senza leggere i PDF dei dossier")
     args = ap.parse_args(argv)
 
     volumes = collect(args.materiali)
     if not volumes:
         sys.exit("Nessun RIPASSO_*.md in %s" % args.materiali)
     print(report(volumes))
+    sim = None if args.senza_simulazioni else simulazioni.build(args.materiali)
+    print()
+    print(simulazioni.report(sim) if not args.senza_simulazioni else "Simulazioni: escluse (--senza-simulazioni).")
     out = args.out or os.path.join(HERE, "dist", "ripasso-sna12%s.html" % ("-artifact" if args.artifact else ""))
-    page = render_html(build_data(volumes), hosted=args.artifact)
+    page = render_html(build_data(volumes, sim), hosted=args.artifact)
     os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)
     with open(out, "w", encoding="utf-8") as f:
         f.write(page)

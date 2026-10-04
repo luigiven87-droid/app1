@@ -1,4 +1,4 @@
-"""Test del parser dei ripassi.  Uso:  python3 -m unittest discover -s tests -v"""
+"""Test dei parser (ripassi e quesiti dei dossier).  Uso:  python3 -m unittest discover -s tests -v"""
 
 import glob
 import os
@@ -10,6 +10,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
 from build import ESCLUSI, collect  # noqa: E402
+from sna12 import quesiti, simulazioni  # noqa: E402
 from sna12.common import md_inline  # noqa: E402
 from sna12.ripassi import iter_points  # noqa: E402
 
@@ -107,6 +108,81 @@ class TestFigure(unittest.TestCase):
         for d in (-0.05, 0.05):
             self.assertGreater(cvme(q_cv + d), cvme(q_cv))
             self.assertGreater(cme(q_ce + d), cme(q_ce))
+
+
+class TestQuesiti(unittest.TestCase):
+    """Sui PDF veri (materiali/pdf) e sull'analisi (materiali/analisi), se ci sono."""
+
+    @classmethod
+    def setUpClass(cls):
+        if not simulazioni.available(REAL):
+            raise unittest.SkipTest("mancano i PDF in materiali/pdf o l'analisi in materiali/analisi")
+        cls.sim = simulazioni.build(REAL)
+        cls.q = {q["id"]: q for q in cls.sim["q"]}
+
+    def test_conteggi(self):
+        info = self.sim["info"]
+        self.assertEqual(info["unlisted"], [])
+        # mancano solo i quesiti del Dossier 1 che il PDF riassume in una riga
+        self.assertTrue(all(m.startswith("D1-") for m in info["missing_ids"]), info["missing_ids"])
+        self.assertTrue(all(re.match(r"D1-(S\d|M\d+\.B)", m) for m in info["missing_ids"]))
+        self.assertEqual(info["used"] + info["excluded"] + info["missing"], info["rows"])
+        self.assertEqual(sum(1 for q in self.sim["q"] if q["a"] == "ragionamento" and q["t"].startswith("figurale")), 54)
+
+    def test_chiavi_e_opzioni(self):
+        for q in self.sim["q"]:
+            letters = [o[0] for o in q["o"]]
+            self.assertIn(q["k"], letters, q["id"])
+            self.assertEqual(letters, sorted(letters), q["id"])
+            self.assertTrue(q["q"] and all(o[1] for o in q["o"]), q["id"])
+            self.assertTrue(q["com"] and re.match(r"Chiave", q["com"][0]), q["id"])
+            self.assertNotIn("•", q["q"] + "".join(o[1] for o in q["o"]), q["id"])
+
+    def test_testo_alla_lettera(self):
+        q = self.q["D3-7"]
+        self.assertEqual(q["c"], "SNA9-B3-Q30")
+        self.assertTrue(q["q"].startswith("La pubblica amministrazione, nell’adozione di atti di natura non autoritativa"))
+        self.assertEqual(q["o"][0], ["A", "agisce secondo le norme di diritto privato, salvo che la legge disponga diversamente"])
+        self.assertEqual((q["k"], q["kk"]), ("A", "ufficiale"))
+        self.assertIn("(art. 1, comma 1-bis)", q["com"][0])  # trattino a fine riga conservato
+        self.assertEqual([o[1] for o in self.q["AD2-I.14"]["o"]], ["S", "T", "R"])
+
+    def test_parole_spezzate_ricomposte(self):
+        text = " ".join(q["q"] + " " + " ".join(o[1] for o in q["o"]) + " " + " ".join(q["com"]) for q in self.sim["q"])
+        self.assertNotRegex(text, r"\b(elettroni-che|com-promettono|con-temporanea)\b")
+        self.assertIn("elettroniche", self.q["D1-M5"]["q"])
+
+    def test_situazionali(self):
+        m1 = self.q["D1-M1"]
+        self.assertEqual((m1["k"], m1["kk"]), ("C", "ufficiale"))
+        self.assertTrue(m1["q"].startswith("Sei il/la nuovo/a responsabile del reparto marketing"))
+        self.assertTrue(any(c.startswith("Vince la C") for c in m1["com"]))
+        self.assertNotIn("w", m1)  # SNA 9: pubblicata solo la migliore
+        a1 = self.q["AD2-A.1"]
+        self.assertEqual((a1["k"], a1["w"]), ("C", "B"))
+
+    def test_brani_e_figure(self):
+        b = self.q["D6-1"]
+        self.assertIn("Taffimay", " ".join(self.sim["passages"][b["p"]]["text"]))
+        mozart = [q for q in self.sim["q"] if q.get("p") and "Mozart" in self.sim["passages"][q["p"]]["title"]]
+        self.assertEqual(len(mozart), 6)  # stesso brano in due buste
+        for k in range(69, 123):
+            q = self.q["D6-%d" % k]
+            self.assertEqual(len(q.get("img", [])), 1, q["id"])
+            self.assertTrue(q["img"][0].startswith("data:image/png;base64,"))
+        self.assertFalse(any(q.get("img") for q in self.sim["q"] if not q["t"].startswith("figurale")))
+
+    def test_nicchia_esclusa(self):
+        for i in ("AD1-A.24", "AD2-C.45", "AD2-E.5", "AD2-F.4"):
+            self.assertNotIn(i, self.q)
+
+    def test_piani(self):
+        plans = {p["id"]: p for p in self.sim["plans"]}
+        self.assertEqual(sorted(plans), ["H1", "H2", "H3", "H4", "H5", "H6"])
+        self.assertEqual((plans["H1"]["n"], plans["H1"]["min"]), (60, 90))
+        self.assertEqual(sum(plans["H1"]["aree"].values()), 60)
+        for p in plans.values():
+            self.assertEqual(sum(p["aree"].values()), p["n"], p["id"])
 
 
 class TestInline(unittest.TestCase):

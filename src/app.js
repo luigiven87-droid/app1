@@ -72,6 +72,7 @@
   /* ============================================================ salvataggio nell'account (pagina su claude.ai) */
 
   var sync = { mode: 'local', coll: null, pending: {}, busy: {}, timers: {}, first: true };
+  var hooks = {}; // agganci per la sezione Simulazioni (src/sim.js)
 
   function syncLabel() {
     if (sync.mode === 'cloud') return 'Progressi salvati nel tuo account Claude: li ritrovi su ogni dispositivo.';
@@ -105,9 +106,11 @@
     var changed = [];
     var remote = {};
     var resetAt = 0;
+    var simDoc = null;
     snap.docs.forEach(function (d) {
       var data = d.data() || {};
       if (d.id === 'meta') { resetAt = Number(data.resetAt) || 0; return; }
+      if (d.id === 'sim') { simDoc = data; return; }
       var m = data.m || {};
       Object.keys(m).forEach(function (id) { remote[id] = m[id]; });
     });
@@ -133,6 +136,7 @@
     sync.mode = 'cloud';
     showSync();
     if (changed.length) { saveLocal(); changed.forEach(paintPoint); refreshProgress(); }
+    if (hooks.remote) hooks.remote(simDoc);
   }
 
   function queue(id) {
@@ -260,14 +264,13 @@
   var TABS = [
     { id: 'idx', label: 'Indice' },
     { id: 'rip', label: 'Da ripassare' },
-    { id: 'find', label: 'Cerca' },
-    { id: 'prog', label: 'Progressi' }
+    { id: 'find', label: 'Cerca' }
   ];
   var view = { tab: 'idx' };
   var SCREENS = {}, ACTIONS = {}, CHANGES = {};
 
   function renderTabs() {
-    var tab = view.tab === 'sch' ? 'idx' : view.tab;
+    var tab = view.tab === 'sch' || view.tab === 'prog' ? 'idx' : view.tab;
     $tabs.innerHTML = TABS.map(function (t) {
       return '<button class="tab" role="tab" type="button" data-tab="' + t.id + '" aria-selected="' + (tab === t.id) + '">' + t.label + '</button>';
     }).join('');
@@ -291,6 +294,7 @@
     showSync();
     var a = after; after = [];
     a.forEach(function (f) { f(); });
+    if (hooks.render) hooks.render();
   }
 
   $app.addEventListener('click', function (e) {
@@ -480,7 +484,9 @@
       '<div class="row">' +
       (last ? '<button class="btn primary" data-act="open" data-k="' + esc(last.sc.key) + '" data-resume="1">Riprendi: ' + esc(last.sc.code || last.sc.title) + '</button>' : '') +
       '<button class="btn" data-act="tab" data-t="rip">' + (nrip ? 'Rileggi i ' + nrip + ' da ripassare' : 'Da ripassare') + '</button>' +
-      '</div></div>' +
+      '</div>' +
+      '<button class="linkish" data-act="tab" data-t="prog">Progressi e copia di sicurezza →</button>' +
+      '</div>' +
       '<p class="hint">Apri una scheda e leggi. Tocca un punto per segnarlo <b>«Da ripassare»</b> o <b>«Lo so»</b>: nei giri successivi rileggi solo quello che ti manca.</p>';
     DATA.volumes.forEach(function (v) {
       h += '<section class="vol"><h2 class="vol-t"><span class="vol-n">Vol. ' + v.vol + '</span> ' + esc(v.title) + '</h2>';
@@ -670,7 +676,8 @@
   /* ============================================================ PROGRESSI */
 
   SCREENS.prog = function () {
-    return '<h1>Progressi</h1>' +
+    return '<nav class="crumb"><button class="linkish" data-act="tab" data-t="idx">← Indice</button></nav>' +
+      '<h1>Progressi</h1>' +
       '<div class="panel"><p class="sync" data-sync></p>' +
       (DATA.hosted ? '<p class="small muted">Entri con il tuo account Claude: i segni stanno nella tua area privata di questa pagina, che nessun altro può leggere.</p>' :
         '<p class="small muted">Questa copia del file salva solo in questo browser. Per ritrovare i segni su più dispositivi usa la pagina su claude.ai, oppure esporta e importa il testo qui sotto.</p>') +
@@ -692,7 +699,8 @@
       ' · pagina generata il ' + esc(DATA.generated) + ' · ' + ORDER.length + ' punti.</p>';
   };
   ACTIONS.exportCopy = function () {
-    var text = JSON.stringify({ v: 1, app: 'sna12-rilettura', exported: new Date().toISOString(), resetAt: S.resetAt || 0, marks: S.marks });
+    var text = JSON.stringify({ v: 1, app: 'sna12-rilettura', exported: new Date().toISOString(), resetAt: S.resetAt || 0, marks: S.marks,
+      sim: hooks.exportSim ? hooks.exportSim() : undefined });
     var ta = document.getElementById('exp-text');
     ta.value = text;
     copyText(text, ta);
@@ -703,7 +711,7 @@
     var d;
     try { d = JSON.parse(v); } catch (e) { toast('Il testo non è un export valido'); return; }
     if (!d || d.v !== 1 || !d.marks || typeof d.marks !== 'object') { toast('Il testo non è un export di questa pagina'); return; }
-    var n = 0;
+    var n = d.sim && hooks.importSim ? hooks.importSim(d.sim) : 0;
     Object.keys(d.marks).forEach(function (id) {
       var r = d.marks[id];
       if (PT[id] && Array.isArray(r) && r[1] > stamp(id) && r[1] > (S.resetAt || 0)) { S.marks[id] = [r[0], r[1]]; queue(id); n++; }
@@ -730,6 +738,8 @@
       toast('Segni cancellati');
     }, true);
   };
+
+/*__SIM__*/
 
   /* ============================================================ tastiera */
 
