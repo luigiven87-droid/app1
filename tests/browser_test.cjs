@@ -291,6 +291,26 @@ const shot = (page, name, full) => page.screenshot({ path: path.join(SHOTS, name
   check(bc && bc.p === 'B' && bc.ids.length === 5 && bc.ids.every(id => QD[id].a === 'diritto_ue'), 'blocco: 5 quesiti di diritto UE');
   check(bc.ids.every(id => cur0.indexOf(id) < 0), 'blocco: prima i quesiti mai visti');
   check(bc.tl === 8 && !bc.fb, 'blocco a tempo: 1,5 minuti a quesito');
+  // numero libero e «Tutti»: un blocco intero in una sessione
+  await ps.click('[data-tab=sim]');
+  await ps.click('[data-act=simDrop]');
+  await ps.click('#modal-yes');
+  await ps.fill('#n-b', '7');
+  check((await ps.textContent('[data-act=simDrill]')).includes('(7)'), 'campo libero: «Avvia blocco (7)»');
+  await ps.click('[data-act=simDrill]');
+  check((await simState()).cur.ids.length === 7, 'campo libero: 7 quesiti');
+  await ps.click('[data-tab=sim]');
+  await ps.click('[data-act=simDrop]');
+  await ps.click('#modal-yes');
+  await ps.click('[data-act=simChip][data-g=ba][data-v=diritto_costituzionale]');
+  const nAll = await ps.$eval('#n-b', i => Number(i.max));
+  await ps.click('[data-act=simSet][data-g=b][data-k=n][data-v="100000"]');
+  await ps.click('[data-act=simDrill]');
+  const all = (await simState()).cur.ids;
+  const nUe = D.q.filter(q => q.inc === 'sì' && q.a === 'diritto_ue').length;
+  const nCost = D.q.filter(q => q.inc === 'sì' && q.a === 'diritto_costituzionale').length;
+  check(nAll === nUe + nCost && all.length === nAll, '«Tutti»: diritto UE e costituzionale interi in una sessione (' + all.length + ')');
+  check(all.every((id, i) => !i || D.areas.findIndex(a => a[0] === QD[id].a) >= D.areas.findIndex(a => a[0] === QD[all[i - 1]].a)), '«Tutti»: quesiti in ordine di materia');
   check(ps.errors.length === 0, 'nessun errore JavaScript (' + ps.errors.join('; ') + ')');
   const ctxS = ps.context();
   await ps.close();

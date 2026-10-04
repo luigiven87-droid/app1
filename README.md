@@ -42,7 +42,9 @@ Nella stessa sezione, oltre alle **Prove**:
 - **Materie** (blocco): una o più materie a scelta (nessuna = tutte); con una
   sola materia anche le singole schede (D1…D10, M1…M7…) o i tipi di quesito
   (brani, serie figurali, lessico…). Banche SNA e Formez, riserva a richiesta,
-  5-30 quesiti, con o senza tempo (1,5′ a quesito), correzione subito o alla fine.
+  numero di quesiti a scelta rapida, scritto a mano o «Tutti» (un blocco intero,
+  o più blocchi, in una sessione), con o senza tempo (1,5′ a quesito),
+  correzione subito o alla fine.
   Escono prima i quesiti mai visti; un brano entra con le sue domande.
 - **Errori**: solo i quesiti sbagliati (situazionali: non la migliore) e non
   ancora risolti dopo, filtrabili per materia; escono quando li fai giusti.

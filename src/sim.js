@@ -435,7 +435,7 @@
       var pool = drillPool(f);
       var ids = drillPick(pool, f.n);
       if (!ids.length) { toast('Nessun quesito con questi filtri'); return; }
-      if (ids.length < f.n) toast('Disponibili solo ' + ids.length + ' quesiti');
+      if (ids.length < f.n && f.n < ALL) toast('Disponibili solo ' + ids.length + ' quesiti');
       var lab = f.a.length ? areaNames(f.a) : 'tutte le materie';
       if (f.a.length === 1 && f.t.length) lab += ' (' + f.t.join(', ') + ')';
       begin({ id: 'B', ids: ids, lab: lab, min: Math.ceil(ids.length * 1.5) },
@@ -720,6 +720,33 @@
       saveLocal();
       go(view, true);
     };
+    /* Quanti quesiti: scelte rapide, «Tutti» e un campo libero. */
+    var ALL = 100000;
+    function countField(g, f, max) {
+      var presets = g === 'b' ? [5, 10, 15, 20, 30] : [10, 15, 20, 30];
+      var shown = f.n >= ALL ? max : f.n;
+      return '<div class="field"><span class="lbl">Quesiti</span>' +
+        choice(g, 'n', presets.concat([ALL]), presets.map(String).concat(['Tutti (' + max + ')']), f.n) +
+        '<label class="numrow" for="n-' + g + '"><span>Oppure scrivi quanti</span>' +
+        '<input id="n-' + g + '" type="number" inputmode="numeric" min="1" max="' + Math.max(1, max) + '" step="1" value="' + shown + '" data-change="simN" data-g="' + g + '"></label></div>';
+    }
+    function setCount(t) {
+      var g = t.getAttribute('data-g');
+      var f = g === 'b' ? bPrefs() : ePrefs();
+      var v = parseInt(t.value, 10);
+      if (!(v > 0)) return;
+      f.n = Math.min(v, ALL - 1);
+      saveLocal();
+      var btns = $app.querySelectorAll('[data-act=simSet][data-g="' + g + '"][data-k=n]');
+      for (var i = 0; i < btns.length; i++) btns[i].setAttribute('aria-pressed', String(Number(btns[i].getAttribute('data-v')) === f.n));
+      var go_ = $app.querySelector(g === 'b' ? '[data-act=simDrill]' : '[data-act=simErr]');
+      var max = Number(t.getAttribute('max'));
+      if (go_) go_.textContent = (g === 'b' ? 'Avvia blocco (' : 'Avvia ripasso (') + Math.min(f.n, max) + ')';
+    }
+    CHANGES.simN = setCount;
+    $app.addEventListener('input', function (e) {
+      if (e.target.getAttribute && e.target.getAttribute('data-change') === 'simN') setCount(e.target);
+    });
     function choice(g, k, values, labels, cur) {
       return '<div class="seg" role="group">' + values.map(function (v, i) {
         return '<button type="button" data-act="simSet" data-g="' + g + '" data-k="' + k + '" data-v="' + v + '" aria-pressed="' + (v === cur) + '">' + labels[i] + '</button>';
@@ -783,7 +810,7 @@
       var seen = seenCounts();
       var fresh = pool.filter(function (q) { return !seen[q.id]; }).length;
       var h = '<section class="panel"><h2>Blocco per materia</h2>' +
-        '<p class="small muted">Scegli una o più materie (nessuna = tutte). Con una sola materia puoi restringere alle schede o ai tipi di quesito. Escono prima i quesiti mai visti.</p>' +
+        '<p class="small muted">Scegli una o più materie (nessuna = tutte). Con una sola materia puoi restringere alle schede o ai tipi di quesito. Escono prima i quesiti mai visti; con «Tutti» fai l’intero blocco in una sessione.</p>' +
         '<div class="chips">' + SIM.areas.map(function (a) { return chip('ba', a[0], esc(a[1]), f.a.indexOf(a[0]) >= 0, byArea[a[0]] || 0); }).join('') + '</div>';
       if (f.a.length === 1) {
         var inArea = all.filter(function (q) { return q.a === f.a[0]; });
@@ -807,7 +834,7 @@
         ['sna', 'formez'].map(function (k) { return chip('bs', k, SRC_LABEL[k], f.src[k], nSrc[k] || 0); }).join('') +
         chip('br', '1', 'Anche i quesiti di riserva', f.ris, nRis) + '</div>' +
         '<p class="small muted">Riserva: formati usciti solo in SNA 8 o nei concorsi Formez (logica deduttiva e verbale), varianti con le lettere spostate, situazionali in inglese.</p>' +
-        '<div class="field"><span class="lbl">Quesiti</span>' + choice('b', 'n', [5, 10, 15, 20, 30], ['5', '10', '15', '20', '30'], f.n) + '</div>' +
+        countField('b', f, pool.length) +
         '<div class="field"><span class="lbl">Tempo</span>' + choice('b', 'tm', [0, 1], ['Senza tempo', '1,5′ a quesito, come in prova'], f.tm) + '</div>' +
         '<div class="chips">' + chip('bf', '1', 'Correzione subito dopo ogni risposta', f.fb) + '</div>' +
         '<p class="small" style="margin-top:12px"><b>' + pool.length + '</b> quesiti con questi filtri, <b>' + fresh + '</b> mai visti.</p>' +
@@ -828,7 +855,7 @@
       if (!SS.hist.length) return h + '<p class="empty">Si attiva dopo la prima prova o il primo blocco consegnato.</p></section>';
       h += '<div class="chips">' + SIM.areas.map(function (a) { return chip('ea', a[0], esc(a[1]), f.a.indexOf(a[0]) >= 0, byArea[a[0]] || 0); }).join('') + '</div>' +
         '<div class="chips" style="margin-top:10px">' + chip('eo', '1', 'Anche gli omessi', f.om) + '</div>' +
-        '<div class="field"><span class="lbl">Quesiti</span>' + choice('e', 'n', [10, 15, 20, 30], ['10', '15', '20', '30'], f.n) + '</div>' +
+        countField('e', f, pool.length) +
         '<div class="field"><span class="lbl">Tempo</span>' + choice('e', 'tm', [0, 1], ['Senza tempo', '1,5′ a quesito, come in prova'], f.tm) + '</div>' +
         '<div class="chips">' + chip('ef', '1', 'Correzione subito dopo ogni risposta', f.fb) + '</div>' +
         '<p class="small" style="margin-top:12px"><b>' + pool.length + '</b> da ripassare' + (pool.length ? ', di cui <b>' + due + '</b> non rivisti da 12 ore' : '') + '.</p>' +
