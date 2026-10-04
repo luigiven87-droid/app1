@@ -1,0 +1,348 @@
+# Diritto costituzionale — domande elaborate (non d'archivio)
+@area diritto_costituzionale
+
+## C1
+# Già chiesti (SNA): decreto-legge (60 giorni; rapporti sorti), regolamenti governativi, ministeriali
+# e parlamentari, potestà regolamentare, preambolo del decreto legislativo, riserva assoluta (due
+# volte), iniziativa popolare.
+U: 64407cad98 = SNA10-B1-Q25, SNA11-B1-Q26, SNA11-B2-Q25
+U: a9d046b76f = SNA10-B1-Q25, SNA11-B1-Q26
+U: d57d6b25b4 = SNA10-B1-Q26
+U: 2a7ce9dfbf = SNA10-B1-Q26
+U: 0970dc7e13 = SNA10-B2-Q25
+U: 53f5fb37bd = SNA10-B2-Q25
+U: e8a45e660f = SNA10-B3-Q25
+U: d52ffdb0c7 = SNA10-B3-Q25
+U: 582364aa38 = SNA11-B1-Q27
+U: bdfbebb4ec = SNA11-B2-Q25
+U: 2c5ebdde65 = SNA11-B3-Q25, SNA9-B1-Q25
+U: 40e40e2846 = SNA11-B3-Q25
+U: 0660d14490 = SNA9-B2-Q27
+U: 48198613a9 = SNA9-B2-Q27
+
+Q EL-C1-1
+T: Costituisce un esempio di riserva di legge relativa:
+A: l'art. 13 Cost., in materia di libertà personale
+B: l'art. 25 Cost., in materia di norme penali
+C: l'art. 23 Cost., in materia di prestazioni personali o patrimoniali
+K: C
+F: c81c8cdd11, 0171e06572, 2c5ebdde65
+S: Riserva relativa: la legge fissa i principi e il regolamento completa (artt. 23 e 97). Gli artt. 13 e 25 sono gli esempi classici di riserva assoluta, chiesta due volte.
+
+Q EL-C1-2
+T: Ai sensi dell'art. 72, comma 4, Cost., devono essere sempre approvati con la procedura normale in Assemblea i disegni di legge:
+A: di delegazione legislativa e di autorizzazione a ratificare trattati internazionali
+B: in materia di pubblico impiego
+C: di iniziativa popolare
+K: A
+F: 4273de60a5
+S: Riserva di assemblea: materia costituzionale ed elettorale, delegazione legislativa, autorizzazione alla ratifica dei trattati, approvazione di bilanci e consuntivi.
+
+Q EL-C1-3
+T: La reiterazione dei decreti-legge non convertiti in legge:
+A: è ammessa al massimo due volte
+B: è costituzionalmente illegittima, secondo la Corte costituzionale
+C: è ammessa se le Camere non si sono pronunciate
+K: B
+F: 7b4e109fb9
+S: Corte cost. n. 360/1996: niente reiterazione. Altri limiti: contenuto omogeneo, niente decreti-legge nelle materie dell'art. 72, comma 4 (art. 15 L. 400/1988).
+
+Q EL-C1-4
+T: Nei regolamenti di delegificazione (art. 17, comma 2, L. 400/1988), le leggi vigenti nella materia sono abrogate:
+A: dalla legge di autorizzazione, al momento della sua entrata in vigore
+B: dall'entrata in vigore del regolamento
+C: solo con un successivo decreto legislativo
+K: B
+F: dceacf2ba4
+S: La legge autorizza il regolamento e fissa le norme generali; l'effetto abrogativo scatta con l'entrata in vigore del regolamento.
+
+Q EL-C1-5
+T: Salvo che la legge stessa stabilisca un termine diverso, la legge entra in vigore:
+A: il giorno stesso della promulgazione
+B: il quindicesimo giorno successivo alla pubblicazione
+C: trenta giorni dopo l'approvazione definitiva
+K: B
+F: 49069eb2ed
+S: Art. 73: promulgazione entro un mese dall'approvazione, pubblicazione subito dopo, entrata in vigore il quindicesimo giorno successivo (vacatio legis), salvo diverso termine.
+
+Q EL-C1-6
+T: Il decreto-legge deve essere presentato alle Camere per la conversione:
+A: il giorno stesso in cui è adottato
+B: entro 5 giorni dalla pubblicazione
+C: entro 60 giorni dalla pubblicazione
+K: A
+F: 64407cad98
+S: Art. 77: presentazione il giorno stesso; le Camere, anche se sciolte, si riuniscono entro 5 giorni (B); la conversione deve avvenire entro 60 giorni (C, già chiesto).
+
+Q EL-C1-7
+T: Se, dopo il rinvio di una legge da parte del Presidente della Repubblica, le Camere la approvano nuovamente:
+A: il Presidente può rinviarla una seconda volta
+B: la legge è trasmessa d'ufficio alla Corte costituzionale
+C: la legge deve essere promulgata
+K: C
+F: c2fcbff091
+S: Art. 74: il rinvio, con messaggio motivato, è uno solo; se le Camere riapprovano, la promulgazione è dovuta.
+
+## C2
+# Già chiesti (SNA): unità di indirizzo (Presidente del Consiglio), questione di fiducia, stato di
+# guerra, mozione di sfiducia, prorogatio e ministri senza portafoglio (SNA 8).
+U: 887ab3cde4 = SNA10-B1-Q27
+U: c2c309cff8 = SNA10-B1-Q27
+U: 9ccfdc0a2c = SNA10-B2-Q27
+U: 4013fe61ed = SNA10-B2-Q27
+U: e49b443c9a = SNA10-B3-Q26
+U: 731a00024f = SNA10-B3-Q26
+U: 5fefed2779 = SNA11-B1-Q25
+U: 95c5be80ed = SNA11-B1-Q25
+U: 0f34f44e14 = SNA8-B3-Q15
+U: 02fa2bd89f = SNA8-B3-Q15
+U: 9c29684220 = SNA8-B3-Q16
+U: 69f1c23d2a = SNA8-B3-Q16
+
+Q EL-C2-1
+T: Il Governo deve presentarsi alle Camere per ottenerne la fiducia entro:
+A: 5 giorni dalla nomina del Presidente del Consiglio
+B: 10 giorni dalla sua formazione
+C: 30 giorni dal giuramento
+K: B
+F: 5fefed2779
+S: Art. 94: entro 10 giorni, con mozione motivata votata per appello nominale in ciascuna Camera. Della stessa riga SNA 11 ha chiesto la sfiducia (un decimo, non prima di tre giorni).
+
+Q EL-C2-2
+T: Il voto contrario di una o di entrambe le Camere su una proposta del Governo:
+A: comporta sempre le dimissioni del Governo
+B: non comporta l'obbligo di dimissioni
+C: comporta lo scioglimento delle Camere
+K: B
+F: 5fefed2779
+S: Art. 94, comma 4. Le dimissioni sono dovute dopo la sfiducia o se il Governo perde la questione di fiducia che ha posto.
+
+Q EL-C2-3
+T: Il Presidente del Consiglio e i ministri, per i reati commessi nell'esercizio delle loro funzioni, sono sottoposti:
+A: alla giurisdizione ordinaria, previa autorizzazione della Camera competente
+B: al giudizio della Corte costituzionale
+C: al giudizio del Parlamento in seduta comune
+K: A
+F: ba6a9748ff
+S: Art. 96 e L. cost. 1/1989: reati ministeriali alla giurisdizione ordinaria, con autorizzazione del Senato o della Camera. La Corte costituzionale giudica solo il Presidente della Repubblica.
+
+Q EL-C2-4
+T: Le commissioni parlamentari d'inchiesta (art. 82 Cost.) procedono alle indagini:
+A: con poteri superiori a quelli dell'autorità giudiziaria
+B: solo con il consenso del Governo
+C: con gli stessi poteri e le stesse limitazioni dell'autorità giudiziaria
+K: C
+F: 6414ff553a
+S: Art. 82, comma 2: stessi poteri e stessi limiti dell'autorità giudiziaria.
+
+Q EL-C2-5
+T: Dopo la L. cost. 1/2020, i senatori a vita nominati dal Presidente della Repubblica:
+A: non possono essere in nessun caso più di cinque in carica complessivamente
+B: possono essere cinque per ciascun mandato presidenziale
+C: possono essere nominati senza limiti di numero
+K: A
+F: 0b27f3053a
+S: La riforma del 2020 (400 deputati, 200 senatori) ha chiarito il dubbio interpretativo: cinque in tutto, non cinque per ogni Presidente (B). Gli ex Presidenti sono senatori di diritto.
+
+## C3
+# Già chiesti (SNA): richiedenti dei referendum abrogativo e costituzionale, controllo di
+# legittimità della richiesta, stato di accusa, revisione come procedimento aggravato.
+U: 212d63df98 = SNA10-B2-Q26
+U: f497e08649 = SNA10-B2-Q26, SNA9-B2-Q25
+U: a63f2e3b96 = SNA11-B2-Q26
+U: d2c047c0ec = SNA11-B2-Q26
+U: 7198b3424b = SNA9-B1-Q26
+U: d5f859bda8 = SNA9-B1-Q26
+U: 0496a8e4e9 = SNA9-B1-Q27
+U: bd026cf00d = SNA9-B1-Q27
+U: 00a5fd4688 = SNA9-B2-Q25
+
+Q EL-C3-1
+T: Nei primi tre scrutini per l'elezione del Presidente della Repubblica è richiesta la maggioranza:
+A: assoluta dell'assemblea
+B: dei due terzi dell'assemblea
+C: dei tre quinti dell'assemblea
+K: B
+F: e067f6e0d6
+S: Art. 83: due terzi nei primi tre scrutini, poi maggioranza assoluta. Il Parlamento in seduta comune è integrato da tre delegati per Regione (uno per la Valle d'Aosta).
+
+Q EL-C3-2
+T: Il Presidente della Repubblica non può sciogliere le Camere:
+A: negli ultimi sei mesi del suo mandato, salvo che coincidano in tutto o in parte con gli ultimi sei mesi della legislatura
+B: nel primo anno della legislatura
+C: senza il parere conforme della Corte costituzionale
+K: A
+F: 3b31368dfd
+S: Semestre bianco (art. 88). Prima dello scioglimento il Presidente sente i Presidenti delle Camere, ma il loro parere non è vincolante.
+
+Q EL-C3-3
+T: Ai sensi dell'art. 75 Cost., non è ammesso il referendum abrogativo per le leggi:
+A: elettorali
+B: tributarie e di bilancio, di amnistia e di indulto, di autorizzazione a ratificare trattati internazionali
+C: in materia di pubblico impiego
+K: B
+F: 1e717c904a, 212d63df98
+S: Sono le materie escluse dal testo dell'art. 75; l'ammissibilità la valuta la Corte costituzionale, la legittimità della richiesta l'Ufficio centrale presso la Cassazione (chiesto in SNA 10).
+
+Q EL-C3-4
+T: Il referendum sulle leggi di revisione costituzionale (art. 138):
+A: è valido solo se vota la maggioranza degli aventi diritto
+B: si tiene anche se la legge è stata approvata a maggioranza di due terzi in entrambe le Camere
+C: è valido indipendentemente dal numero dei votanti, perché non prevede quorum
+K: C
+F: a63f2e3b96, d2c047c0ec
+S: Il referendum costituzionale non ha quorum (A vale per l'abrogativo); non si tiene se la seconda votazione raggiunge i due terzi in entrambe le Camere (B).
+
+Q EL-C3-5
+T: Ai sensi dell'art. 139 Cost., non può essere oggetto di revisione costituzionale:
+A: la forma repubblicana
+B: il numero dei parlamentari
+C: la durata del mandato del Presidente della Repubblica
+K: A
+F: 53236cc1ba
+S: Limite espresso: la forma repubblicana. La Corte costituzionale aggiunge i principi supremi (sent. n. 1146/1988). Il numero dei parlamentari è stato ridotto proprio con una revisione (2020).
+
+## C4
+# Già chiesti (SNA): composizione della Corte costituzionale, effetti della sentenza, ordinanza di
+# rimessione (SNA 8), conflitti di attribuzione, CSM, Consiglio di Stato.
+U: 22522b63c4 = SNA10-B3-Q27
+U: 492d0d7ed7 = SNA10-B3-Q27
+U: bb12c96d5a = SNA11-B3-Q27
+U: decaecd659 = SNA11-B3-Q27
+U: dd770ed528 = SNA8-B3-Q18
+U: 798df45a5e = SNA8-B3-Q18
+U: d4f6e34a5b = SNA9-B2-Q26
+U: d57fbe9073 = SNA9-B2-Q26
+U: 2a08d79092 = SNA9-B3-Q26
+U: 9ba48d82fa = SNA9-B3-Q26
+U: aa935cd131 = SNA9-B3-Q27
+U: d4451c9dd1 = SNA9-B3-Q27
+
+Q EL-C4-1
+T: I giudici della Corte costituzionale restano in carica:
+A: sette anni e possono essere rieletti una volta
+B: nove anni e non sono rieleggibili
+C: nove anni e sono rieleggibili
+K: B
+F: d4f6e34a5b
+S: Art. 135: 15 giudici, 9 anni, non rieleggibili. SNA 9 ha chiesto la composizione (un terzo ciascuno a Presidente, Parlamento, supreme magistrature).
+
+Q EL-C4-2
+T: Il Governo può promuovere la questione di legittimità costituzionale di una legge regionale davanti alla Corte costituzionale entro:
+A: 30 giorni dalla sua approvazione
+B: 60 giorni dalla sua pubblicazione
+C: 120 giorni dalla sua pubblicazione
+K: B
+F: 79db457536
+S: Giudizio in via principale (art. 127): 60 giorni dalla pubblicazione, sia per il Governo contro le leggi regionali sia per le Regioni contro le leggi statali.
+
+Q EL-C4-3
+T: Nel giudizio in via incidentale, il giudice a quo deve motivare sulla rilevanza della questione, cioè sul fatto che:
+A: il giudizio in corso non può essere definito indipendentemente dalla sua risoluzione
+B: la legge impugnata è entrata in vigore da meno di un anno
+C: la questione è stata sollevata da entrambe le parti
+K: A
+F: dd770ed528
+S: Due requisiti: rilevanza e non manifesta infondatezza. La questione può essere sollevata anche d'ufficio dal giudice.
+
+Q EL-C4-4
+T: I membri elettivi del Consiglio superiore della magistratura sono eletti:
+A: per due terzi dai magistrati ordinari e per un terzo dal Parlamento in seduta comune
+B: per metà dai magistrati e per metà dal Parlamento
+C: tutti dai magistrati ordinari
+K: A
+F: 2a08d79092
+S: Art. 104: due terzi «togati», un terzo «laici» eletti dal Parlamento fra professori ordinari di materie giuridiche e avvocati con 15 anni di esercizio; il vicepresidente è eletto fra i laici.
+
+Q EL-C4-5
+T: Ai sensi dell'art. 107 Cost., la facoltà di promuovere l'azione disciplinare nei confronti dei magistrati spetta anche:
+A: al Presidente del Consiglio dei ministri
+B: al Ministro della giustizia
+C: alla Corte costituzionale
+K: B
+F: 8079de2314
+S: Il Ministro della giustizia ha la facoltà di promuovere l'azione disciplinare e cura l'organizzazione dei servizi (art. 110); i provvedimenti disciplinari li decide il CSM.
+
+Q EL-C4-6
+T: Il CNEL (art. 99 Cost.):
+A: è organo di consulenza delle Camere e del Governo in materia di economia e lavoro e ha iniziativa legislativa
+B: è l'organo di autogoverno della magistratura contabile
+C: controlla la gestione finanziaria degli enti finanziati dallo Stato
+K: A
+F: 4cb2c45790, 7d533587ed
+S: Organi ausiliari: CNEL (economia e lavoro), Consiglio di Stato (chiesto in SNA 11), Corte dei conti (C).
+
+## C5
+# Già chiesti (SNA): ordinamento civile (legislazione esclusiva), potere sostitutivo, estradizione
+# dello straniero (art. 10), voto (SNA 8). Formez: esercizio provvisorio, capacità contributiva.
+U: 3c78aaf1cd = SNA11-B2-Q27
+U: 73f0f01565 = SNA11-B2-Q27
+U: f13033eaaf = SNA11-B3-Q26
+U: 68a2292e4c = SNA11-B3-Q26
+U: 35bd08b55f = SNA8-B3-Q17
+U: 81d2211dd3 = SNA8-B3-Q17
+U: 3a5e1a544a = SNA9-B3-Q25
+U: bc89af95cd = SNA9-B3-Q25
+
+Q EL-C5-1
+T: Ai sensi dell'art. 81 Cost., il ricorso all'indebitamento è consentito:
+A: solo per considerare gli effetti del ciclo economico o, previa autorizzazione delle Camere a maggioranza assoluta, al verificarsi di eventi eccezionali
+B: liberamente, se destinato a finanziare spese di investimento
+C: in nessun caso
+K: A
+F: 00bb1b0818
+S: Art. 81 riscritto nel 2012: equilibrio fra entrate e spese tenendo conto del ciclo; indebitamento solo nei due casi. La regola degli investimenti (B) vale per gli enti territoriali (art. 119).
+
+Q EL-C5-2
+T: Gli enti territoriali possono ricorrere all'indebitamento:
+A: per finanziare spese correnti, previa autorizzazione statale
+B: solo per finanziare spese di investimento
+C: senza limiti, nell'ambito della loro autonomia finanziaria
+K: B
+F: ba72a07b6f
+S: Art. 119: autonomia finanziaria di entrata e di spesa, indebitamento solo per investimenti (con piani di ammortamento ed equilibrio di bilancio).
+
+Q EL-C5-3
+T: La tutela della salute rientra nella potestà legislativa:
+A: concorrente fra Stato e Regioni
+B: esclusiva dello Stato
+C: residuale delle Regioni
+K: A
+F: 142d32ec70, 73f0f01565
+S: Concorrente: lo Stato fissa i principi fondamentali, le Regioni il resto (anche istruzione, governo del territorio, protezione civile). SNA 11 ha chiesto l'ordinamento civile, che è esclusivo.
+
+Q EL-C5-4
+T: I provvedimenti provvisori restrittivi della libertà personale adottati dall'autorità di pubblica sicurezza, nei casi eccezionali previsti dalla legge, devono essere comunicati all'autorità giudiziaria entro:
+A: 24 ore
+B: 48 ore
+C: 72 ore
+K: B
+F: 9fe9dfd598
+S: Art. 13, comma 3: comunicazione entro 48 ore e convalida nelle 48 ore successive, altrimenti i provvedimenti si intendono revocati.
+
+Q EL-C5-5
+T: Le ulteriori forme di autonomia previste dall'art. 116, comma 3, Cost. sono attribuite alle Regioni ordinarie con legge approvata:
+A: con il procedimento di revisione costituzionale
+B: a maggioranza assoluta dei componenti, sulla base di un'intesa fra lo Stato e la Regione
+C: con decreto del Presidente del Consiglio, sentita la Conferenza Stato-Regioni
+K: B
+F: 91910b237d
+S: Autonomia differenziata: legge a maggioranza assoluta sulla base di un'intesa. La legge di attuazione (L. 86/2024) è stata in parte dichiarata illegittima (Corte cost. n. 192/2024).
+
+Q EL-C5-6
+T: L'estradizione del cittadino (art. 26 Cost.):
+A: non è mai ammessa
+B: è ammessa per qualunque reato, se richiesta da uno Stato dell'Unione europea
+C: può essere consentita solo se espressamente prevista dalle convenzioni internazionali, e mai per reati politici
+K: C
+F: 3a5e1a544a
+S: È il gemello dell'art. 10 (estradizione dello straniero, chiesto in SNA 9): cittadino solo se previsto dalle convenzioni, mai per reati politici.
+
+Q EL-C5-7
+T: Dopo la riforma del 2022, l'art. 9 Cost. tutela, oltre al paesaggio e al patrimonio storico e artistico:
+A: l'ambiente, la biodiversità e gli ecosistemi, anche nell'interesse delle future generazioni
+B: il diritto all'abitazione
+C: la libertà di iniziativa economica privata
+K: A
+F: 1092296e18
+S: L. cost. 1/2022 ha modificato gli artt. 9 e 41: tutela dell'ambiente, della biodiversità e degli ecosistemi, anche nell'interesse delle future generazioni.

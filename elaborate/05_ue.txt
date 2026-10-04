@@ -1,0 +1,369 @@
+# Diritto dell'Unione europea — domande elaborate (non d'archivio)
+@area diritto_ue
+
+## U1
+# Già chiesti (SNA): attribuzione, sussidiarietà, proporzionalità, categorie di competenze (due),
+# coesione e spazio di libertà come competenze concorrenti, art. 352, L. 234/2012.
+U: 1967f8ce32 = SNA10-B1-Q33
+U: 31080f51b5 = SNA10-B1-Q33
+U: 7dcbfa44f2 = SNA10-B2-Q33
+U: 810ffac6d1 = SNA10-B3-Q33
+U: 23adc7889d = SNA10-B3-Q33
+U: 6a3b326daa = SNA11-B1-Q33
+U: 50d0deecfe = SNA11-B1-Q34
+U: 34bab2e7fb = SNA11-B1-Q34
+U: 47ac5853a7 = SNA9-B1-Q35, SNA9-B3-Q33
+U: 3a77d82b6a = SNA9-B1-Q35, SNA9-B3-Q33
+U: e57cf95b0f = SNA9-B2-Q33
+U: 67a25241c0 = SNA9-B2-Q33
+
+Q EL-U1-1
+T: Ai sensi dell'art. 3 TFUE, rientra fra le competenze esclusive dell'Unione:
+A: la politica commerciale comune
+B: l'ambiente
+C: la protezione dei consumatori
+K: A
+F: d224c4e07f, 47ac5853a7
+S: Esclusive: unione doganale, regole di concorrenza per il mercato interno, politica monetaria per l'euro, conservazione delle risorse biologiche del mare, politica commerciale comune, alcuni accordi internazionali. Ambiente e consumatori sono concorrenti.
+
+Q EL-U1-2
+T: Nei settori della cultura, dell'istruzione e del turismo l'Unione ha una competenza:
+A: esclusiva
+B: concorrente con quella degli Stati membri
+C: di sostegno, coordinamento o completamento dell'azione degli Stati membri
+K: C
+F: 07262b45a7, 3a77d82b6a
+S: Art. 6 TFUE: sostegno, coordinamento, completamento, senza armonizzazione (anche salute umana, industria, sport, protezione civile, cooperazione amministrativa).
+
+Q EL-U1-3
+T: Le misure fondate sulla clausola di flessibilità (art. 352 TFUE) sono adottate dal Consiglio:
+A: a maggioranza qualificata, sentito il Parlamento europeo
+B: all'unanimità, su proposta della Commissione e previa approvazione del Parlamento europeo
+C: a maggioranza semplice, su proposta di uno Stato membro
+K: B
+F: 1125c8b158
+S: SNA 11 ha chiesto i limiti dell'art. 352 (niente armonizzazione dove è esclusa); la procedura è l'altra metà: unanimità del Consiglio, proposta della Commissione, approvazione del Parlamento.
+
+Q EL-U1-4
+T: Lo strumento annuale con cui il Parlamento italiano conferisce al Governo le deleghe per recepire le direttive europee è:
+A: la legge europea
+B: la legge di bilancio
+C: la legge di delegazione europea
+K: C
+F: 4c72ecae3b
+S: L. 234/2012: legge di delegazione europea (deleghe per recepire le direttive) e legge europea (adeguamento diretto dell'ordinamento).
+
+Q EL-U1-5
+T: In caso di violazione grave e persistente dei valori dell'art. 2 TUE da parte di uno Stato membro, l'art. 7 TUE consente:
+A: di sospendere alcuni diritti dello Stato, compreso il diritto di voto in Consiglio
+B: di espellere lo Stato dall'Unione
+C: di sciogliere il suo Parlamento nazionale
+K: A
+F: 30e93202d2
+S: I trattati non prevedono l'espulsione; l'art. 7 prevede la sospensione di alcuni diritti, compreso il voto in Consiglio.
+
+## U2
+# Già chiesti (SNA): Consiglio europeo (ruolo e composizione), Consiglio a composizione variabile,
+# nomina della Commissione, maggioranza qualificata, accordi internazionali (SNA 8), difesa comune,
+# BCE come istituzione.
+U: 570be5b5e7 = SNA10-B1-Q35, SNA9-B2-Q35
+U: 838561d38d = SNA10-B2-Q35
+U: 3ffc12447a = SNA10-B2-Q35
+U: 7a4f33ce27 = SNA10-B3-Q35
+U: 6acb82f999 = SNA10-B3-Q35
+U: bee588cb9f = SNA10-B3-Q35
+U: 270e70a01c = SNA11-B2-Q33
+U: 1ee7ef0a18 = SNA11-B2-Q33
+U: c8474d0da3 = SNA8-B3-Q30
+U: f51e0fa60a = SNA8-B3-Q30
+U: 1b61df8f06 = SNA9-B1-Q33
+U: f4b2d0ae8c = SNA9-B3-Q35
+U: 0b748a0ff1 = SNA9-B3-Q35
+
+Q EL-U2-1
+T: Nel Consiglio dell'Unione, la minoranza di blocco che impedisce una deliberazione a maggioranza qualificata deve comprendere almeno:
+A: quattro Stati membri
+B: tre Stati membri
+C: un terzo degli Stati membri
+K: A
+F: 270e70a01c
+S: Maggioranza qualificata: 55% degli Stati (almeno 15) e 65% della popolazione (chiesta in SNA 11); la minoranza di blocco richiede almeno quattro Stati.
+
+Q EL-U2-2
+T: Quando il Consiglio non delibera su proposta della Commissione o dell'Alto rappresentante, la maggioranza qualificata è pari almeno:
+A: al 55% degli Stati membri che rappresentino il 65% della popolazione
+B: al 72% degli Stati membri che rappresentino il 65% della popolazione
+C: ai due terzi degli Stati membri
+K: B
+F: 96545b4516, 1ee7ef0a18
+S: Senza proposta della Commissione la soglia degli Stati sale al 72%. A è la regola ordinaria, chiesta in SNA 11: la trappola è proprio quella.
+
+Q EL-U2-3
+T: La mozione di censura del Parlamento europeo nei confronti della Commissione è approvata:
+A: a maggioranza semplice dei presenti
+B: all'unanimità
+C: a maggioranza dei due terzi dei voti espressi e a maggioranza dei membri del Parlamento
+K: C
+F: 0874e75bec
+S: Doppia maggioranza (art. 234 TFUE). Se passa, la Commissione si dimette collettivamente e l'Alto rappresentante lascia le funzioni che svolge nella Commissione.
+
+Q EL-U2-4
+T: Il Consiglio «Affari esteri» è presieduto:
+A: dallo Stato membro che esercita la presidenza di turno
+B: dall'Alto rappresentante dell'Unione per gli affari esteri e la politica di sicurezza
+C: dal presidente del Consiglio europeo
+K: B
+F: 838561d38d, 6fab1ae905
+S: Le altre formazioni hanno la presidenza di turno semestrale; il Consiglio Affari esteri è presieduto dall'Alto rappresentante, che è anche vicepresidente della Commissione.
+
+Q EL-U2-5
+T: Il Consiglio d'Europa:
+A: è l'istituzione dell'Unione che riunisce i capi di Stato o di governo
+B: è l'istituzione dell'Unione composta da un ministro per ciascuno Stato membro
+C: è un'organizzazione internazionale esterna all'Unione, nel cui ambito è stata adottata la CEDU
+K: C
+F: 5667a3873c
+S: Tre nomi da non confondere: Consiglio europeo (A), Consiglio dell'Unione (B), Consiglio d'Europa (C).
+
+Q EL-U2-6
+T: Il Comitato economico e sociale europeo e il Comitato delle regioni sono:
+A: organi consultivi, non istituzioni dell'Unione
+B: istituzioni dell'Unione, al pari della BCE
+C: agenzie esecutive della Commissione
+K: A
+F: edbf56dcaa, 0b748a0ff1
+S: Le istituzioni sono sette (art. 13 TUE): Parlamento, Consiglio europeo, Consiglio, Commissione, Corte di giustizia, BCE, Corte dei conti. SNA 9 ha chiesto se la BCE è un'istituzione.
+
+Q EL-U2-7
+T: Il Parlamento europeo eletto nel 2024 è composto da:
+A: 705 membri
+B: 751 membri
+C: 720 membri
+K: C
+F: 0874e75bec
+S: 720 membri per la legislatura 2024-2029, di cui 76 italiani. 751 e 705 erano le composizioni delle legislature precedenti.
+
+## U3
+# Già chiesti (SNA): Costa c. ENEL, regolamenti (SNA 8), chi adotta gli atti. Formez: diretta
+# applicabilità, atti legislativi, atti di esecuzione, entrata in vigore (20 giorni).
+U: dd8f7c53fb = SNA11-B2-Q35
+U: 05dbf56a7c = SNA11-B2-Q35
+U: 9fd320026b = SNA8-B3-Q29
+U: b9889e0b5e = SNA8-B3-Q29
+U: 01f007511e = SNA9-B3-Q34
+
+Q EL-U3-1
+T: La sentenza Van Gend en Loos (1963) della Corte di giustizia ha affermato:
+A: il primato del diritto comunitario sul diritto nazionale
+B: l'effetto diretto delle norme comunitarie
+C: la responsabilità dello Stato per il mancato recepimento delle direttive
+K: B
+F: 72a8970c51
+S: Van Gend en Loos: effetto diretto e «ordinamento giuridico di nuovo genere». A è Costa c. ENEL (chiesta in SNA 11), C è Francovich.
+
+Q EL-U3-2
+T: Secondo la sentenza Simmenthal (1978), il giudice nazionale di fronte a una norma interna contrastante con una norma dell'Unione direttamente applicabile:
+A: la disapplica, senza attendere che sia rimossa dal legislatore o dalla Corte costituzionale
+B: deve sempre sollevare questione di legittimità costituzionale
+C: la applica fino alla sua abrogazione
+K: A
+F: cb004c9118, 1974717331
+S: Simmenthal: disapplicazione immediata. In Italia la Corte costituzionale l'ha accolta con la sentenza Granital (n. 170/1984).
+
+Q EL-U3-3
+T: La sentenza Francovich (1991) della Corte di giustizia riguarda:
+A: la responsabilità dello Stato per violazione del diritto dell'Unione, come il mancato recepimento di una direttiva
+B: il primato del diritto dell'Unione sulle costituzioni nazionali
+C: la libera circolazione delle merci
+K: A
+F: 4d65a82cb5
+S: Francovich: lo Stato risarcisce il danno causato ai privati dalla violazione del diritto dell'Unione.
+
+Q EL-U3-4
+T: Gli atti delegati (art. 290 TFUE) sono adottati dalla Commissione per:
+A: modificare gli elementi essenziali di un atto legislativo
+B: integrare o modificare elementi non essenziali di un atto legislativo
+C: dare esecuzione agli atti dell'Unione in ogni caso al posto degli Stati
+K: B
+F: 918dc008f1, 73e15e48c2
+S: Gli elementi essenziali restano all'atto legislativo; Parlamento e Consiglio possono revocare la delega o opporsi. C confonde con gli atti di esecuzione (art. 291), che spettano di regola agli Stati.
+
+Q EL-U3-5
+T: Secondo la Corte di giustizia, una direttiva non recepita nel termine, con disposizioni chiare, precise e incondizionate:
+A: può essere invocata dal privato nei confronti dello Stato
+B: può essere invocata anche nei rapporti fra privati
+C: non produce alcun effetto prima del recepimento
+K: A
+F: 0ca16ce416, cdc577aff9
+S: Effetto diretto verticale (verso lo Stato), non orizzontale (fra privati). La diretta applicabilità resta propria del regolamento.
+
+## U4
+# Già chiesti (SNA): valore della Carta, adesione alla CEDU, cittadinanza (due volte), ambito della
+# Carta.
+U: e9871a330e = SNA10-B1-Q34
+U: 7aacfbf455 = SNA10-B1-Q34
+U: 975a0c9273 = SNA10-B2-Q34
+U: 4a417ba0b0 = SNA10-B2-Q34
+U: 51f4f65baf = SNA10-B3-Q34, SNA8-B3-Q28
+U: d8b82470a7 = SNA10-B3-Q34, SNA8-B3-Q28
+U: a587dbdab3 = SNA9-B2-Q34
+U: 7224b38ab8 = SNA9-B2-Q34
+
+Q EL-U4-1
+T: Il cittadino dell'Unione che risiede in uno Stato membro di cui non ha la cittadinanza ha diritto di voto e di eleggibilità in quello Stato:
+A: alle elezioni comunali e a quelle del Parlamento europeo
+B: anche alle elezioni politiche nazionali
+C: solo alle elezioni regionali
+K: A
+F: 0e0df4a09d
+S: Diritti di cittadinanza: libera circolazione, voto alle europee e alle comunali nello Stato di residenza, tutela diplomatica, petizione, Mediatore, scrivere alle istituzioni.
+
+Q EL-U4-2
+T: L'art. 41 della Carta dei diritti fondamentali dell'Unione riconosce il diritto:
+A: all'abitazione
+B: a una buona amministrazione
+C: all'accesso agli impieghi pubblici negli altri Stati membri
+K: B
+F: 6c87e9f96f
+S: Buona amministrazione: imparzialità, termine ragionevole, diritto di essere ascoltati, accesso al fascicolo, motivazione. È l'articolo della Carta che riguarda direttamente la PA.
+
+Q EL-U4-3
+T: Il cittadino dell'Unione che si trova in un Paese terzo in cui il suo Stato non è rappresentato gode della tutela diplomatica e consolare:
+A: solo del Servizio europeo per l'azione esterna
+B: solo dello Stato membro geograficamente più vicino
+C: di qualsiasi Stato membro, alle stesse condizioni dei cittadini di quello Stato
+K: C
+F: 0e0df4a09d
+S: Art. 20 TFUE e art. 46 della Carta.
+
+Q EL-U4-4
+T: La Carta dei diritti fondamentali dell'Unione, proclamata a Nizza nel 2000, ha acquisito lo stesso valore giuridico dei trattati:
+A: al momento della proclamazione
+B: con il Trattato di Maastricht
+C: con l'entrata in vigore del Trattato di Lisbona, nel 2009
+K: C
+F: e9871a330e, 7aacfbf455
+S: Valore giuridico dei trattati da Lisbona (1° dicembre 2009), non da Nizza: è la trappola indicata nella scheda.
+
+## U5
+# Già chiesti (SNA): atti impugnabili (art. 263), ricorso in carenza, impugnazione delle decisioni
+# del Tribunale (SNA 8), rinvio pregiudiziale.
+U: 208cde7090 = SNA11-B1-Q35
+U: c9f77b4fc8 = SNA11-B1-Q35
+U: 3f2aa77a62 = SNA11-B2-Q34
+U: 8256328b9e = SNA11-B2-Q34
+U: ca707b9498 = SNA8-B3-Q31
+U: e038e99b54 = SNA8-B3-Q31
+U: 450b7b3983 = SNA9-B1-Q34
+U: d89117366e = SNA9-B1-Q34
+
+Q EL-U5-1
+T: Il ricorso di annullamento (art. 263 TFUE) deve essere proposto entro:
+A: due mesi
+B: sei mesi
+C: cinque anni
+K: A
+F: 208cde7090, 06f680c3ca
+S: Due mesi dalla pubblicazione, dalla notificazione o dalla conoscenza dell'atto. Cinque anni è il termine dell'azione di risarcimento contro l'Unione.
+
+Q EL-U5-2
+T: Il rinvio pregiudiziale alla Corte di giustizia è obbligatorio:
+A: per tutti i giudici nazionali, in ogni grado
+B: per i giudici di ultima istanza, salvo che la questione sia irrilevante, già risolta dalla Corte o del tutto chiara
+C: solo se lo chiedono entrambe le parti
+K: B
+F: 98800e1d91
+S: Facoltativo per i giudici di merito, obbligatorio per quelli di ultima istanza, con le eccezioni dei criteri CILFIT.
+
+Q EL-U5-3
+T: Secondo la giurisprudenza Foto-Frost, sulla validità di un atto dell'Unione:
+A: decide solo la Corte di giustizia, e il giudice nazionale non può dichiararlo invalido da sé
+B: può decidere qualunque giudice nazionale
+C: decide la Corte costituzionale dello Stato interessato
+K: A
+F: a63e25bba9
+S: Il giudice nazionale può ritenere valido l'atto, ma se ne dubita deve rinviare alla Corte, unica competente a dichiararne l'invalidità.
+
+Q EL-U5-4
+T: Nella procedura d'infrazione contro uno Stato membro (artt. 258-260 TFUE), la fase precontenziosa comprende:
+A: la lettera di messa in mora e il parere motivato della Commissione
+B: il rinvio pregiudiziale del giudice nazionale
+C: il ricorso in carenza del Parlamento europeo
+K: A
+F: 1acdafe000
+S: Messa in mora, parere motivato, poi ricorso alla Corte; se lo Stato non esegue la sentenza, sanzioni pecuniarie (art. 260).
+
+Q EL-U5-5
+T: Dal 1° ottobre 2024 il Tribunale dell'Unione europea decide anche:
+A: le impugnazioni contro le sentenze della Corte di giustizia
+B: le questioni pregiudiziali in alcune materie tecniche, come IVA, accise e codice doganale
+C: i ricorsi per infrazione contro gli Stati membri
+K: B
+F: 74e0b89b2a
+S: Novità della riforma dello Statuto: pregiudiziali su IVA, accise, codice doganale e classificazione tariffaria, diritti dei passeggeri, scambio di quote di emissione.
+N: riforma 2024
+
+## U6
+# Già chiesti (SNA): aiuti di Stato (controllo della Commissione), Schengen, immigrazione (art. 79).
+U: d66b004e5f = SNA11-B3-Q33
+U: 0adfa2bf5a = SNA11-B3-Q33
+U: 7eaf1944df = SNA11-B3-Q34
+U: 2af8264612 = SNA11-B3-Q34
+U: 89fd11520b = SNA11-B3-Q35
+U: 877eb00c3d = SNA11-B3-Q35
+
+Q EL-U6-1
+T: L'art. 102 TFUE vieta:
+A: le intese restrittive della concorrenza
+B: lo sfruttamento abusivo di una posizione dominante
+C: gli aiuti di Stato
+K: B
+F: a332d1c2a6
+S: Art. 101 = intese; art. 102 = abuso di posizione dominante; artt. 107-108 = aiuti di Stato (chiesti in SNA 11).
+
+Q EL-U6-2
+T: Ai sensi dell'art. 79, par. 5, TFUE, resta di competenza degli Stati membri:
+A: la determinazione del volume di ingresso dei lavoratori di paesi terzi
+B: la definizione dei diritti dei cittadini di paesi terzi regolarmente soggiornanti
+C: la lotta alla tratta di esseri umani
+K: A
+F: 3145dd7ac5, 877eb00c3d
+S: B e C sono competenze dell'Unione (art. 79, par. 2); il volume degli ingressi per lavoro resta agli Stati. SNA 11 ha chiesto il par. 2: questo è il par. 5.
+
+Q EL-U6-3
+T: I nuovi aiuti di Stato devono essere notificati alla Commissione e:
+A: possono essere eseguiti subito, salvo recupero successivo
+B: non possono essere eseguiti prima della decisione della Commissione
+C: sono autorizzati dal Consiglio a maggioranza semplice
+K: B
+F: d66b004e5f
+S: Obbligo di notifica e divieto di esecuzione prima della decisione (standstill); gli aiuti illegali e incompatibili si recuperano. Il Consiglio interviene solo in via eccezionale, all'unanimità.
+
+Q EL-U6-4
+T: Gli aiuti destinati a favorire lo sviluppo economico delle regioni svantaggiate (art. 107, par. 3, TFUE):
+A: sono sempre compatibili di diritto con il mercato interno
+B: possono essere considerati compatibili dalla Commissione
+C: sono sempre vietati
+K: B
+F: 0fcfda0a30
+S: Deroghe di diritto (par. 2, per esempio calamità naturali) e deroghe discrezionali (par. 3, per esempio regioni svantaggiate), che valuta la Commissione.
+
+Q EL-U6-5
+T: Bulgaria e Romania partecipano a pieno titolo allo spazio Schengen dal:
+A: 1° gennaio 2007
+B: 1° gennaio 2020
+C: 1° gennaio 2025
+K: C
+F: 738e2d35df
+S: Dal 1° gennaio 2025 Schengen conta 29 Paesi (25 Stati UE e quattro Stati terzi associati); restano fuori Irlanda e Cipro. Il 2007 è l'anno della loro adesione all'Unione.
+N: 2025
+
+Q EL-U6-6
+T: Il Patto europeo su migrazione e asilo, adottato nel 2024, si applica dal:
+A: 12 giugno 2026
+B: 1° gennaio 2025
+C: 1° gennaio 2028
+K: A
+F: 159fbd2302
+S: Applicazione dal 12 giugno 2026; l'Italia ha adeguato le proprie norme con il d.l. 100/2026.
+N: 2026
