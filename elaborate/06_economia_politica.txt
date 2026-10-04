@@ -1,0 +1,254 @@
+# Economia politica — domande elaborate (non d'archivio)
+@area economia_politica
+
+## E1
+# Già chiesti (SNA): SMS, retta di bilancio, elasticità al prezzo (tre volte), incrociata, surplus del
+# consumatore, curva reddito-consumo, Engel (SNA 8), eccesso di domanda, prezzo massimo.
+U: 885c7431e9 = SNA10-B1-Q36
+U: 4fde5266fc = SNA10-B2-Q36
+U: 964f688bbe = SNA10-B2-Q36
+U: 4ea4b1ed09 = SNA10-B3-Q36
+U: 85781940ae = SNA10-B3-Q36
+U: 57488c50ba = SNA10-B3-Q37, SNA8-B3-Q32
+U: a2891f9211 = SNA10-B3-Q37, SNA8-B3-Q32
+U: 1efc0f186e = SNA11-B1-Q36, SNA11-B3-Q36, SNA9-B1-Q37
+U: 38fc35c180 = SNA11-B1-Q37
+U: acdd067359 = SNA11-B2-Q36
+U: e611eb5f6f = SNA11-B3-Q36
+U: 3570ff7f85 = SNA11-B3-Q37
+U: bd0f849f29 = SNA11-B3-Q37
+U: c44912963b = SNA9-B1-Q37
+
+Q EL-E1-1
+T: Un bene di Giffen è un bene:
+A: inferiore, per il quale l'effetto reddito supera l'effetto sostituzione, così che la domanda cresce al crescere del prezzo
+B: di lusso, con elasticità della domanda al reddito maggiore di 1
+C: normale, con domanda perfettamente anelastica
+K: A
+F: 57db9129b3
+S: Il Giffen è un caso particolare di bene inferiore: l'effetto reddito, opposto e più forte dell'effetto sostituzione, fa crescere la domanda quando il prezzo sale.
+
+Q EL-E1-2
+T: Se aumenta il reddito del consumatore e i prezzi restano invariati, la retta di bilancio:
+A: ruota attorno all'intercetta su uno dei due assi
+B: si sposta parallelamente verso l'esterno
+C: diventa più inclinata
+K: B
+F: acdd067359
+S: La pendenza dipende dal rapporto fra i prezzi (chiesto in SNA 11): se cambia solo il reddito la retta trasla parallelamente; se cambia un prezzo ruota.
+
+Q EL-E1-3
+T: L'onere effettivo di un'imposta (incidenza economica) ricade in misura maggiore:
+A: sul soggetto obbligato per legge a versarla
+B: sempre sul consumatore finale
+C: sul lato del mercato meno elastico
+K: C
+F: b9cc05c632
+S: L'incidenza economica non dipende da chi versa l'imposta, ma dalle elasticità: paga di più chi ha meno possibilità di reagire. La perdita secca cresce con l'elasticità di domanda e offerta.
+
+Q EL-E1-4
+T: Un bene con elasticità della domanda al reddito maggiore di 1 è un bene:
+A: di prima necessità
+B: inferiore
+C: di lusso
+K: C
+F: 042f0cedf0, 823e739316
+S: Elasticità al reddito: negativa = inferiore; fra 0 e 1 = normale di prima necessità; oltre 1 = di lusso. SNA ha chiesto l'elasticità al prezzo e quella incrociata, non ancora quella al reddito.
+
+Q EL-E1-5
+T: Se la domanda di un bene è anelastica rispetto al prezzo, un aumento del prezzo:
+A: fa aumentare la spesa totale dei consumatori per quel bene
+B: fa diminuire la spesa totale dei consumatori per quel bene
+C: lascia invariata la spesa totale
+K: A
+F: 1efc0f186e
+S: Con domanda anelastica la quantità scende meno che proporzionalmente, quindi prezzo × quantità aumenta; con domanda elastica la spesa scende.
+
+Q EL-E1-6
+T: Un prezzo minimo fissato sopra il prezzo di equilibrio, come un salario minimo, genera:
+A: un eccesso di domanda
+B: un eccesso di offerta
+C: nessun effetto sulla quantità scambiata
+K: B
+F: fdef5059cc
+S: È il simmetrico del prezzo massimo chiesto in SNA 11: sopra l'equilibrio la quantità offerta supera quella domandata.
+
+Q EL-E1-7
+T: L'effetto sostituzione provocato dall'aumento del prezzo di un bene:
+A: riduce sempre la quantità domandata di quel bene
+B: aumenta la quantità domandata se il bene è inferiore
+C: ha un segno che dipende dall'elasticità al reddito
+K: A
+F: 4089562e94, c18c078523
+S: L'effetto sostituzione va sempre in direzione opposta al prezzo; è l'effetto reddito che cambia segno fra beni normali e inferiori.
+
+## E2
+# Già chiesti (SNA): funzione di produzione, lungo periodo, costi medi e marginali, rendimenti di
+# scala, scelta della tecnica, concorrenza perfetta, profitto economico (SNA 8), discriminazione di
+# primo e secondo grado.
+U: 90ab3f5497 = SNA10-B1-Q38
+U: 51bbba8810 = SNA10-B2-Q37
+U: 34b258bdd4 = SNA10-B2-Q37
+U: 658fc1d220 = SNA10-B2-Q38
+U: 5e8b965a23 = SNA10-B2-Q38
+U: 6ff93499a5 = SNA10-B3-Q38
+U: 520cf1bd94 = SNA11-B1-Q38, SNA9-B2-Q37
+U: 090ed27122 = SNA11-B1-Q38, SNA9-B2-Q37, SNA11-B2-Q37
+U: 9c56155550 = SNA11-B2-Q37
+U: d1f8dfeac9 = SNA8-B3-Q33
+U: ce068fbe77 = SNA8-B3-Q33
+U: bd2582b316 = SNA9-B2-Q36
+U: 6319daa119 = SNA9-B2-Q36
+U: 534be2efe7 = SNA9-B3-Q37
+U: 353dd5de9f = SNA9-B3-Q37
+
+Q EL-E2-1
+T: Nel breve periodo un'impresa in concorrenza perfetta continua a produrre finché il prezzo copre:
+A: il minimo del costo medio totale
+B: il minimo del costo medio variabile
+C: il costo fisso
+K: B
+F: 9df5accb93
+S: Punto di chiusura = minimo del costo medio variabile; punto di pareggio = minimo del costo medio totale (profitto economico nullo). Fra i due l'impresa produce in perdita, ma perde meno che chiudendo.
+
+Q EL-E2-2
+T: Il monopolista massimizza il profitto producendo la quantità per cui:
+A: il prezzo è uguale al costo marginale
+B: il prezzo è uguale al minimo del costo medio
+C: il ricavo marginale è uguale al costo marginale, con un prezzo superiore al costo marginale
+K: C
+F: d183c35e53
+S: Monopolio: RMa = CMa, P > CMa, quantità più bassa e prezzo più alto che in concorrenza, perdita secca. A è la regola della concorrenza perfetta.
+
+Q EL-E2-3
+T: Si ha un monopolio naturale quando:
+A: il costo medio è decrescente per tutta la quantità domandata dal mercato
+B: un'impresa è titolare di un brevetto
+C: la legge attribuisce a un'impresa un diritto esclusivo
+K: A
+F: d46cdb512c
+S: Monopolio naturale: conviene un solo produttore perché i costi medi scendono su tutta la domanda (reti); di qui regolazione o gestione pubblica. B e C sono barriere legali.
+
+Q EL-E2-4
+T: La concorrenza monopolistica (Chamberlin) è caratterizzata da:
+A: molti venditori, prodotti differenziati e libertà di entrata
+B: pochi venditori interdipendenti
+C: un solo venditore protetto da barriere all'entrata
+K: A
+F: a0255a1946
+S: Nel lungo periodo il profitto si annulla per l'entrata di nuove imprese, ma resta capacità produttiva in eccesso. B è l'oligopolio, C il monopolio.
+
+Q EL-E2-5
+T: Nel modello di oligopolio di Bertrand le imprese competono:
+A: sulle quantità
+B: sui prezzi
+C: come leader e follower
+K: B
+F: 498e10ccae
+S: Cournot = quantità; Bertrand = prezzi; Stackelberg = leader e follower.
+
+Q EL-E2-6
+T: Il dilemma del prigioniero aiuta a spiegare perché:
+A: i cartelli fra imprese tendono a essere instabili
+B: il monopolio naturale è efficiente
+C: i rendimenti di scala sono crescenti
+K: A
+F: f28427b1db, f2de008f9e
+S: Ciascuno ha una strategia dominante (non cooperare) e l'equilibrio di Nash è peggiore per entrambi dell'esito cooperativo: ogni membro del cartello ha interesse a tradire l'accordo.
+
+Q EL-E2-7
+T: La discriminazione di prezzo di terzo grado consiste nel:
+A: far pagare a ogni acquirente il massimo che è disposto a pagare
+B: far dipendere il prezzo dalla quantità acquistata
+C: praticare prezzi diversi a gruppi di consumatori o su mercati separati
+K: C
+F: 75169d53ec, 090ed27122
+S: Primo grado (A) e secondo grado (B) sono già usciti; il terzo grado (studenti, anziani, Paesi diversi) completa la serie.
+
+## E3
+# Già chiesti (SNA): valore aggiunto, IPC, PTF, moneta e output gap (SNA 8), Phillips originaria,
+# Okun, tasso di partecipazione, tasso di cambio reale, aspettative adattive, skill-biased technical
+# change, IDE greenfield, risparmio e saldo con l'estero.
+U: 23f726c81b = SNA10-B3-Q39
+U: 5ce14e2c2d = SNA10-B3-Q39
+U: a0ffb0b848 = SNA10-B3-Q40
+U: 81ad9f7406 = SNA10-B3-Q41
+U: 36d101f110 = SNA10-B3-Q41
+U: 8a332c69e4 = SNA11-B2-Q38
+U: ea5487ba61 = SNA11-B2-Q38
+U: 7833f44cd1 = SNA11-B2-Q41
+U: e575a19c39 = SNA11-B3-Q38
+U: 7146ad166a = SNA11-B3-Q38
+U: b543ae7fec = SNA11-B3-Q41
+U: 3de01260b0 = SNA11-B3-Q41
+U: 2ccf10ad51 = SNA8-B3-Q34
+U: 1d0c1ee4f6 = SNA8-B3-Q34
+U: 67ed7d9147 = SNA8-B3-Q35
+U: 3f4cec81bb = SNA9-B1-Q36
+U: 71288920cb = SNA9-B2-Q38
+U: 595d2e8f4f = SNA9-B2-Q38, SNA9-B3-Q38
+U: 2a36ff9b36 = SNA9-B3-Q36
+U: 486056de02 = SNA9-B3-Q38
+
+Q EL-E3-1
+T: L'indice dei prezzi al consumo armonizzato a livello europeo, utilizzato dalla BCE, è:
+A: il FOI
+B: il NIC
+C: l'IPCA
+K: C
+F: 8a332c69e4
+S: L'ISTAT calcola NIC (intera collettività), FOI (famiglie di operai e impiegati) e IPCA (armonizzato europeo). SNA 11 ha chiesto la definizione di IPC: i tre indici sono il passo successivo.
+
+Q EL-E3-2
+T: Il reddito nazionale lordo è pari:
+A: al PIL più i redditi netti dall'estero
+B: al PIL meno gli ammortamenti
+C: alla somma dei consumi intermedi
+K: A
+F: 2095bda0c6, 7146ad166a
+S: RNL = PIL + redditi netti dall'estero. Togliere gli ammortamenti porta ai valori «netti»; i consumi intermedi si sottraggono per arrivare al valore aggiunto.
+
+Q EL-E3-3
+T: Secondo Friedman e Phelps, nel lungo periodo la curva di Phillips:
+A: è inclinata negativamente, con un trade-off permanente fra inflazione e disoccupazione
+B: è verticale in corrispondenza del tasso naturale di disoccupazione
+C: è orizzontale
+K: B
+F: 71288920cb
+S: Con le aspettative, nel lungo periodo non c'è trade-off: la curva è verticale al tasso naturale (NAIRU). SNA 9 ha chiesto la versione originaria.
+
+Q EL-E3-4
+T: Il tasso di disoccupazione è il rapporto fra:
+A: disoccupati e popolazione in età lavorativa
+B: disoccupati e forze di lavoro
+C: disoccupati e occupati
+K: B
+F: 88fea05749, 2838edbcd4
+S: Forze di lavoro = occupati + disoccupati. Tasso di attività = forze di lavoro / popolazione in età lavorativa (chiesto in SNA 10); tasso di occupazione = occupati / popolazione; tasso di disoccupazione = disoccupati / forze di lavoro.
+
+Q EL-E3-5
+T: Secondo la teoria quantitativa della moneta (M·V = P·Y), con velocità di circolazione e prodotto reale dati, un aumento della quantità di moneta:
+A: fa aumentare il livello dei prezzi
+B: fa aumentare il prodotto reale
+C: riduce la velocità di circolazione
+K: A
+F: 0235500ae7
+S: Con V e Y costanti, M e P variano nella stessa proporzione: nel lungo periodo la moneta è neutrale.
+
+Q EL-E3-6
+T: La base monetaria è costituita da:
+A: circolante e depositi bancari
+B: circolante e riserve delle banche presso la banca centrale
+C: depositi a scadenza e titoli di Stato
+K: B
+F: 81e5499425, 1d0c1ee4f6
+S: Base monetaria = moneta emessa dalla banca centrale (circolante + riserve). A è la «moneta» chiesta in SNA 8: la confusione fra le due è la trappola.
+
+Q EL-E3-7
+T: Con aspettative razionali (Muth, Lucas), gli operatori economici:
+A: prevedono il futuro solo guardando al passato
+B: usano tutte le informazioni disponibili e non commettono errori sistematici
+C: non formano aspettative sull'inflazione
+K: B
+F: 23f726c81b, 5ce14e2c2d
+S: Adattive = passato, con errori sistematici (chieste in SNA 10); razionali = tutte le informazioni e il modello, nessun errore sistematico: una politica monetaria anticipata non ha effetti reali.

@@ -1,0 +1,129 @@
+# Inglese — domande elaborate (non d'archivio), nello stile delle prove SNA 9-11:
+# completamento con tre opzioni, phrasal verbs, falsi amici, tag questions, inversioni, numeri in lettere.
+@area inglese
+
+## lessico
+
+Q EL-EN-L1
+T: The minister has asked her staff to ______ up a short report before Friday.
+A: draw
+B: make
+C: take
+K: A
+S: «Draw up» = redigere (un documento, un contratto, un elenco). «Make up a report» significa inventarlo.
+
+Q EL-EN-L2
+T: The proposal was ______ down by the board because it was too expensive.
+A: put
+B: turned
+C: set
+K: B
+S: «Turn down» = respingere, rifiutare (una proposta, un'offerta). SNA ha chiesto spesso phrasal verbs simili: call off, cut back, make out.
+
+Q EL-EN-L3
+T: The committee has promised to ______ into the causes of the delay.
+A: see
+B: get
+C: look
+K: C
+S: «Look into» = indagare, esaminare. «See into» e «get into» non hanno questo significato.
+
+Q EL-EN-L4
+T: The meeting has been postponed. This means it has been:
+A: moved to a later date
+B: cancelled
+C: brought forward
+K: A
+S: «To postpone» = rinviare. «Cancel» = annullare (come «call off», uscito in SNA 11); «bring forward» = anticipare.
+
+Q EL-EN-L5
+T: “After months of negotiations, the agreement was eventually signed.” Here “eventually” means:
+A: possibly
+B: in the end
+C: immediately
+K: B
+S: Falso amico: «eventually» = alla fine, dopo molto tempo; «eventualmente» si traduce con «possibly» o «if necessary».
+
+Q EL-EN-L6
+T: “Actually, the deadline is next week, not tomorrow.” Which word could replace “Actually”?
+A: Currently
+B: Possibly
+C: In fact
+K: C
+S: Falso amico: «actually» = in realtà, di fatto; «attualmente» si dice «currently» o «at present».
+
+Q EL-EN-L7
+T: We are running ______ of time, so let's move on to the last item on the agenda.
+A: off
+B: out
+C: down
+K: B
+S: «Run out of» = esaurire, restare senza. «Run down» = scaricarsi, logorarsi; «run off» = scappare o stampare copie.
+
+## grammatica
+
+Q EL-EN-G1
+T: If I ______ about the strike, I would have taken an earlier train.
+A: had known
+B: knew
+C: have known
+K: A
+S: Periodo ipotetico del terzo tipo (irrealtà nel passato): if + past perfect, would have + participio.
+
+Q EL-EN-G2
+T: She has worked at the ministry ______ 2019.
+A: for
+B: from
+C: since
+K: C
+S: Con il present perfect: «since» + punto di partenza (since 2019), «for» + durata (for six years).
+
+Q EL-EN-G3
+T: The director suggested ______ the meeting to Monday.
+A: to move
+B: moving
+C: move
+K: B
+S: «Suggest» regge il gerundio (suggested moving) o una frase con that (suggested that we move); «suggest to + infinito» è scorretto.
+
+Q EL-EN-G4
+T: Nobody called this morning, ______?
+A: did they
+B: didn't they
+C: did he
+K: A
+S: Tag question: la frase è già negativa (nobody), quindi il tag è positivo; con nobody, everybody, somebody si usa «they».
+
+Q EL-EN-G5
+T: Hardly ______ the meeting started when the fire alarm went off.
+A: did
+B: had
+C: was
+K: B
+S: Inversione dopo avverbi negativi a inizio frase: «Hardly had … when …» (come «Never had I thought…», uscito in SNA 9).
+
+Q EL-EN-G6
+T: I'm not used to ______ up so early.
+A: getting
+B: get
+C: got
+K: A
+S: «Be used to» + gerundio = essere abituato a. Da non confondere con «used to» + infinito (abitudine passata).
+
+## numeri
+
+Q EL-EN-N1
+T: The programme received exactly €2,350,000 (______) in funding.
+A: two millions, three hundreds and fifty thousands euros
+B: two million, three hundred and fifty thousand euros
+C: two million and three hundred fifty thousand euros
+K: B
+S: «Million», «hundred» e «thousand» non prendono la -s dopo un numero; in inglese britannico «and» va dopo le centinaia (three hundred and fifty).
+
+Q EL-EN-N2
+T: Unemployment fell by 0.75% (______) last quarter.
+A: zero point seven five per cent
+B: zero comma seventy-five per cent
+C: null point seventy-five percents
+K: A
+S: In inglese il separatore decimale è il punto (point) e le cifre dopo il punto si leggono una per una; «per cent» non prende la -s.

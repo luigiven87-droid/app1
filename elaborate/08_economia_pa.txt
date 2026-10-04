@@ -1,0 +1,399 @@
+# Economia delle amministrazioni pubbliche e contabilità pubblica — domande elaborate (non d'archivio)
+@area economia_pa
+
+## A1
+# Già chiesti (SNA): disavanzo strutturale, indebitamento come trasferimento intertemporale, saldo
+# complessivo e saldo primario.
+U: f768fb452d = SNA10-B1-Q41
+U: bb1638c232 = SNA10-B1-Q41
+U: c4d02e2c7d = SNA10-B2-Q42
+U: 38b4877743 = SNA10-B2-Q42
+U: ca492fb470 = SNA9-B1-Q38
+U: 40f229b972 = SNA9-B1-Q38
+U: a24fb43edb = SNA9-B1-Q38
+
+Q EL-A1-1
+T: Il saldo di parte corrente del bilancio pubblico, dato dalla differenza fra entrate correnti e spese correnti, è detto anche:
+A: risparmio pubblico
+B: saldo primario
+C: fabbisogno
+K: A
+F: 0d8ba23b8f
+S: Il saldo corrente misura il risparmio pubblico. Il saldo complessivo somma i saldi di parte corrente e in conto capitale; il primario esclude la spesa per interessi (chiesti in SNA 9).
+
+Q EL-A1-2
+T: A differenza dell'indebitamento netto, il fabbisogno del settore pubblico:
+A: esclude la spesa per interessi
+B: è un saldo di cassa che comprende anche le operazioni finanziarie
+C: è corretto per gli effetti del ciclo economico
+K: B
+F: 7a3262f707
+S: L'indebitamento netto segue le regole SEC ed esclude le operazioni finanziarie; il fabbisogno è un saldo di cassa e le include. A descrive il saldo primario, C quello strutturale.
+
+Q EL-A1-3
+T: Se il costo medio del debito è pari al tasso di crescita nominale del PIL, il rapporto debito/PIL diminuisce quando:
+A: il bilancio registra un avanzo primario
+B: il saldo primario è in pareggio
+C: il saldo di parte corrente è negativo
+K: A
+F: e5cfc0ff50
+S: Δb ≈ (i − g)·b − avanzo primario. Con i = g il primo termine si annulla: il rapporto scende solo se c'è un avanzo primario. Con i > g serve un avanzo più ampio.
+
+Q EL-A1-4
+T: Nelle regole europee di bilancio riformate nel 2024, l'indicatore operativo su cui si basa la sorveglianza è:
+A: il saldo di parte corrente
+B: il fabbisogno di cassa
+C: la spesa primaria netta
+K: C
+F: 9fc2699931, b998c0d619
+S: Restano i riferimenti del 3% (deficit) e del 60% (debito). La spesa primaria netta esclude interessi, misure discrezionali sulle entrate, spese finanziate da fondi europei e relativo cofinanziamento, componente ciclica dei sussidi di disoccupazione e misure una tantum.
+N: governance europea 2024
+
+Q EL-A1-5
+T: Nel quadro di bilancio europeo riformato nel 2024, il Piano strutturale di bilancio di medio termine ha una durata:
+A: annuale, rinnovata con la legge di bilancio
+B: di 4 anni, estendibile fino a 7 in presenza di riforme e investimenti
+C: di 10 anni, non modificabile
+K: B
+F: 9fc2699931
+S: L'Italia ha un piano 2025-2029 con aggiustamento in 7 anni. Ogni anno, entro il 30 aprile, si presenta la relazione sui progressi nell'attuazione del Piano.
+N: governance europea 2024
+
+Q EL-A1-6
+T: Secondo l'art. 81 della Costituzione, come riscritto dalla L. cost. 1/2012, il ricorso all'indebitamento è consentito:
+A: solo per finanziare spese di investimento
+B: liberamente, entro il limite del 3% del PIL
+C: solo per considerare gli effetti del ciclo economico o, con la maggioranza assoluta delle Camere, al verificarsi di eventi eccezionali
+K: C
+F: dee2dfe332
+S: L'art. 81 chiede l'equilibrio fra entrate e spese, tenendo conto del ciclo. Il limite agli investimenti (A) è la «regola d'oro» dell'art. 119 per regioni ed enti locali.
+
+Q EL-A1-7
+T: L'Ufficio parlamentare di bilancio, organismo indipendente che valuta le previsioni e il rispetto delle regole di bilancio, è stato istituito da:
+A: la legge n. 243 del 2012, approvata a maggioranza assoluta
+B: la legge n. 196 del 2009
+C: un regolamento dell'Unione europea
+K: A
+F: 206caa7a9e
+S: La L. 243/2012 è la legge «rinforzata» che attua il nuovo art. 81 Cost.; per approvarla serve la maggioranza assoluta dei componenti di ciascuna Camera.
+
+Q EL-A1-8
+T: Nel ciclo di bilancio italiano aggiornato alle nuove regole europee, in aprile il Governo presenta alle Camere:
+A: la Nota di aggiornamento al DEF
+B: il Documento di finanza pubblica, con la relazione annuale sui progressi del Piano strutturale
+C: il Documento programmatico di bilancio
+K: B
+F: e346086c69, ec60b66e4c
+S: Il Documento di finanza pubblica ha preso il posto del DEF; in autunno arriva il Documento programmatico di finanza pubblica (al posto della NADEF). Il Documento programmatico di bilancio va invece alla Commissione europea entro il 15 ottobre.
+N: DFP al posto del DEF
+
+Q EL-A1-9
+T: Il Documento programmatico di bilancio è trasmesso entro il 15 ottobre:
+A: alla Commissione europea e all'Eurogruppo
+B: alla Corte dei conti per la parificazione
+C: alle Camere, insieme al disegno di legge di bilancio
+K: A
+F: 75200b72dc, ec60b66e4c
+S: Da non confondere con il Documento programmatico di finanza pubblica, che in autunno va al Parlamento. Il disegno di legge di bilancio va alle Camere entro il 20 ottobre ed è approvato entro il 31 dicembre.
+
+## A2
+# Già chiesti (SNA): articolazione in missioni, programmi e azioni; composizione del bilancio (stato di
+# previsione dell'entrata e stati di previsione della spesa per ministero).
+U: 33ba100d81 = SNA9-B1-Q43
+U: ea495f30f7 = SNA9-B1-Q43
+U: 5d0cf86ca8 = SNA9-B2-Q43
+
+Q EL-A2-1
+T: Secondo la classificazione economica, le spese del bilancio dello Stato si ripartiscono in:
+A: quattro titoli, come le entrate
+B: due titoli: spese correnti e spese in conto capitale
+C: tre titoli: spese correnti, spese in conto capitale, rimborso di passività finanziarie
+K: C
+F: 7554394882, a5bd0e9db3
+S: Entrate in quattro titoli (chiesto da Formez), spese in tre: il terzo titolo, il rimborso di passività finanziarie, è quello che si dimentica.
+
+Q EL-A2-2
+T: Nel bilancio dello Stato le unità di voto parlamentare sono:
+A: per l'entrata le tipologie, per la spesa i programmi
+B: per l'entrata i titoli, per la spesa le missioni
+C: per l'entrata e per la spesa i capitoli
+K: A
+F: 33ba100d81, 14d90be48c
+S: Entrate: titoli → tipologie (unità di voto) → categorie. Spese: missioni → programmi (unità di voto) → azioni → capitoli, che sono le unità elementari della gestione.
+
+Q EL-A2-3
+T: In base al principio di universalità del bilancio:
+A: il bilancio non può destinare singole entrate alla copertura di singole spese
+B: le entrate sono iscritte al lordo delle spese di riscossione
+C: tutte le entrate e tutte le spese devono stare in bilancio, e sono vietate le gestioni fuori bilancio
+K: C
+F: f04eb516e7
+S: A è il principio di unità (chiesto da Formez), B quello di integrità. Integrità, universalità e unità sono profili attuativi dell'art. 81 Cost. (art. 24 L. 196/2009).
+
+Q EL-A2-4
+T: Il principio di integrità del bilancio dello Stato richiede che:
+A: le entrate siano iscritte al lordo delle spese di riscossione, senza compensazioni fra entrate e spese
+B: il bilancio copra un periodo di dodici mesi
+C: le previsioni siano attendibili e veritiere
+K: A
+F: f04eb516e7
+S: Anche le spese sono iscritte senza riduzione delle entrate correlate. B richiama l'annualità; C la veridicità e l'attendibilità, altri principi dell'Allegato 1.
+
+Q EL-A2-5
+T: Con la riforma del 2016 (L. 163/2016), la legge di bilancio:
+A: è stata divisa in tre provvedimenti distinti
+B: è diventata un unico provvedimento che ha assorbito la legge di stabilità
+C: è diventata annuale anziché triennale
+K: B
+F: b606e7d678, e98b4ff5dc
+S: La legge di bilancio è triennale e ha due sezioni: la prima contiene la manovra, la seconda le previsioni a legislazione vigente. Le tre sezioni erano quelle del DEF.
+
+Q EL-A2-6
+T: Ciascun programma di spesa del bilancio dello Stato:
+A: è affidato a un unico centro di responsabilità amministrativa e si raccorda alla classificazione COFOG
+B: è ripartito fra tutti i ministeri interessati
+C: coincide con un capitolo di bilancio
+K: A
+F: 9be4f8ae30
+S: Il programma è un aggregato di spesa con finalità omogenea, diretto a risultati definiti in termini di prodotti e servizi finali. Il capitolo è l'unità elementare della gestione.
+
+Q EL-A2-7
+T: Nella classificazione per natura della spesa dei programmi (art. 21, c. 5, L. 196/2009), le spese per stipendi e interessi rientrano fra:
+A: i fattori legislativi
+B: gli oneri inderogabili
+C: le spese di adeguamento al fabbisogno
+K: B
+F: c19eb369ee, b5bd6db39a
+S: Oneri inderogabili = vincolati da meccanismi o parametri di legge; fattori legislativi = importo fissato da una legge; adeguamento al fabbisogno = quantificate sulle esigenze delle amministrazioni. La revisione della spesa lavora soprattutto sulle ultime due.
+
+Q EL-A2-8
+T: Quale saldo del quadro generale riassuntivo comprende anche il rimborso dei prestiti e indica quanto debito occorre emettere?
+A: Il saldo netto da finanziare
+B: Il risparmio pubblico
+C: Il ricorso al mercato
+K: C
+F: c5efa4fcad, d203eda94a
+S: Ricorso al mercato = entrate finali − totale delle spese, rimborso dei prestiti compreso. Il saldo netto da finanziare esclude accensione e rimborso di prestiti.
+
+## A3
+# Già chiesti (SNA): residui passivi (due volte), costo primo, fasi dell'entrata, immobilizzazioni
+# immateriali, armonizzazione dei bilanci nella L. cost. 3/2001.
+U: 550ebedec8 = SNA11-B1-Q43, SNA9-B3-Q43
+U: 56e86fcc73 = SNA11-B1-Q43, SNA9-B3-Q43
+U: 8292034aed = SNA11-B2-Q42
+U: e984ccf636 = SNA11-B2-Q43
+U: 114610edfd = SNA11-B3-Q42
+U: 7f04ca3cdd = SNA11-B2-Q42, SNA11-B3-Q42
+U: 8db0860d8d = SNA8-B3-Q46
+U: da670cb7c3 = SNA8-B3-Q46
+
+Q EL-A3-1
+T: Le fasi della spesa pubblica si susseguono nell'ordine:
+A: impegno, liquidazione, ordinazione, pagamento
+B: accertamento, riscossione, versamento
+C: liquidazione, impegno, pagamento, ordinazione
+K: A
+F: 0008383885
+S: B sono le fasi dell'entrata (chieste in SNA 11). La spesa: impegno (creditore, importo, obbligazione giuridica), liquidazione, ordinazione, pagamento.
+
+Q EL-A3-2
+T: Nella fase della liquidazione della spesa:
+A: si individuano il creditore e l'obbligazione giuridica
+B: si verificano la prestazione resa e l'importo dovuto
+C: si emette l'ordine di pagamento
+K: B
+F: 1bc08d07cd, e984ccf636
+S: A descrive l'impegno, C l'ordinazione. La liquidazione è una fase della spesa, non dell'entrata.
+
+Q EL-A3-3
+T: I residui attivi sono:
+A: entrate accertate e non riscosse, oppure riscosse e non versate
+B: spese impegnate e non pagate al 31 dicembre
+C: stanziamenti di spesa non impegnati a fine esercizio
+K: A
+F: 8a78955a6c, 56e86fcc73
+S: SNA ha chiesto due volte i residui passivi (B). Gli stanziamenti non impegnati (C) sono economie e si cancellano.
+
+Q EL-A3-4
+T: Gli stanziamenti di spesa non impegnati alla chiusura dell'esercizio costituiscono:
+A: residui passivi
+B: economie, che si cancellano
+C: residui attivi
+K: B
+F: 75d3489a84, 56e86fcc73
+S: Il residuo passivo presuppone l'impegno: è un debito già assunto. Lo stanziamento non impegnato non genera debito e diventa un'economia.
+
+Q EL-A3-5
+T: Durante l'esercizio provvisorio la spesa è consentita:
+A: senza limiti, fino all'approvazione del bilancio
+B: solo per le spese in conto capitale
+C: per tanti dodicesimi degli stanziamenti quanti sono i mesi concessi, salvo le spese obbligatorie non frazionabili
+K: C
+F: 1fce448121, a9d9dcd1bf
+S: L'esercizio provvisorio è concesso solo per legge e per non più di quattro mesi complessivi (art. 81, c. 5, Cost.; art. 32 L. 196/2009).
+
+Q EL-A3-6
+T: Il rendiconto generale dello Stato è:
+A: approvato con decreto del Ministro dell'economia, senza passaggio parlamentare
+B: parificato dalla Corte dei conti e poi approvato dalle Camere con legge
+C: approvato dalla Banca d'Italia, che svolge il servizio di tesoreria
+K: B
+F: bff24ffca0, ec89563d0e
+S: La parificazione avviene con le formalità della giurisdizione contenziosa. Il rendiconto ha natura finanziaria (conto del bilancio) e patrimoniale (conto generale del patrimonio).
+
+Q EL-A3-7
+T: A seguito della L. cost. 1/2012, l'armonizzazione dei bilanci pubblici è:
+A: materia di legislazione esclusiva dello Stato
+B: materia di legislazione concorrente fra Stato e regioni
+C: materia di competenza residuale delle regioni
+K: A
+F: 8db0860d8d, da670cb7c3
+S: SNA 8 ha chiesto l'ingresso in Costituzione (L. cost. 3/2001, come materia concorrente). Dal 2012 la materia è esclusiva dello Stato (art. 117, c. 2, lett. e), insieme all'equilibrio di bilancio.
+
+Q EL-A3-8
+T: Per regioni ed enti locali, il d.lgs. 118/2011 sull'armonizzazione contabile ha introdotto il principio della:
+A: competenza finanziaria potenziata, per cui le obbligazioni si registrano quando diventano esigibili
+B: contabilità di sola cassa
+C: libera scelta dei principi contabili da parte di ciascun ente
+K: A
+F: 6d2e649568, cc8af07cdc
+S: Lo Stato impegna in base all'esigibilità dal 2016 (d.lgs. 93/2016). Effetto: i residui si sono ridotti; la loro massa misura lo scarto fra competenza e cassa.
+
+Q EL-A3-9
+T: La Riforma 1.15 del PNRR riguarda:
+A: l'introduzione di un sistema unico di contabilità economico-patrimoniale (accrual) per tutte le amministrazioni pubbliche
+B: la soppressione del bilancio di cassa dello Stato
+C: il passaggio alla contabilità finanziaria per le società partecipate
+K: A
+F: d4e583ab79
+S: Prevede principi contabili nazionali (ITAS) e un piano dei conti unico; è in fase di attuazione.
+N: PNRR, riforma 1.15
+
+Q EL-A3-10
+T: Aggiungendo al costo primo i costi indiretti di produzione si ottiene:
+A: il costo economico-tecnico
+B: il costo industriale
+C: il costo complessivo
+K: B
+F: 8292034aed
+S: Costo primo (soli costi diretti, chiesto in SNA 11) → costo industriale (+ indiretti di produzione) → costo complessivo (+ costi amministrativi e commerciali) → costo economico-tecnico (+ oneri figurativi).
+
+Q EL-A3-11
+T: Nello stato patrimoniale, le partecipazioni in altre società sono:
+A: immobilizzazioni immateriali
+B: immobilizzazioni finanziarie
+C: attivo circolante
+K: B
+F: 114610edfd, 7f04ca3cdd
+S: Immobilizzazioni immateriali (chieste in SNA 11) = beni intangibili a utilità pluriennale (software, brevetti); materiali = beni fisici; finanziarie = partecipazioni.
+
+## A4
+# Già chiesti (SNA): razionalizzazione degli acquisti, principale-agente, assenza di prezzo e
+# autoselezione, New Public Management, dimensioni della performance organizzativa, controllo di
+# gestione, controllo di conformità, public choice, governance multilivello.
+U: 716a5563a5 = SNA10-B1-Q42
+U: 32afffb6cd = SNA10-B1-Q42
+U: 9d39835bb1 = SNA10-B1-Q43
+U: 14d8099d6c = SNA10-B1-Q43
+U: 13dfaaaadd = SNA10-B2-Q43
+U: 1ac1b3cdec = SNA10-B2-Q43
+U: 2d061e81d8 = SNA10-B3-Q42
+U: f465f76d72 = SNA10-B3-Q42
+U: 78e77b8be0 = SNA11-B1-Q42
+U: 6be94c92e7 = SNA11-B1-Q42
+U: 16f06cfec8 = SNA11-B3-Q43
+U: e27ededf09 = SNA8-B3-Q47
+U: 3c3c608b9f = SNA8-B3-Q47
+U: c01699ab95 = SNA9-B2-Q42
+U: 8d0b2e11db = SNA9-B3-Q42
+U: d82280cea3 = SNA9-B3-Q42
+
+Q EL-A4-1
+T: Secondo il teorema del decentramento di Oates, conviene attribuire una funzione ai livelli di governo locali quando:
+A: le preferenze dei cittadini differiscono sul territorio e mancano forti effetti di traboccamento
+B: il servizio genera rilevanti effetti di traboccamento fra territori
+C: le preferenze dei cittadini sono uniformi in tutto il Paese
+K: A
+F: b8080b4300
+S: Se le preferenze sono uniformi o gli effetti traboccano oltre i confini dell'ente, conviene la fornitura centrale. In Italia il federalismo fiscale poggia sull'art. 119 Cost. e sulla L. 42/2009.
+
+Q EL-A4-2
+T: Nel modello di Tiebout, i cittadini:
+A: eleggono il livello di governo più vicino
+B: «votano con i piedi», scegliendo l'ente locale che offre la combinazione preferita di servizi e imposte
+C: delegano a un'autorità centrale la scelta dei servizi
+K: B
+F: b8080b4300
+S: La mobilità fra enti rivela le preferenze e crea una forma di concorrenza fra amministrazioni locali.
+
+Q EL-A4-3
+T: L'efficienza di un'amministrazione è misurata dal rapporto fra:
+A: risultati conseguiti e obiettivi
+B: output prodotti e input impiegati
+C: risorse acquisite e loro costo di mercato
+K: B
+F: c13b6163c4
+S: Le tre E: economicità = acquisire le risorse al costo più basso; efficienza = rapporto fra output e input; efficacia = rapporto fra risultati e obiettivi.
+
+Q EL-A4-4
+T: Acquisire le risorse necessarie al costo più basso, a parità di qualità, corrisponde al criterio di:
+A: efficacia
+B: efficienza
+C: economicità
+K: C
+F: c13b6163c4
+S: SNA ha chiesto che cosa verifica il controllo di gestione (efficienza, efficacia ed economicità), non le singole definizioni.
+
+Q EL-A4-5
+T: Il paradigma della New Public Governance si caratterizza per:
+A: l'introduzione di pratiche mutuate dalle imprese private e di esternalizzazioni
+B: la rigida applicazione di regole e procedure
+C: reti di attori pubblici e privati, partecipazione e coproduzione dei servizi
+K: C
+F: b5cbb48f7f, f465f76d72
+S: A descrive il New Public Management (chiesto in SNA 10); B il modello burocratico.
+
+Q EL-A4-6
+T: Nella teoria principale-agente, i costi di agenzia si riducono principalmente:
+A: con controlli e incentivi legati ai risultati
+B: aumentando l'asimmetria informativa a favore dell'agente
+C: eliminando ogni autonomia del manager
+K: A
+F: 9d39835bb1
+S: L'agente ha obiettivi propri e più informazioni del principale: ne derivano azzardo morale e costi di agenzia. SNA 10 ha chiesto le ipotesi della teoria; qui i rimedi.
+
+Q EL-A4-7
+T: Quando un servizio pubblico è offerto gratuitamente e la domanda supera l'offerta, le soluzioni tipiche sono:
+A: l'aumento automatico dell'offerta senza limiti
+B: il razionamento dell'accesso (liste d'attesa, criteri amministrativi) o l'introduzione di ticket e tariffe
+C: la sospensione del servizio
+K: B
+F: 13dfaaaadd
+S: Senza prezzo manca l'autoselezione della domanda (chiesto in SNA 10): il prezzo fa da filtro, perché chi paga rivela di dare al bene almeno quel valore.
+
+Q EL-A4-8
+T: Il codice dei contratti pubblici del 2023 ha aggiunto, alla razionalizzazione degli acquisti, l'istituto della:
+A: qualificazione delle stazioni appaltanti
+B: abolizione delle centrali di committenza
+C: libera scelta del contraente senza gara
+K: A
+F: 386e11c55b, 716a5563a5
+S: I tre assi avviati negli anni Duemila (chiesti in SNA 10) sono standardizzazione, centralizzazione della committenza (Consip e soggetti aggregatori) e digitalizzazione.
+
+Q EL-A4-9
+T: Secondo il d.lgs. 150/2009, la performance individuale riguarda:
+A: efficienza, efficacia e impatto dell'amministrazione
+B: risultati e comportamenti del singolo
+C: la sola anzianità di servizio
+K: B
+F: 78e77b8be0, 6be94c92e7
+S: Efficienza, efficacia e impatto sono le dimensioni della performance organizzativa (art. 8, chieste in SNA 11); la performance individuale (art. 9) guarda a risultati e comportamenti.
+
+Q EL-A4-10
+T: Per gli enti locali il controllo di gestione è regolato dagli artt. 196-198-bis del TUEL; la disciplina generale per le amministrazioni pubbliche è nel:
+A: d.lgs. 286/1999
+B: d.lgs. 118/2011
+C: d.lgs. 33/2013
+K: A
+F: 16f06cfec8
+S: Il controllo di gestione verifica efficacia, efficienza ed economicità per ottimizzare il rapporto fra costi e risultati e correggere in corso d'opera. Il d.lgs. 118/2011 riguarda l'armonizzazione contabile, il d.lgs. 33/2013 la trasparenza.

@@ -1,0 +1,316 @@
+# Politica economica e scienza delle finanze — domande elaborate (non d'archivio)
+@area politica_economica
+
+## PE1
+# Già chiesti (SNA): miglioramento paretiano, primo teorema del benessere, beni pubblici (non rivali,
+# non escludibili), fallimenti del mercato, assenza di informazioni, esternalità da produzione o consumo
+# congiunti, teorema di Coase, imposta pigouviana, rivalità ed escludibilità come caratteri del bene privato.
+U: 3b9993b9af = SNA8-B3-Q39
+U: 9435ecb339 = SNA8-B3-Q39
+U: f3a271af0f = SNA10-B2-Q39
+U: 5ffd7c78af = SNA10-B3-Q43
+U: 9bb4a6af44 = SNA10-B3-Q43
+U: 578958100b = SNA11-B3-Q39
+U: 8a10018514 = SNA8-B3-Q40
+U: b004cf9ff4 = SNA9-B1-Q40
+U: 322911c0be = SNA9-B1-Q41
+U: c33e7738c9 = SNA9-B2-Q40
+U: b41d4782dd = SNA10-B1-Q37
+U: c430caeeb7 = SNA10-B1-Q37
+
+Q EL-PE1-1
+T: Secondo il secondo teorema dell'economia del benessere:
+A: ogni equilibrio concorrenziale è Pareto-efficiente
+B: ogni allocazione Pareto-efficiente può essere ottenuta come equilibrio concorrenziale, dopo un'opportuna redistribuzione delle dotazioni iniziali
+C: un'allocazione Pareto-efficiente è anche la più equa fra quelle possibili
+K: B
+F: 535e9fa64c, 842079ceaf
+S: Il primo teorema (già chiesto in SNA 10) va dall'equilibrio all'efficienza; il secondo fa il percorso inverso e separa efficienza ed equità: si redistribuiscono le dotazioni, poi si lascia operare il mercato. L'efficienza paretiana, da sola, non dice nulla sull'equità.
+
+Q EL-PE1-2
+T: Secondo il criterio di Kaldor-Hicks, un cambiamento migliora il benessere sociale se:
+A: nessun individuo ne risulta danneggiato
+B: chi ne trae vantaggio potrebbe compensare chi ci perde e restare comunque in vantaggio
+C: è approvato all'unanimità dai soggetti interessati
+K: B
+F: b51f55e6b2
+S: È il criterio della compensazione potenziale: la compensazione non deve avvenire davvero. Per questo è meno esigente del miglioramento paretiano (A), ed è la base dell'analisi costi-benefici.
+
+Q EL-PE1-3
+T: Nel mercato delle auto usate descritto da Akerlof, le auto di buona qualità tendono a uscire dal mercato. Si tratta di un caso di:
+A: azzardo morale
+B: esternalità negativa
+C: selezione avversa
+K: C
+F: 9f1243e380, a96de820cc
+S: È informazione nascosta prima del contratto: il venditore conosce la qualità, il compratore no e offre un prezzo medio, che spinge fuori i prodotti migliori. Rimedi tipici: segnalazione (Spence), garanzie, obblighi assicurativi.
+
+Q EL-PE1-4
+T: Un automobilista che, dopo aver assicurato l'auto contro il furto, smette di parcheggiarla in garage, illustra il fenomeno:
+A: dell'azzardo morale
+B: della selezione avversa
+C: del free riding
+K: A
+F: adf62f2865, a96de820cc
+S: Azzardo morale = azione nascosta dopo il contratto: chi è assicurato si espone a più rischi. Si contrasta con franchigie, incentivi e controlli. La selezione avversa riguarda invece la fase prima del contratto.
+
+Q EL-PE1-5
+T: Un'area di pesca in mare aperto, alla quale tutti possono accedere ma nella quale il pesce catturato da uno non è più disponibile per gli altri, è un esempio di:
+A: bene di club
+B: bene pubblico puro
+C: risorsa comune, esposta al sovrasfruttamento
+K: C
+F: 0af0cf5d0f, 5ffd7c78af
+S: Rivale ma non escludibile: è la risorsa comune, con il rischio della «tragedia dei beni comuni». Il bene di club è l'opposto (escludibile ma non rivale, come la pay-tv); il bene pubblico puro non è né rivale né escludibile.
+
+Q EL-PE1-6
+T: Secondo il modello di Niskanen, il burocrate tende a:
+A: massimizzare il bilancio del proprio ufficio, così che i servizi offerti superano il livello efficiente
+B: minimizzare i costi del servizio, per accrescere il proprio prestigio
+C: seguire fedelmente le preferenze dell'elettore mediano
+K: A
+F: 0207fcc9ca, b7433674a9
+S: È uno dei modelli della public choice (Formez ha chiesto la teoria in generale): elettori, politici e burocrati perseguono anche interessi propri. Nel caso del burocrate l'interesse è il bilancio dell'ufficio.
+
+Q EL-PE1-7
+T: Con l'espressione «cattura del regolatore» (Stigler) si intende che:
+A: l'autorità di regolazione acquisisce il controllo delle imprese regolate
+B: il regolatore finisce per servire gli interessi dei soggetti che dovrebbe regolare
+C: il Governo revoca i componenti dell'autorità indipendente
+K: B
+F: cb55b940ee
+S: È un fallimento dello Stato, affine alla ricerca della rendita (rent seeking): risorse spese dai regolati per ottenere regole o privilegi a proprio favore.
+
+Q EL-PE1-8
+T: Secondo il teorema dell'elettore mediano (Black, Downs), con preferenze a un solo picco e decisione a maggioranza prevale:
+A: la proposta preferita dall'elettore che si colloca a metà della distribuzione delle preferenze
+B: la proposta che massimizza la somma delle utilità individuali
+C: sempre la proposta del Governo in carica
+K: A
+F: 89f686c758
+S: L'elettore mediano è quello che divide a metà gli altri: nessuna proposta può battere a maggioranza la sua preferita. Senza preferenze a un solo picco possono invece nascere maggioranze cicliche (paradosso di Condorcet).
+
+Q EL-PE1-9
+T: Il teorema dell'impossibilità di Arrow afferma che:
+A: le maggioranze sono sempre transitive
+B: è impossibile finanziare un bene pubblico senza imposte
+C: nessuna regola di aggregazione delle preferenze individuali soddisfa insieme tutti i requisiti minimi di razionalità e democrazia
+K: C
+F: ae14785c6a
+S: Arrow generalizza il paradosso di Condorcet, per il quale le maggioranze possono essere cicliche (quindi A è falsa).
+
+Q EL-PE1-10
+T: Il sistema europeo di scambio delle quote di emissione (ETS) è un esempio di:
+A: imposta pigouviana con aliquota fissata dalla Commissione
+B: permessi negoziabili: si fissa un tetto alle emissioni e il prezzo delle quote è determinato dal mercato
+C: regolazione diretta tramite divieti di produzione
+K: B
+F: aeaf0778ac
+S: Davanti alle esternalità negative le risposte sono tre: imposta pigouviana (si fissa il prezzo), regolazione diretta (standard, divieti), permessi negoziabili (si fissa la quantità e il prezzo lo fa il mercato).
+
+Q EL-PE1-11
+T: Secondo la teoria del second best, se una delle condizioni dell'ottimo paretiano non è soddisfatta:
+A: eliminare un'altra distorsione non migliora necessariamente il benessere
+B: eliminare tutte le altre distorsioni riporta comunque all'ottimo
+C: l'intervento pubblico è sempre inefficace
+K: A
+F: 07d019d420
+S: Quando l'ottimo è già irraggiungibile, correggere una sola distorsione può anche peggiorare le cose: le riforme vanno valutate nel loro insieme.
+
+Q EL-PE1-12
+T: Alcol e tabacco, il cui consumo il legislatore scoraggia con imposte elevate o divieti, sono esempi di:
+A: beni pubblici
+B: beni di club
+C: beni demeritori
+K: C
+F: 98441c5cce, 99fa503764
+S: Sono l'opposto dei beni meritori (chiesti da Formez): anche qui una valutazione collettiva prevale sulle preferenze dei singoli. È un giudizio di valore, non una caratteristica tecnica del bene come rivalità ed escludibilità.
+
+## PE3
+# Già chiesti (SNA): spiazzamento, domanda di moneta, stretta monetaria, AS e mercati dei fattori,
+# shock di domanda, aumento dell'offerta di moneta, AD, IS decrescente, IS verticale, LM verticale,
+# PIL di lungo periodo, equivalenza ricardiana, moltiplicatore in economia aperta, Haavelmo.
+U: 3a7f008338 = SNA10-B1-Q39
+U: bb665f324b = SNA10-B1-Q39
+U: 4b06047558 = SNA10-B1-Q40
+U: e2766a98d5 = SNA10-B2-Q40, SNA11-B1-Q40
+U: d21bcec54f = SNA11-B1-Q40
+U: b5df006dd1 = SNA10-B2-Q41, SNA11-B2-Q39
+U: 5e5e1c372e = SNA10-B2-Q41, SNA11-B2-Q39
+U: b0580f2bd8 = SNA11-B1-Q39
+U: 99af038ff2 = SNA11-B2-Q39
+U: 54ec20544f = SNA11-B2-Q40
+U: a9695af90d = SNA11-B2-Q40
+U: c11a1f3286 = SNA11-B3-Q40, SNA8-B3-Q41
+U: c78e993c32 = SNA11-B3-Q40, SNA8-B3-Q41
+U: 9c00ee0184 = SNA8-B3-Q41
+U: b5beb55463 = SNA8-B3-Q42
+U: 90b18376a4 = SNA9-B2-Q41, SNA9-B3-Q41
+U: c81946a9d2 = SNA9-B2-Q41, SNA9-B3-Q41
+U: ffa0919d01 = SNA9-B3-Q40
+U: 96333b4c91 = SNA9-B3-Q41
+
+Q EL-PE3-1
+T: Nel modello IS-LM, in presenza di trappola della liquidità (LM orizzontale):
+A: la politica fiscale è inefficace per effetto dello spiazzamento totale
+B: la politica monetaria è inefficace, mentre quella fiscale è massimamente efficace
+C: entrambe le politiche sono massimamente efficaci
+K: B
+F: 3ca3ade1b1, c78e993c32
+S: La domanda di moneta è infinitamente elastica al tasso: la moneta aggiuntiva viene trattenuta senza far scendere il tasso. Il caso opposto è la LM verticale (già chiesto): fiscale inefficace, monetaria massimamente efficace.
+
+Q EL-PE3-2
+T: Se gli investimenti sono infinitamente sensibili al tasso di interesse, la curva IS è:
+A: verticale, e la politica monetaria è inefficace
+B: crescente, e la politica fiscale è massimamente efficace
+C: orizzontale, e la politica fiscale è inefficace
+K: C
+F: a223323afb, c11a1f3286
+S: È il caso speculare della IS verticale (chiesto in SNA 11 e SNA 8): con IS orizzontale la monetaria è efficace e la fiscale no; con IS verticale (investimenti insensibili al tasso) è il contrario.
+
+Q EL-PE3-3
+T: In un'economia chiusa e senza imposte, con propensione marginale al consumo pari a 0,8, il moltiplicatore della spesa pubblica è pari a:
+A: 5
+B: 1,25
+C: 0,8
+K: A
+F: dcc2b6fc19
+S: Moltiplicatore = 1/(1 − c) = 1/0,2 = 5. 1,25 è il reciproco di 0,8, non il moltiplicatore.
+
+Q EL-PE3-4
+T: Rispetto al caso senza imposte, l'introduzione di imposte proporzionali al reddito rende il moltiplicatore della spesa:
+A: più grande, perché lo Stato dispone di maggiori entrate
+B: più piccolo, perché una parte di ogni aumento di reddito va in imposte e non in consumi
+C: invariato, perché l'aliquota non dipende dal reddito
+K: B
+F: dcc2b6fc19, 1f69bee33c
+S: Il moltiplicatore diventa 1/(1 − c(1 − t)), più piccolo di 1/(1 − c). Diminuisce ancora in economia aperta, perché parte della domanda va in importazioni (già chiesto in SNA 9).
+
+Q EL-PE3-5
+T: Nel modello AD-AS, un forte rincaro dell'energia (shock di offerta negativo) determina nel breve periodo:
+A: aumento dei prezzi e riduzione del prodotto
+B: riduzione dei prezzi e aumento del prodotto
+C: aumento sia dei prezzi sia del prodotto
+K: A
+F: 608150591b, b0580f2bd8
+S: Negli shock di offerta prezzi e prodotto si muovono in verso opposto; uno shock negativo produce stagflazione. Negli shock di domanda (già chiesto in SNA 11) si muovono invece nello stesso verso.
+
+Q EL-PE3-6
+T: Se nel lungo periodo la curva di offerta aggregata è verticale al livello del prodotto potenziale, una politica monetaria espansiva produce nel lungo periodo:
+A: un aumento permanente del prodotto
+B: un aumento del livello dei prezzi, senza effetti sul prodotto
+C: una riduzione del prodotto potenziale
+K: B
+F: b5df006dd1, b5beb55463
+S: Nel lungo periodo il PIL dipende solo dall'offerta e la moneta è neutrale: agisce sulle grandezze nominali. Il prodotto potenziale cresce con capitale, lavoro, capitale umano e tecnologia.
+
+Q EL-PE3-7
+T: Nel modello IS-LM, un'espansione fiscale accompagnata da una politica monetaria accomodante (policy mix):
+A: annulla l'effetto della spesa sul reddito
+B: limita l'aumento del tasso di interesse e quindi lo spiazzamento degli investimenti
+C: fa aumentare il tasso di interesse più che con la sola politica fiscale
+K: B
+F: 8f88c70e02, 3a7f008338
+S: La politica fiscale sposta la IS a destra e alza il tasso (spiazzamento, già chiesto in SNA 10); la moneta in più sposta la LM in basso a destra e contiene il rialzo del tasso.
+
+Q EL-PE3-8
+T: Quale dei seguenti è uno stabilizzatore automatico?
+A: Una riduzione dei tassi decisa dalla banca centrale in recessione
+B: Un piano straordinario di investimenti pubblici approvato con legge
+C: Il sussidio di disoccupazione, che cresce automaticamente quando aumentano i disoccupati
+K: C
+F: 0bb0bae5ad, c1a03b8222
+S: Stabilizzatori automatici: imposte progressive e sussidi di disoccupazione. Agiscono senza nuove decisioni, in modo simmetrico (in espansione il gettito sale e la spesa scende) e sono politica fiscale, non monetaria; B è politica fiscale discrezionale.
+
+Q EL-PE3-9
+T: La curva di domanda aggregata (AD) è decrescente perché un aumento del livello dei prezzi:
+A: riduce l'offerta di moneta in termini reali, alza il tasso di interesse e riduce la domanda
+B: aumenta il prodotto potenziale dell'economia
+C: riduce i costi di produzione delle imprese
+K: A
+F: 99af038ff2
+S: Con moneta nominale data, prezzi più alti riducono la moneta reale; il tasso sale e investimenti e domanda scendono. SNA 11 ha chiesto che cosa rappresenta la AD, non perché è decrescente.
+
+## PE4
+# Già chiesti (SNA): Mundell-Fleming (politica monetaria in cambi fissi e flessibili, politica fiscale in
+# cambi fissi), operazioni BCE per la gestione giornaliera della liquidità.
+U: 9e4e4999c7 = SNA11-B1-Q41
+U: 73120a0ba9 = SNA11-B1-Q41
+U: 842f497241 = SNA9-B1-Q39, SNA9-B3-Q39
+U: 219fdbbfb8 = SNA9-B1-Q39, SNA9-B3-Q39
+U: 532ca9fc63 = SNA9-B2-Q39
+
+Q EL-PE4-1
+T: Secondo il «trilemma» (triangolo di incompatibilità), non possono coesistere:
+A: cambi fissi, libera circolazione dei capitali e politica monetaria autonoma
+B: crescita del PIL, bassa inflazione e piena occupazione
+C: politica fiscale espansiva, debito pubblico elevato e cambi flessibili
+K: A
+F: 6b7fa2b5ef
+S: Si possono avere al massimo due dei tre elementi. Nell'area dell'euro gli Stati hanno rinunciato alla politica monetaria nazionale; resta loro soprattutto la leva fiscale, vincolata dalle regole europee.
+
+Q EL-PE4-2
+T: L'Eurosistema è composto:
+A: dalla BCE e dalle banche centrali nazionali di tutti gli Stati membri dell'Unione
+B: dalla BCE e dalle banche centrali nazionali dei Paesi che hanno adottato l'euro
+C: dalla sola BCE e dal suo Consiglio direttivo
+K: B
+F: 4d20f3d992
+S: Eurosistema = BCE + banche centrali dei Paesi dell'euro (21). Il SEBC (Sistema europeo di banche centrali) comprende invece le banche centrali di tutti gli Stati dell'Unione.
+N: Bulgaria nell'euro dal 2026
+
+Q EL-PE4-3
+T: Nella strategia di politica monetaria della BCE, la stabilità dei prezzi è definita come:
+A: un'inflazione inferiore ma prossima al 2%, senza limiti verso il basso
+B: un'inflazione nulla
+C: un'inflazione del 2% nel medio termine, con un obiettivo simmetrico
+K: C
+F: d93c790fb7, 80eb9e2fbc
+S: Il Trattato (art. 127 TFUE) parla solo di stabilità dei prezzi: il 2% lo fissa la BCE. La formula «inferiore ma prossima al 2%» è stata abbandonata con la revisione della strategia del 2021, confermata nel 2025.
+N: strategia 2021, confermata 2025
+
+Q EL-PE4-4
+T: L'articolo 123 del TFUE vieta alla BCE e alle banche centrali nazionali di:
+A: fissare i tassi di interesse senza il consenso del Consiglio
+B: concedere finanziamenti diretti agli Stati membri (divieto di finanziamento monetario)
+C: detenere riserve in valuta estera
+K: B
+F: bd7fc3e555
+S: Divieto di finanziamento monetario (art. 123 TFUE) e indipendenza della banca centrale (art. 130 TFUE) sono i due presidi del Trattato a garanzia della stabilità dei prezzi.
+
+Q EL-PE4-5
+T: Con il quadro operativo rivisto dalla BCE nel 2024, l'orientamento dei tassi di mercato monetario avviene principalmente attraverso:
+A: il tasso sui depositi presso la banca centrale
+B: la riserva obbligatoria
+C: il tasso di cambio dell'euro
+K: A
+F: 6fbf00dcba
+S: Con il quadro del 2024 la liquidità è fornita soprattutto su domanda delle banche e la BCE orienta i tassi di mercato con il tasso sui depositi. Le operazioni di rifinanziamento principale restano settimanali.
+N: quadro operativo 2024
+
+Q EL-PE4-6
+T: Il principio di assegnazione di Mundell prevede che:
+A: per N obiettivi servono almeno N strumenti indipendenti
+B: la politica monetaria sia sempre assegnata alla stabilità dei prezzi
+C: ogni strumento sia assegnato all'obiettivo sul quale ha un vantaggio comparato
+K: C
+F: d947f13727, 4f4a7c1190
+S: A è la regola di Tinbergen (chiesta da Formez); Mundell aggiunge a quale obiettivo affidare ciascuno strumento. In cambi fissi, per esempio, la politica monetaria all'equilibrio esterno e quella fiscale all'equilibrio interno.
+
+Q EL-PE4-7
+T: Il Protocollo del 23 luglio 1993 è l'esempio italiano di:
+A: politica dei redditi fondata sulla concertazione fra Governo e parti sociali e sull'inflazione programmata
+B: privatizzazione delle banche pubbliche
+C: legge annuale per il mercato e la concorrenza
+K: A
+F: b4f30f5547
+S: La politica dei redditi governa salari, prezzi e altri redditi per contenere l'inflazione senza sacrificare occupazione e competitività; trasferimenti e sgravi fiscali sono politica fiscale.
+
+Q EL-PE4-8
+T: In Italia il divieto di intese restrittive e di abusi di posizione dominante è previsto dalla legge n. 287 del 1990 ed è applicato:
+A: dall'Autorità garante della concorrenza e del mercato
+B: dalla Banca d'Italia
+C: dalla Commissione europea in via esclusiva
+K: A
+F: c408e194ea
+S: A livello europeo gli stessi divieti sono negli artt. 101 e 102 TFUE. Insieme alle liberalizzazioni, la tutela della concorrenza fa parte delle politiche dell'offerta.
