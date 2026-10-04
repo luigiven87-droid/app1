@@ -1,0 +1,530 @@
+# Management pubblico e innovazione digitale — domande elaborate (non d'archivio)
+# Formato SNA: «[…] Tra le teorie… vi è anche… Tale approccio si collega a…», tre opzioni.
+@area management_innovazione
+
+## M1
+# Già chiesti (SNA): Taylor (tre volte), Weber (tre), contingenze (due), Fayol, Mayo, Simon,
+# dipendenza dalle risorse, neo-istituzionalismo, NPM (periodo).
+U: 20831ca924 = SNA10-B2-Q44, SNA8-B3-Q36, SNA9-B1-Q44
+U: 57aba0041e = SNA10-B2-Q44, SNA9-B3-Q44
+U: 7e10bfedd6 = SNA10-B3-Q44
+U: e736282f04 = SNA11-B1-Q44
+U: dd7a3f5d1b = SNA11-B1-Q45, SNA9-B3-Q44
+U: c21ad033ea = SNA11-B2-Q44
+U: 708477b5cc = SNA11-B2-Q45
+U: 449f17af68 = SNA11-B3-Q44
+U: ac87a83705 = SNA11-B3-Q48, SNA9-B1-Q42, SNA9-B2-Q44
+U: 07b9444824 = SNA11-B3-Q48, SNA9-B1-Q42, SNA9-B2-Q44
+U: d53655bb75 = SNA10-B1-Q44
+U: 5468b1cfe8 = SNA10-B1-Q44, SNA10-B3-Q44, SNA9-B1-Q44
+
+Q EL-M1-1
+T: […] Tra le teorie organizzative vi è anche la Teoria dei costi di transazione. Tale teoria si può collegare prevalentemente al contributo di:
+A: Oliver Williamson
+B: Karl Weick
+C: Jeffrey Pfeffer
+K: A
+F: 8c1ef27cb7
+S: Williamson (1975-1985): l'unità di analisi è la transazione e si sceglie fra mercato e gerarchia (make or buy) secondo i costi di transazione. Weick è il sensemaking, Pfeffer (con Salancik) la dipendenza dalle risorse, già chiesta in SNA 11.
+
+Q EL-M1-2
+T: […] Secondo DiMaggio e Powell, le organizzazioni di uno stesso campo tendono ad assomigliarsi attraverso processi di isomorfismo:
+A: meccanico, organico e professionale
+B: coercitivo, mimetico e normativo
+C: strategico, tattico e operativo
+K: B
+F: 449f17af68, 219602256d
+S: Nel neo-istituzionalismo si adottano strutture e pratiche per ottenere legittimazione: per obbligo (coercitivo), per imitazione in condizioni di incertezza (mimetico), per professionalizzazione (normativo). SNA 11 ha chiesto gli autori; i tre tipi sono il passo successivo.
+
+Q EL-M1-3
+T: […] Il contributo teorico di Karl Weick viene associato, in maniera più diretta:
+A: al sensemaking e alle organizzazioni come sistemi a legame debole
+B: alla teoria della razionalità limitata dei decisori organizzativi
+C: alla scelta fra mercato e gerarchia
+K: A
+F: 24a77d86e9, 2bbdce525a
+S: Weick (1976-1995): si agisce dando senso agli eventi; le organizzazioni sono sistemi a legame debole. B è Simon (già chiesto in SNA 11 con la stessa formula), C è Williamson.
+
+Q EL-M1-4
+T: […] Nell'ambito della teoria delle contingenze strutturali, Burns e Stalker distinguono fra strutture:
+A: funzionali e divisionali
+B: formali e informali
+C: meccaniche e organiche
+K: C
+F: dd7a3f5d1b
+S: Burns e Stalker: strutture meccaniche (ambienti stabili) e organiche (ambienti dinamici). Gli altri autori del filone: Woodward (tecnologia), Lawrence e Lorsch (differenziazione e integrazione), Thompson.
+
+Q EL-M1-5
+T: […] Nel triangolo strategico del valore pubblico di Mark Moore, il manager pubblico deve tenere insieme il valore pubblico, la capacità operativa e:
+A: la legittimazione e il consenso dell'ambiente che autorizza
+B: la massimizzazione delle entrate dell'ente
+C: la riduzione della spesa corrente
+K: A
+F: 3306374357
+S: Moore (1995): valore pubblico, legittimazione e consenso (authorizing environment), capacità operativa. Dal 2022 il valore pubblico è il perno del PIAO.
+
+Q EL-M1-6
+T: […] Il paradigma della New Public Governance (S. Osborne) mette al centro, a differenza del New Public Management:
+A: l'introduzione nella PA di strumenti aziendali, concorrenza ed esternalizzazioni
+B: le reti, la collaborazione fra pubblico, privato e terzo settore e la co-produzione dei servizi
+C: la legalità della procedura e il controllo di conformità
+K: B
+F: fb4baa6ec2, d53655bb75, 90849259c8
+S: Tre paradigmi da distinguere: burocrazia weberiana (C), New Public Management (A, anni 1980-1995, già chiesto per il periodo), New Public Governance (B, dagli anni 2000).
+
+Q EL-M1-7
+T: […] Secondo Henri Fayol, le funzioni della direzione amministrativa sono:
+A: prevedere, organizzare, comandare, coordinare, controllare
+B: pianificare, eseguire, verificare, agire
+C: analizzare, decidere, delegare, valutare
+K: A
+F: e736282f04
+S: Fayol (1916) guarda al vertice: cinque funzioni del management e 14 principi (divisione del lavoro, unità di comando, catena scalare, accentramento…). SNA 11 ha chiesto solo l'attribuzione della teoria a Fayol.
+
+## M2
+# Già chiesti (SNA): matrice (due volte), Mintzberg e le cinque configurazioni (due), job
+# enlargement, standardizzazione dei processi, tecnostruttura (SNA 8), raggruppamento funzionale.
+U: 79a1745e1e = SNA10-B1-Q47, SNA9-B1-Q47
+U: f1a0d3c876 = SNA10-B1-Q47, SNA9-B1-Q47
+U: 88485286cf = SNA10-B3-Q49, SNA8-B3-Q38
+U: 6fd63a4a83 = SNA11-B1-Q48
+U: 5dd5e622c5 = SNA11-B1-Q48
+U: 0462a800bc = SNA11-B2-Q48
+U: 34fe65ec7a = SNA11-B2-Q48
+U: 486c0f0fc2 = SNA8-B3-Q48
+U: cf37ef5235 = SNA8-B3-Q48
+U: 07490cee57 = SNA9-B2-Q47
+U: 1cfe08fdc8 = SNA9-B2-Q47
+
+Q EL-M2-1
+T: […] All'interno della progettazione delle mansioni, un intervento di job enrichment indica:
+A: un aumento del numero di compiti dello stesso livello
+B: un aumento dell'autonomia, della responsabilità e del controllo del titolare sul proprio lavoro
+C: la rotazione periodica del titolare fra mansioni diverse
+K: B
+F: 981fb3148f, 5dd5e622c5
+S: Enrichment = arricchimento verticale (deriva da Herzberg); enlargement = allargamento orizzontale (A, chiesto in SNA 11); rotation = C.
+
+Q EL-M2-2
+T: […] Secondo Mintzberg, nella burocrazia professionale il meccanismo di coordinamento prevalente è:
+A: la standardizzazione delle capacità
+B: la standardizzazione dei processi
+C: la supervisione diretta
+K: A
+F: 3dc3430147
+S: Burocrazia professionale (ospedali, università, tribunali): parte chiave il nucleo operativo, coordinamento per standardizzazione delle capacità acquisite con la formazione. La standardizzazione dei processi è della burocrazia meccanica, la supervisione diretta della struttura semplice.
+
+Q EL-M2-3
+T: […] Nell'adhocrazia, secondo Mintzberg, il coordinamento avviene prevalentemente mediante:
+A: la standardizzazione degli output
+B: la supervisione diretta
+C: l'adattamento reciproco
+K: C
+F: 600d54d535
+S: Adhocrazia (task force, progetti innovativi): staff di supporto e adattamento reciproco. La standardizzazione degli output è della forma divisionale.
+
+Q EL-M2-4
+T: […] Nella configurazione divisionale descritta da Mintzberg, la parte chiave dell'organizzazione è:
+A: la tecnostruttura
+B: la linea intermedia
+C: il nucleo operativo
+K: B
+F: bdf7c4fe0f
+S: Configurazione → parte chiave: semplice → vertice; meccanica → tecnostruttura; professionale → nucleo operativo; divisionale → linea intermedia; adhocrazia → staff di supporto.
+
+Q EL-M2-5
+T: […] Il modello delle caratteristiche del lavoro di Hackman e Oldham individua, tra le altre:
+A: varietà delle competenze, identità del compito, significatività, autonomia e feedback
+B: fattori igienici e fattori motivanti
+C: aspettativa, strumentalità e valenza
+K: A
+F: f27c76047f
+S: Cinque caratteristiche del lavoro che lo rendono motivante. B è Herzberg, C è Vroom.
+
+Q EL-M2-6
+T: […] Uno degli svantaggi tipici delle forme a matrice è:
+A: l'assenza di una linea gerarchica formale
+B: l'impossibilità di valorizzare le competenze specialistiche
+C: la violazione del principio di unità di comando, con più conflitti di ruolo
+K: C
+F: 79a1745e1e, f1a0d3c876
+S: La matrice ha una doppia linea gerarchica formale (funzione × progetto): presidia insieme specializzazione e processo, ma viola l'unità di comando. A rovescia la caratteristica chiesta in SNA 9.
+
+Q EL-M2-7
+T: […] Nel modello di Mintzberg, servizi come l'ufficio legale o le relazioni esterne appartengono:
+A: alla tecnostruttura
+B: allo staff di supporto
+C: al nucleo operativo
+K: B
+F: 3bc1a750a0, cf37ef5235
+S: Lo staff di supporto fornisce servizi indiretti; la tecnostruttura sono gli analisti che standardizzano il lavoro altrui (chiesta in SNA 8).
+
+## M3
+# Già chiesti (SNA): Maslow (ordine), McClelland, Alderfer, Herzberg (due volte), goal setting,
+# Public Service Motivation.
+U: 9442cae63f = SNA10-B1-Q45
+U: 28ddc64a87 = SNA10-B1-Q45
+U: a0348b36ef = SNA10-B2-Q45
+U: 1fcbcbeae9 = SNA10-B3-Q45
+U: b7948d44b0 = SNA11-B1-Q46
+U: bfeafae00e = SNA11-B1-Q46
+U: 5936a23414 = SNA11-B2-Q46, SNA9-B1-Q45
+U: 7e284fffc8 = SNA11-B2-Q46, SNA9-B1-Q45
+U: 09702b6f7e = SNA9-B2-Q45
+U: 9abe92b293 = SNA9-B2-Q45
+
+Q EL-M3-1
+T: […] Secondo la teoria delle aspettative di Vroom, la motivazione dipende dalla combinazione di:
+A: aspettativa, strumentalità e valenza
+B: bisogni di esistenza, relazione e crescita
+C: contributi e ricompense propri, confrontati con quelli degli altri
+K: A
+F: 9c9e85edeb
+S: Vroom (1964): motivazione = aspettativa (lo sforzo porta al risultato) × strumentalità (il risultato porta alla ricompensa) × valenza (quanto vale la ricompensa). B è Alderfer, C è Adams.
+
+Q EL-M3-2
+T: […] Secondo la teoria dell'equità di Adams, la motivazione dipende:
+A: dalla difficoltà e dalla specificità degli obiettivi
+B: dal confronto fra il proprio rapporto contributi/ricompense e quello degli altri
+C: dalla soddisfazione dei bisogni di livello inferiore
+K: B
+F: 4092fcb500
+S: Adams (1963): la percezione di iniquità demotiva. A è il goal setting (già chiesto), C è Maslow.
+
+Q EL-M3-3
+T: […] La distinzione fra teoria X e teoria Y si associa al contributo di:
+A: McClelland
+B: Herzberg
+C: McGregor
+K: C
+F: 13182b7700
+S: McGregor (1960): teoria X (il lavoratore evita il lavoro e va controllato) e teoria Y (cerca responsabilità). McClelland e Herzberg sono le esche, entrambe già uscite.
+
+Q EL-M3-4
+T: […] Secondo Herzberg, la retribuzione è un fattore:
+A: motivante, al pari della realizzazione e del riconoscimento
+B: igienico: se è inadeguata genera insoddisfazione, ma da sola non motiva
+C: estraneo sia alla soddisfazione sia all'insoddisfazione
+K: B
+F: 5936a23414
+S: Igienici: retribuzione, condizioni, supervisione, relazioni, sicurezza. Motivanti: realizzazione, riconoscimento, lavoro in sé, responsabilità, crescita. Herzberg è uscito due volte come nome: questa è la domanda sul contenuto.
+
+Q EL-M3-5
+T: […] A differenza del modello di Maslow, la teoria ERG di Alderfer ammette:
+A: che più bisogni siano attivi insieme e che, se un bisogno superiore è frustrato, si regredisca a quello inferiore
+B: cinque livelli di bisogni da soddisfare in ordine rigido
+C: solo bisogni appresi nel corso della vita
+K: A
+F: 1fcbcbeae9
+S: Alderfer: esistenza, relazione, crescita, con più bisogni attivi e regressione per frustrazione. B è Maslow; C è McClelland (bisogni appresi).
+
+Q EL-M3-6
+T: […] Quale delle seguenti è una teoria del processo motivazionale e non del contenuto?
+A: la gerarchia dei bisogni di Maslow
+B: la teoria dei due fattori di Herzberg
+C: la teoria delle aspettative di Vroom
+K: C
+F: 4cb7a8cbe3
+S: Teorie del contenuto (che cosa motiva): Maslow, Alderfer, Herzberg, McClelland. Teorie del processo (come nasce la motivazione): Vroom, Adams, Locke.
+
+## M4
+# Già chiesti (SNA): groupthink (due volte), social loafing, free riding, Tuckman (storming),
+# Blake e Mouton, Hersey e Blanchard, Fiedler, transazionale, French e Raven, Schein, burnout.
+U: 544b7d3daa = SNA10-B1-Q46
+U: 209e472718 = SNA10-B2-Q46
+U: 1c6d84bbb3 = SNA10-B2-Q46, SNA9-B2-Q46, SNA11-B3-Q46
+U: 33791a1b4c = SNA10-B3-Q46, SNA8-B3-Q37
+U: 4cbd590d0d = SNA10-B3-Q46, SNA8-B3-Q37, SNA9-B1-Q46, SNA10-B1-Q46
+U: 5a8c3a6b71 = SNA11-B1-Q47
+U: 01142198f2 = SNA11-B1-Q47
+U: 46e129286c = SNA11-B2-Q47
+U: 3b8f925ffe = SNA11-B3-Q45
+U: b2cc834d44 = SNA11-B3-Q46
+U: f8ce49bff7 = SNA9-B1-Q46
+U: 23d787ae9c = SNA9-B2-Q46
+U: 6019790fbe = SNA9-B3-Q45
+U: b7ea67ede4 = SNA9-B3-Q45
+U: ee0e9e44b2 = SNA9-B3-Q46
+U: e60ecd5ba1 = SNA9-B3-Q46
+
+Q EL-M4-1
+T: […] Secondo Kurt Lewin, il processo di cambiamento organizzativo si articola nelle fasi di:
+A: scongelamento, cambiamento, ricongelamento
+B: forming, storming, norming, performing
+C: senso di urgenza, coalizione guida, visione
+K: A
+F: 9ded44db42
+S: Lewin: unfreezing → change → refreezing, con l'analisi del campo di forze (spinte e freni). B è Tuckman (gruppi), C sono i primi passi di Kotter.
+
+Q EL-M4-2
+T: […] Argyris e Schön chiamano apprendimento «a ciclo doppio» quello in cui l'organizzazione:
+A: corregge le azioni senza mettere in discussione gli obiettivi
+B: rivede le premesse e gli obiettivi della propria azione
+C: imita le pratiche delle organizzazioni considerate più legittime
+K: B
+F: 289d641745
+S: Ciclo singolo = si correggono le azioni (A); ciclo doppio = si rivedono premesse e obiettivi. C è l'isomorfismo mimetico del neo-istituzionalismo.
+
+Q EL-M4-3
+T: […] Nel modello di Christina Maslach il burnout si articola in tre dimensioni:
+A: esaurimento emotivo, depersonalizzazione e ridotta realizzazione personale
+B: artefatti, valori dichiarati e assunti di base
+C: forming, storming e norming
+K: A
+F: 46e129286c, 14ec107e00
+S: SNA 11 ha chiesto la definizione del burnout; le tre dimensioni di Maslach sono il dettaglio successivo. B sono i tre livelli della cultura di Schein.
+
+Q EL-M4-4
+T: […] Nel modello in otto passi di Kotter per guidare il cambiamento, il primo passo consiste nel:
+A: consolidare i risultati ottenuti
+B: radicare il cambiamento nella cultura
+C: creare un senso di urgenza
+K: C
+F: b2c0719acf
+S: Kotter (1996): urgenza, coalizione guida, visione, comunicazione, rimozione degli ostacoli, successi a breve, consolidamento, radicamento nella cultura (A e B sono gli ultimi passi).
+
+Q EL-M4-5
+T: […] Gli studi di Geert Hofstede riguardano prevalentemente:
+A: i tre livelli della cultura organizzativa
+B: le dimensioni delle culture nazionali, come la distanza dal potere e l'avversione all'incertezza
+C: le fasi di sviluppo dei piccoli gruppi
+K: B
+F: 3b8f925ffe
+S: Hofstede studia le culture nazionali; Schein (già chiesto in SNA 11) la cultura organizzativa su tre livelli.
+
+Q EL-M4-6
+T: […] Gli stili di leadership autoritario, democratico e laissez-faire sono associati agli studi di:
+A: Fiedler
+B: Blake e Mouton
+C: Lewin
+K: C
+F: aedc57dec3
+S: Lewin = stili. Fiedler = leadership contingente; Blake e Mouton = griglia persone × produzione: entrambi già usciti, quindi le esche più probabili.
+
+Q EL-M4-7
+T: […] Un leader che adotta un modello di tipo trasformazionale motiva i collaboratori prioritariamente:
+A: con uno scambio fra prestazione e ricompensa
+B: con il carisma, la motivazione ispirazionale, la stimolazione intellettuale e l'attenzione alla persona
+C: intervenendo solo quando si verificano scostamenti dalle regole
+K: B
+F: 329f44dd7b, e60ecd5ba1
+S: È la domanda gemella di quella SNA 9 sul leader transazionale: A e C (gestione per eccezioni) sono la leadership transazionale.
+
+Q EL-M4-8
+T: […] In ogni amministrazione pubblica il Comitato unico di garanzia (art. 57 d.lgs. 165/2001) opera:
+A: per le pari opportunità, la valorizzazione del benessere di chi lavora e contro le discriminazioni
+B: per la prevenzione della corruzione e la trasparenza
+C: per la valutazione della performance dei dirigenti
+K: A
+F: 5dc55a19a6
+S: CUG: pari opportunità, benessere organizzativo, contrasto alle discriminazioni. B è il RPCT, C l'OIV.
+
+## M5
+# Già chiesti (SNA): MBO, PDCA, PIAO (durata), job ranking, BPR.
+U: 37f9614bc5 = SNA10-B2-Q47
+U: 574c35f805 = SNA10-B2-Q47
+U: cf990ec266 = SNA10-B3-Q47
+U: 70bb56184a = SNA10-B3-Q48
+U: fc9f6d515d = SNA10-B3-Q48
+U: 15fa368604 = SNA11-B3-Q47
+U: 73f6f451d6 = SNA11-B3-Q47
+U: 7f096d74b5 = SNA9-B3-Q47
+U: c0d50ed661 = SNA9-B3-Q47, SNA10-B3-Q47
+
+Q EL-M5-1
+T: […] La balanced scorecard di Kaplan e Norton misura l'attuazione della strategia secondo quattro prospettive:
+A: economico-finanziaria, utenti, processi interni, apprendimento e crescita
+B: pianificazione, esecuzione, verifica, azione
+C: efficacia, efficienza, economicità, equità
+K: A
+F: c95ab4e826
+S: Balanced scorecard (1992): quattro prospettive. B è il ciclo PDCA di Deming, già chiesto in SNA 10 con la stessa formula.
+
+Q EL-M5-2
+T: La Relazione sulla performance, adottata entro il 30 giugno, è:
+A: validata dall'Organismo indipendente di valutazione (OIV)
+B: approvata dalla Corte dei conti
+C: redatta dal Dipartimento della funzione pubblica
+K: A
+F: 9c67e3dff0, a03ce2d78d
+S: L'organo di indirizzo definisce Piano e Relazione; l'OIV valida la Relazione e monitora il sistema; la Funzione pubblica coordina.
+
+Q EL-M5-3
+T: Sono tenute ad adottare il PIAO in forma ordinaria le amministrazioni con:
+A: più di 15 dipendenti
+B: più di 50 dipendenti, escluse le scuole
+C: qualunque numero di dipendenti, scuole comprese
+K: B
+F: 826f114a67, fc9f6d515d
+S: Obbligo pieno oltre 50 dipendenti (scuole escluse); fino a 50, PIAO semplificato. SNA 10 ha chiesto la durata (triennale, aggiornato ogni anno): soggetti obbligati e sezioni sono il resto della scheda.
+
+Q EL-M5-4
+T: Secondo la L. 119/2026, nella valutazione della performance individuale i punteggi apicali non possono superare:
+A: il 50% delle valutazioni per categoria o qualifica
+B: il 10% delle valutazioni per categoria o qualifica
+C: il 30% delle valutazioni per categoria o qualifica
+K: C
+F: 8e7cbdfa5a
+S: Tetti alla differenziazione: punteggi apicali non oltre il 30%, «eccellenze» non oltre il 20% dei punteggi apicali; il parere dell'OIV sul sistema di valutazione non è più vincolante.
+N: L. 119/2026
+
+Q EL-M5-5
+T: Il CAF (Common Assessment Framework) è:
+A: un modello europeo di autovalutazione della qualità per le amministrazioni pubbliche, derivato dall'EFQM
+B: un piano di prevenzione della corruzione
+C: un sistema di contabilità economico-patrimoniale
+K: A
+F: 103b014318
+S: CAF: 9 criteri, 5 fattori abilitanti e 4 di risultato. Sta accanto a PDCA, lean e BPR fra gli strumenti della qualità.
+
+Q EL-M5-6
+T: Il controllo di conformità, a differenza del controllo manageriale:
+A: orienta i comportamenti verso risultati e performance
+B: verifica il rispetto di norme e procedure ed è tipico del modello burocratico
+C: è svolto esclusivamente dall'OIV
+K: B
+F: ee084ba48c, c23174f004
+S: Due idee di controllo: conformità (burocrazia, legalità della procedura) e controllo manageriale (risultati e performance), che è A.
+
+## M6
+# Già chiesti (SNA): SPID, open data, RTD, Piano triennale (AgID), date di AgID (2012) e ACN (2021),
+# «Plasmare il futuro digitale dell'Europa», digitale e Green Deal.
+U: 42fd03ddd2 = SNA10-B1-Q48
+U: f4f99898a4 = SNA10-B2-Q48
+U: ece6eb1dd0 = SNA10-B2-Q48
+U: 6030c31b93 = SNA10-B2-Q49
+U: b8e6998cb4 = SNA10-B2-Q49
+U: 43f4e9fb8d = SNA11-B1-Q49
+U: 02b0422b5b = SNA11-B1-Q49
+U: 65f440b403 = SNA11-B2-Q49
+U: c4b07f3938 = SNA11-B3-Q49
+U: 568400ca79 = SNA11-B2-Q49, SNA11-B3-Q49
+U: b5b3e3937d = SNA9-B1-Q49
+U: 79c86717fb = SNA9-B2-Q49
+
+Q EL-M6-1
+T: La Piattaforma digitale nazionale dati (PDND, art. 50-ter CAD) serve a:
+A: gestire i pagamenti verso le pubbliche amministrazioni
+B: notificare digitalmente gli atti con valore legale
+C: garantire l'interoperabilità e lo scambio di dati fra amministrazioni
+K: C
+F: 3bcbaae3af, 72fb7d0183
+S: PDND = scambio di dati fra PA; pagoPA = pagamenti (A); SEND = notifiche (B). Dopo SPID (SNA 10), la serie delle piattaforme nazionali è il terreno naturale delle domande successive.
+
+Q EL-M6-2
+T: L'Indice nazionale dei domicili digitali (INAD) raccoglie i domicili digitali:
+A: delle persone fisiche, dei professionisti non iscritti in albi e degli enti di diritto privato
+B: delle imprese e dei professionisti iscritti in albi
+C: delle pubbliche amministrazioni e dei gestori di pubblici servizi
+K: A
+F: d83e04dac4
+S: Tre indici: INI-PEC per imprese e professionisti (B), IPA per amministrazioni e gestori di pubblici servizi (C), INAD per tutti gli altri.
+
+Q EL-M6-3
+T: Il regolamento europeo sull'intelligenza artificiale (AI Act, regolamento (UE) 2024/1689) classifica i sistemi di IA:
+A: per settore economico di utilizzo
+B: per livelli di rischio, vietando le pratiche a rischio inaccettabile
+C: in base alla nazionalità del fornitore
+K: B
+F: ae184c752b, 6091de98ab
+S: Rischio inaccettabile (vietato), alto (obblighi stringenti), limitato (trasparenza), minimo (nessun obbligo specifico); a parte i modelli per finalità generali.
+
+Q EL-M6-4
+T: La legge italiana sull'intelligenza artificiale (L. 132/2025) individua come autorità nazionali per l'IA:
+A: il Garante per la protezione dei dati personali e l'AGCOM
+B: l'AgID e l'Agenzia per la cybersicurezza nazionale
+C: l'ANAC e la Banca d'Italia
+K: B
+F: 641fc36452, 65f440b403, c4b07f3938
+S: AgID con compiti di promozione e notifica, ACN con compiti di vigilanza e sanzione. Le due agenzie sono già uscite per le date di istituzione: questa è la domanda di attualità che le collega.
+N: L. 132/2025
+
+Q EL-M6-5
+T: Secondo la disciplina NIS2 (d.lgs. 138/2024), un incidente significativo va segnalato al CSIRT Italia con un preallarme entro:
+A: 24 ore
+B: 72 ore
+C: 7 giorni
+K: A
+F: b7f39dac26, d2e38981f6
+S: Preallarme entro 24 ore, notifica entro 72 ore, relazione finale entro un mese. Le 72 ore sono anche il termine del data breach nel GDPR: è la trappola.
+N: NIS2
+
+Q EL-M6-6
+T: La qualificazione dei servizi cloud destinati alla pubblica amministrazione è oggi di competenza:
+A: dell'AgID
+B: del Garante per la protezione dei dati personali
+C: dell'Agenzia per la cybersicurezza nazionale
+K: C
+F: c4b07f3938, dc287f16b9
+S: Dal 19 gennaio 2023 la qualificazione del cloud è dell'ACN, non più dell'AgID: un passaggio di competenze tipico da domanda a tre opzioni.
+
+Q EL-M6-7
+T: Secondo l'art. 52 del CAD, i dati e i documenti che le amministrazioni pubblicano senza indicare una licenza d'uso:
+A: si intendono rilasciati come dati di tipo aperto, salvo i dati personali
+B: non possono essere riutilizzati
+C: possono essere riutilizzati solo per fini non commerciali
+K: A
+F: 0562c4f5bd, f4f99898a4
+S: Principio «open by default». I dati aperti sono riutilizzabili da chiunque, anche a fini commerciali (C è falso), gratuitamente o ai soli costi marginali.
+
+Q EL-M6-8
+T: Il Codice dell'amministrazione digitale è stato adottato con:
+A: la L. 4/2004
+B: il d.l. 83/2012
+C: il d.lgs. 82/2005
+K: C
+F: 1433ee7140, 568400ca79
+S: Tre date: CAD 2005, AgID 2012 (d.l. 83/2012, B), ACN 2021. La L. 4/2004 (A) è la legge Stanca sull'accessibilità. SNA 11 ha chiesto le date di AgID e ACN.
+
+## M7
+# Già chiesti (SNA): tre tipologie di fascicolo del vademecum AgID (per procedimento, per persona
+# fisica, per affare).
+U: 834b0fb4e8 = SNA9-B1-Q48
+U: f52a94e0df = SNA9-B2-Q48
+U: 58098c3f13 = SNA9-B3-Q48
+U: c06771b08d = SNA9-B1-Q48, SNA9-B3-Q48
+
+Q EL-M7-1
+T: Nel vademecum AgID per «L'implementazione delle linee guida sulla formazione, gestione e conservazione dei documenti informatici», la tipologia di fascicolo denominata «per attività»:
+A: comprende i documenti di un'attività amministrativa semplice, con risposte obbligate o meri adempimenti
+B: comprende i documenti di azioni amministrative omogenee destinate a concludersi con un provvedimento
+C: comprende tutti i documenti, anche con classifiche diverse, riferiti a una persona fisica
+K: A
+F: 22da99ff50, c06771b08d
+S: SNA 9 ha chiesto in ogni busta una tipologia diversa (procedimento, persona fisica, affare). Restano «per attività» e «per persona giuridica»: B e C sono le definizioni già uscite.
+
+Q EL-M7-2
+T: In caso di violazione dei dati personali (data breach), il titolare del trattamento la notifica al Garante:
+A: entro 30 giorni dalla scoperta
+B: entro 72 ore dal momento in cui ne è venuto a conoscenza
+C: solo se gli interessati ne fanno richiesta
+K: B
+F: 6ac0d8d079
+S: Art. 33 GDPR: 72 ore; se il rischio per le persone è elevato, anche comunicazione agli interessati (art. 34).
+
+Q EL-M7-3
+T: Una pubblica amministrazione, nello svolgimento dei propri compiti istituzionali, può trattare dati personali sulla base:
+A: del proprio legittimo interesse
+B: di una norma di legge o di regolamento
+C: del solo consenso dell'interessato
+K: B
+F: c29c419781
+S: Le PA non possono fondarsi sul legittimo interesse: la base giuridica è l'esecuzione di un compito di interesse pubblico prevista da una norma di legge o di regolamento.
+
+Q EL-M7-4
+T: I dati personali pseudonimizzati:
+A: restano dati personali
+B: sono dati anonimi, esclusi dall'applicazione del GDPR
+C: possono essere diffusi liberamente
+K: A
+F: 06da7ce9e1, 336ef3a65e
+S: La pseudonimizzazione è una misura di sicurezza: con le informazioni aggiuntive conservate a parte i dati restano riconducibili all'interessato, quindi restano personali.
+
+Q EL-M7-5
+T: La designazione del responsabile della protezione dei dati (RPD o DPO) è obbligatoria:
+A: solo per le imprese con più di 250 dipendenti
+B: solo su richiesta del Garante
+C: per le autorità e gli organismi pubblici
+K: C
+F: 8f7cd91637
+S: Art. 37 GDPR: obbligatorio per autorità e organismi pubblici (salvo le autorità giurisdizionali nell'esercizio delle loro funzioni) e per alcuni trattamenti privati su larga scala.
