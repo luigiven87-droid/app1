@@ -138,7 +138,7 @@
       if (schedaOfCode[q.t]) return q.t + ' · ' + schedaByKey[schedaOfCode[q.t]].sc.title;
       return typeLabel(q);
     }
-    function srcOf(q) { return /^AD/.test(q.id) ? 'formez' : 'sna'; }
+    function srcOf(q) { return /^AD/.test(q.id) ? 'formez' : /^EL-/.test(q.id) ? 'el' : 'sna'; }
     function bustaOf(q) { var m = /-B(\d)-/.exec(q.c || ''); return m ? m[1] : ''; }
     function paras(text) {
       return String(text || '').split(/\n\n+/).map(function (p) { return '<p>' + esc(p) + '</p>'; }).join('');
@@ -290,12 +290,13 @@
 
     /* ---------------------------------------------------------- blocco per materia */
 
-    var SRC_LABEL = { sna: 'Preselettive SNA', formez: 'Formez' };
+    var SRC_LABEL = { sna: 'Preselettive SNA', formez: 'Formez', el: 'Elaborate (non d’archivio)' };
     function bPrefs() {
       var p = S.prefs.simB || (S.prefs.simB = {});
       if (!Array.isArray(p.a)) p.a = [];
       if (!Array.isArray(p.t)) p.t = [];
       if (!p.src) p.src = { sna: true, formez: true };
+      if (p.src.el === undefined) p.src.el = false;
       if (!p.n) p.n = 10;
       if (p.tm === undefined) p.tm = 0;
       if (p.fb === undefined) p.fb = false;
@@ -310,6 +311,7 @@
       return p;
     }
     function usable(q, f) {
+      if (q.inc === 'el') return !!f.src.el;
       if (!(q.inc === 'sì' || (f.ris && q.inc === 'riserva'))) return false;
       return !!f.src[srcOf(q)];
     }
@@ -647,6 +649,23 @@
       if (q.w) return 'Migliore ' + q.k + ' (1) · neutra ' + others.join(', ') + ' (0,50) · meno efficace ' + q.w + ' (0), come indicato nel dossier.';
       return 'Migliore ' + q.k + ' (chiave ufficiale). Neutra e meno efficace non sono pubblicate: una scelta diversa vale 0 o 0,50.';
     }
+    function pointText(p) {
+      var t = p.t === 'row' ? [p.ql || '', p.q].concat(p.a.map(function (r) { return r[0] + ': ' + r[1]; })).join(' · ') : p.h;
+      return stripTags(String(t)).replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+    }
+    function citeHtml(q) {
+      if (!q.cite || !q.cite.length) return '';
+      return '<div class="cite"><p class="lbl">Nel ripasso</p>' + q.cite.map(function (id) {
+        var e = PT[id];
+        if (!e) return '';
+        return '<blockquote>' + esc(pointText(e.p)) + '</blockquote>' +
+          '<button class="linkish" data-act="simCite" data-id="' + esc(id) + '">Apri il punto nella scheda ' + esc(schedaByKey[e.sk].sc.code || '') + ' →</button>';
+      }).join('') + '</div>';
+    }
+    ACTIONS.simCite = function (t) {
+      var id = t.getAttribute('data-id');
+      if (PT[id]) openScheda(PT[id].sk, id);
+    };
     function feedbackHtml(q, a) {
       var s = score(q, a);
       var key = schedaOfCode[q.t];
@@ -657,7 +676,9 @@
         (q.km ? '<p class="badge">Chiave incerta: il dossier la dà ad affidabilità media.</p>' : '') +
         (keyNote(q) ? '<p class="small">' + keyNote(q) + '</p>' : '') +
         (q.cp ? '<p class="small"><b>' + esc(q.ti || '') + '</b> · ' + esc(q.cp) + '</p>' : '') +
+        (q.inc === 'el' ? '<p class="badge el">Domanda elaborata, non d’archivio: costruita su un argomento della scheda non ancora uscito nelle preselettive SNA 9-11.</p>' : '') +
         q.com.map(function (c) { return '<p class="com">' + esc(c) + '</p>'; }).join('') +
+        citeHtml(q) +
         '<p class="src">' + esc(q.lab) + ' · <span class="code">' + esc(q.id) + '</span>' +
         (q.mo ? ' · ' + esc(q.mo) : '') + '</p>' +
         (key ? '<button class="btn block" data-act="open" data-k="' + esc(key) + '">Apri la scheda ' + esc(q.t) + ' nel ripasso</button>' : '') +
@@ -853,12 +874,13 @@
             }).join('') + '</div>';
         }
       }
-      var nSrc = countBy(SIM.q.filter(function (q) { return q.inc === 'sì' || (f.ris && q.inc === 'riserva'); }).map(function (q) { return { s: srcOf(q) }; }), 's');
+      var nSrc = countBy(SIM.q.filter(function (q) { return q.inc === 'sì' || q.inc === 'el' || (f.ris && q.inc === 'riserva'); }).map(function (q) { return { s: srcOf(q) }; }), 's');
       var nRis = SIM.q.filter(function (q) { return q.inc === 'riserva' && f.src[srcOf(q)]; }).length;
       h += '<p class="lbl" style="margin-top:12px">Banche</p><div class="chips">' +
-        ['sna', 'formez'].map(function (k) { return chip('bs', k, SRC_LABEL[k], f.src[k], nSrc[k] || 0); }).join('') +
+        ['sna', 'formez'].concat(nSrc.el ? ['el'] : []).map(function (k) { return chip('bs', k, SRC_LABEL[k], f.src[k], nSrc[k] || 0); }).join('') +
         chip('br', '1', 'Anche i quesiti di riserva', f.ris, nRis) + '</div>' +
-        '<p class="small muted">Riserva: formati usciti solo in SNA 8 o nei concorsi Formez (logica deduttiva e verbale), varianti con le lettere spostate, situazionali in inglese.</p>' +
+        '<p class="small muted">Riserva: formati usciti solo in SNA 8 o nei concorsi Formez (logica deduttiva e verbale), varianti con le lettere spostate, situazionali in inglese.' +
+        (nSrc.el ? ' <b>Elaborate</b>: domande scritte per questa app sugli argomenti delle schede non ancora usciti nelle preselettive SNA; ognuna rimanda al punto del ripasso che dà la risposta. Non entrano nelle prove H1-H6.' : '') + '</p>' +
         countField('b', f, pool.length) +
         '<div class="field"><span class="lbl">Tempo</span>' + choice('b', 'tm', [0, 1], ['Senza tempo', '1,5′ a quesito, come in prova'], f.tm) + '</div>' +
         '<div class="chips">' + chip('bf', '1', 'Correzione subito dopo ogni risposta', f.fb) + '</div>' +
@@ -933,7 +955,8 @@
       if (!q) { c.i = 0; q = Q[c.ids[0]]; }
       var a = c.ans[c.i];
       var reveal = c.fb && !!a;
-      return '<div class="qhead"><span class="qn">' + (c.i + 1) + '</span><span class="qa">' + esc(AREA[q.a].label) + '</span>' +
+      return '<div class="qhead"><span class="qn">' + (c.i + 1) + '</span><span class="qa">' + esc(AREA[q.a].label) +
+        (q.inc === 'el' ? ' <span class="elb">elaborata</span>' : '') + '</span>' +
         '<button type="button" class="flagb" data-act="simFlag" aria-pressed="' + !!c.fl[c.i] + '">' + (c.fl[c.i] ? '● Dubbio' : '○ Dubbio') + '</button></div>' +
         (intro(q) ? '<p class="small muted">' + intro(q) + '</p>' : '') +
         passageHtml(q, true, true) +
@@ -992,6 +1015,14 @@
       return v;
     }
     var bankOf = countBy(SIM.q.filter(function (q) { return q.inc === 'sì'; }), 't');
+    var USC = SIM.usc || {};
+    hooks.pointBadge = function (id) {
+      var c = USC[id];
+      if (!c) return '';
+      return ' <span class="usc" title="' + esc(c.join(', ')) + '">uscito ' + esc(c.map(function (x) {
+        return x.replace(/^SNA(\d+)-B(\d)-Q\d+$/, 'SNA $1');
+      }).filter(function (v, i, arr) { return arr.indexOf(v) === i; }).join(', ')) + '</span>';
+    };
     hooks.schedaInfo = function (code) {
       var info = SIM.schede && SIM.schede[code];
       var st = schedaStats()[code];

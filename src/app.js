@@ -266,7 +266,7 @@
     var now = new Date();
     var days = Math.round((EXAM - new Date(now.getFullYear(), now.getMonth(), now.getDate())) / 86400000);
     var el = document.getElementById('countdown');
-    if (days > 1) el.textContent = 'Preselettiva del 6/10 · mancano ' + days + ' giorni';
+    if (days > 1) el.textContent = 'Preselettiva 6/10 · mancano ' + days + ' giorni';
     else if (days === 1) el.textContent = 'Preselettiva domani, 6 ottobre';
     else if (days === 0) el.textContent = 'Preselettiva oggi · in bocca al lupo';
     else el.textContent = 'Preselettiva del 6 ottobre 2026';
@@ -350,13 +350,15 @@
     var attrs = ' class="it ' + p.t + '" data-id="' + p.id + '" data-s="' + s + '" tabindex="0"';
     if (p.t === 'row') {
       var h = '<div' + attrs + '>';
-      if (p.q) h += '<div class="rq">' + (p.ql ? '<span class="rl">' + p.ql + '</span>' : '') + p.q + (p.nov ? ' ' + NOV : '') + '</div>';
+      if (p.q) h += '<div class="rq">' + (p.ql ? '<span class="rl">' + p.ql + '</span>' : '') + p.q + (p.nov ? ' ' + NOV : '') +
+        (hooks.pointBadge ? hooks.pointBadge(p.id) : '') + '</div>';
       h += '<dl class="ra">' + p.a.map(function (r) { return '<dt>' + r[0] + '</dt><dd>' + r[1] + '</dd>'; }).join('') + '</dl>';
       if (!p.q && p.nov) h += NOV;
       return h + '</div>';
     }
+    var badge = hooks.pointBadge ? hooks.pointBadge(p.id) : '';
     return '<div' + attrs + '>' + (p.t === 'li' ? '<span class="mk" aria-hidden="true">' + (p.n || '•') + '</span>' : '') +
-      '<div class="tx">' + p.h + (p.nov ? ' ' + NOV : '') + '</div></div>';
+      '<div class="tx">' + p.h + (p.nov ? ' ' + NOV : '') + badge + '</div></div>';
   }
 
   /* Disegna i blocchi di una scheda; `keep(p)` decide quali punti mostrare.

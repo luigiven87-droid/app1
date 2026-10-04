@@ -164,7 +164,7 @@ const shot = (page, name, full) => page.screenshot({ path: path.join(SHOTS, name
   await ps.goto('file://' + LOCAL);
   const D = await ps.evaluate(() => JSON.parse(document.getElementById('data').textContent).sim);
   check(D && D.q.length > 700, 'quesiti delle simulazioni: ' + (D ? D.q.length : 0));
-  check(D.q.every(q => q.inc === 'sì' || q.inc === 'riserva'), 'nessun quesito escluso come nicchia (includi = no)');
+  check(D.q.every(q => q.inc === 'sì' || q.inc === 'riserva' || (q.inc === 'el' && /^EL-/.test(q.id))), 'nessun quesito escluso come nicchia (includi = no); le elaborate a parte');
   check(D.q.every(q => q.o.some(o => o[0] === q.k)), 'ogni chiave è una delle opzioni');
   const QD = {}; D.q.forEach(q => { QD[q.id] = q; });
   const simState = () => ps.evaluate(() => JSON.parse(localStorage.getItem('sna12-simulazioni-v1') || '{}'));
@@ -336,10 +336,22 @@ const shot = (page, name, full) => page.screenshot({ path: path.join(SHOTS, name
   await ps.click('#modal-yes');
   await ps.click('[data-act=simRedo]');
   check((await simState()).cur.ids.join() === sd.ids[1], '«Rifai gli sbagliati» riparte dall\'errore della prova');
+  // banca Elaborate: separata, etichettata, con il punto del ripasso
   await ps.click('[data-tab=sim]');
   await ps.click('[data-act=simDrop]');
   await ps.click('#modal-yes');
   await ps.click('[data-act=seg][data-name=simTab][data-val=blocco]');
+  for (const a of ['diritto_ue', 'diritto_costituzionale']) await ps.click('[data-act=simChip][data-g=ba][data-v=' + a + ']');
+  for (const k of ['sna', 'formez', 'el']) await ps.click('[data-act=simChip][data-g=bs][data-v=' + k + ']');
+  await ps.click('[data-act=simDrill]');
+  const ec = (await simState()).cur;
+  check(ec.ids.length > 0 && ec.ids.every(id => /^EL-/.test(id)), 'solo la banca Elaborate: tutte domande EL-');
+  check(!!(await ps.$('.qhead .elb')), 'in prova l\'etichetta «elaborata»');
+  check((await ps.$$eval('.opt', o => o.length)) === QD[ec.ids[0]].o.length, 'le opzioni sono solo quelle della domanda');
+  await ps.click('[data-tab=sim]');
+  await ps.click('[data-act=simDrop]');
+  await ps.click('#modal-yes');
+  for (const k of ['sna', 'formez', 'el']) await ps.click('[data-act=simChip][data-g=bs][data-v=' + k + ']');
   await ps.click('[data-act=simDrill]');
   check((await simState()).cur.tl > 0, 'blocco a tempo pronto per la prova del tempo scaduto');
   check(ps.errors.length === 0, 'nessun errore JavaScript (' + ps.errors.join('; ') + ')');

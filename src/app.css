@@ -489,3 +489,11 @@ body.with-simbar .wrap { padding-bottom: 120px; }
 .sinfo .fa.alta { color: var(--accent); }
 .sinfo .fa.esclusa { color: var(--muted); }
 .sfoot p { margin-bottom: 10px; }
+.elb { display: inline-block; font-size: 11.5px; font-weight: 750; letter-spacing: .04em; text-transform: uppercase; color: var(--nov); background: var(--nov-soft); border-radius: 999px; padding: 1px 7px; vertical-align: 1px; }
+.badge.el { background: var(--nov-soft); }
+.cite { margin: 8px 0 10px; }
+.cite blockquote { margin: 0 0 4px; padding: 8px 12px; border-left: 3px solid var(--accent); background: var(--surface-2); border-radius: 0 10px 10px 0; font-family: var(--read); font-size: calc(16px * var(--fz, 1)); line-height: 1.5; }
+.usc {
+  display: inline-block; font-family: var(--ui); font-size: 11.5px; font-weight: 700; letter-spacing: .03em;
+  color: var(--accent); background: var(--accent-soft); border-radius: 999px; padding: 1px 7px; vertical-align: 2px; white-space: nowrap;
+}

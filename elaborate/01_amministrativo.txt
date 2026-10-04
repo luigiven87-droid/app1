@@ -1,0 +1,700 @@
+# Diritto amministrativo — domande elaborate (non d'archivio)
+# Criterio: argomenti delle schede D1-D10 non ancora chiesti nelle preselettive SNA 9-11,
+# allo stesso livello di quelli chiesti; formato SNA a tre opzioni.
+@area diritto_amministrativo
+
+## D1
+# Già chiesti: art. 1, c. 1-bis (tre volte), c. 2-bis, legalità-indirizzo, buon andamento,
+# giusto procedimento, sussidiarietà orizzontale.
+U: 5639a996a1 = SNA11-B1-Q28
+U: 5ee533c038 = SNA11-B1-Q28
+U: f479e58f7c = SNA11-B1-Q28
+U: 54650ca946 = SNA10-B2-Q29, SNA9-B3-Q30
+U: ba3c535af1 = SNA10-B2-Q29, SNA9-B3-Q30
+U: 59dd9efd0e = SNA10-B2-Q28
+U: 45256b72ed = SNA11-B2-Q28
+U: 566534513c = SNA11-B2-Q28
+U: d905f94b55 = SNA10-B1-Q28
+U: aa9da54987 = SNA10-B3-Q28
+U: 34c50de36c = SNA10-B3-Q28
+U: 2db6655094 = SNA10-B3-Q28
+
+Q EL-D1-1
+T: Il principio di proporzionalità richiede che la misura adottata dall'amministrazione sia:
+A: idonea, necessaria e adeguata rispetto all'obiettivo perseguito
+B: conforme alle decisioni già adottate dalla stessa amministrazione in casi analoghi
+C: la più efficace fra quelle disponibili, indipendentemente dal sacrificio imposto al privato
+K: A
+F: 0473051a2b
+S: Proporzionalità = idoneità (il mezzo serve allo scopo), necessarietà (il meno gravoso fra quelli efficaci) e adeguatezza (sacrificio non eccessivo rispetto al beneficio). B descrive la coerenza con i precedenti, che riguarda la disparità di trattamento; C nega proprio il terzo elemento.
+
+Q EL-D1-2
+T: Ai sensi dell'art. 1, comma 2, della legge 241/1990, il procedimento amministrativo:
+A: non può mai essere aggravato
+B: non può essere aggravato se non per straordinarie e motivate esigenze imposte dall'istruttoria
+C: può essere aggravato solo su richiesta dell'interessato
+K: B
+F: 52de1dde2a
+S: È il divieto di aggravamento: l'eccezione esiste ed è legata a esigenze straordinarie e motivate dell'istruttoria. A assolutizza la regola, C inventa un presupposto.
+
+Q EL-D1-3
+T: Il principio di tipicità dei provvedimenti amministrativi comporta che:
+A: ogni provvedimento sia motivato
+B: l'amministrazione possa adottare soltanto i provvedimenti previsti dalla legge
+C: i provvedimenti siano adottati in forma scritta
+K: B
+F: 9ce0957c81, 181668a3c9
+S: Tipicità e nominatività sono corollari della legalità: solo i provvedimenti previsti dalla legge, ciascuno con il suo nome e i suoi effetti. Motivazione e forma scritta sono requisiti diversi (art. 3 L. 241/1990, → D5).
+
+Q EL-D1-4
+T: Le circolari amministrative:
+A: sono fonti secondarie del diritto, al pari dei regolamenti
+B: vincolano il giudice amministrativo nell'interpretazione della legge
+C: sono atti interni che non vincolano né i privati né il giudice
+K: C
+F: e5507b58fc
+S: Le circolari non sono fonti del diritto: vincolano solo gli uffici. Discostarsene senza motivo può però essere un sintomo di eccesso di potere, che è la variante con cui la domanda può tornare.
+
+Q EL-D1-5
+T: I regolamenti ministeriali possono essere adottati:
+A: solo quando la legge espressamente li prevede
+B: in ogni materia di competenza del ministero
+C: solo previa deliberazione del Consiglio dei ministri e parere delle Camere
+K: A
+F: bd03a174ef
+S: I regolamenti governativi sono disciplinati dall'art. 17 L. 400/1988 (esecutivi, attuativi, indipendenti, di organizzazione, di delegificazione); quelli ministeriali esistono solo se una legge li prevede. B confonde la competenza amministrativa con il potere normativo, C descrive (male) il procedimento dei regolamenti governativi.
+
+Q EL-D1-6
+T: Ai sensi dell'art. 1, comma 1-ter, della legge 241/1990, i soggetti privati preposti all'esercizio di attività amministrative:
+A: assicurano il rispetto dei criteri e dei principi che reggono l'attività amministrativa
+B: ne sono esentati, perché restano soggetti di diritto privato
+C: li applicano solo se il contratto di affidamento lo prevede
+K: A
+F: e6a23b9301
+S: Il comma 1-ter estende ai privati che esercitano funzioni amministrative gli stessi criteri e principi del comma 1. È il «terzo comma» dell'art. 1 che la Scuola non ha ancora chiesto dopo il 1-bis e il 2-bis.
+
+## D2
+# Già chiesti: potere discrezionale, discrezionalità tecnica (nozione e sindacato),
+# interesse legittimo (nozione e tutela).
+U: 70c21438c8 = SNA11-B3-Q28
+U: 4e9e57206c = SNA11-B3-Q28
+U: 3c30844714 = SNA10-B3-Q29
+U: 82cfa2173b = SNA10-B3-Q29
+U: 0642194cb1 = SNA10-B1-Q30
+U: 92960e06d5 = SNA11-B1-Q31, SNA10-B2-Q30
+U: fce5084bd0 = SNA10-B2-Q30
+
+Q EL-D2-1
+T: Il riparto di giurisdizione fra giudice ordinario e giudice amministrativo si fonda, di regola:
+A: sulla situazione giuridica soggettiva fatta valere in giudizio
+B: sul tipo di domanda proposta dal ricorrente
+C: sulla natura pubblica del soggetto convenuto
+K: A
+F: 770fa642f2, 25ebc64912
+S: Decide la causa petendi (diritto soggettivo o interesse legittimo), non il petitum: diritti al giudice ordinario, interessi legittimi al giudice amministrativo (artt. 103 e 113 Cost.). C è falso: anche la PA può essere convenuta davanti al giudice ordinario.
+
+Q EL-D2-2
+T: L'interesse legittimo si dice pretensivo quando il suo titolare:
+A: intende conservare un bene già acquisito contro un provvedimento sfavorevole
+B: aspira a ottenere un bene della vita attraverso il provvedimento
+C: agisce come ente esponenziale di una categoria
+K: B
+F: 92960e06d5
+S: Pretensivo: ottenere (un'autorizzazione, una concessione). Oppositivo: conservare (contro un esproprio, una revoca). C descrive l'interesse collettivo.
+
+Q EL-D2-3
+T: Il giudice amministrativo può sindacare il merito delle scelte dell'amministrazione:
+A: sempre, quando l'atto impugnato è discrezionale
+B: solo nei casi tassativamente previsti dalla legge, come il giudizio di ottemperanza
+C: in nessun caso
+K: B
+F: c30e6e47c1, 0f766ffbac
+S: Il merito (opportunità e convenienza) è di regola insindacabile; fa eccezione la giurisdizione di merito nei casi dell'art. 134 c.p.a., fra cui l'ottemperanza. A confonde merito e discrezionalità; C dimentica l'eccezione.
+
+Q EL-D2-4
+T: Si parla di accertamento tecnico, e non di discrezionalità tecnica, quando l'amministrazione:
+A: applica regole tecniche certe, come nella misurazione di una distanza
+B: valuta fatti con criteri tecnico-scientifici opinabili
+C: pondera l'interesse pubblico primario con gli interessi privati
+K: A
+F: 5560562d35, 3c30844714
+S: Accertamento tecnico = regole certe, nessun margine. Discrezionalità tecnica = criteri tecnici opinabili (B). Ponderazione di interessi = discrezionalità amministrativa (C). È la terza figura della tabella che la Scuola non ha ancora chiesto.
+
+Q EL-D2-5
+T: L'interesse semplice:
+A: è tutelato davanti al giudice ordinario
+B: coincide con l'interesse diffuso
+C: non riceve tutela giurisdizionale
+K: C
+F: 56f16f87be, 8fb0e4d906
+S: L'interesse semplice è un'aspettativa generica al buon funzionamento dell'amministrazione: nessuna tutela in giudizio. L'interesse diffuso (B) è diverso: diventa tutelabile quando un ente se ne fa portatore.
+
+Q EL-D2-6
+T: Le sentenze del Consiglio di Stato possono essere impugnate davanti alla Corte di cassazione:
+A: solo per motivi inerenti alla giurisdizione
+B: per qualsiasi violazione di legge
+C: solo per difetto di motivazione
+K: A
+F: 3df5b4937e
+S: Art. 111, comma 8, Cost.: contro le decisioni del Consiglio di Stato il ricorso in Cassazione è ammesso per i soli motivi inerenti alla giurisdizione; sui conflitti decidono le sezioni unite.
+
+## D3
+# Già chiesti: gerarchia, enti pubblici economici e non economici, autorità indipendenti,
+# presidente della Provincia.
+U: 9415807e05 = SNA10-B1-Q29
+U: cec226f1df = SNA11-B2-Q29
+U: 76c2a530c4 = SNA11-B2-Q29
+U: 37d763c89b = SNA11-B2-Q30
+U: af73737ae8 = SNA11-B2-Q31
+U: aea756344d = SNA11-B2-Q31
+U: 9aed3e390f = SNA9-B1-Q31
+
+Q EL-D3-1
+T: La delega di competenza fra organi amministrativi:
+A: trasferisce l'esercizio della competenza, non la titolarità, ed è ammessa solo se la legge lo consente
+B: trasferisce la titolarità della competenza all'organo delegato
+C: è sempre ammessa fra organi dello stesso ente
+K: A
+F: eae0f88ff5
+S: La delega sposta l'esercizio e richiede una norma che la consenta. Diversa la delega di firma, in cui l'atto resta del delegante.
+
+Q EL-D3-2
+T: Ai sensi dell'art. 4 del d.lgs. 165/2001, l'adozione degli atti e dei provvedimenti amministrativi spetta:
+A: agli organi di governo
+B: ai dirigenti
+C: al ministro, su proposta dei dirigenti
+K: B
+F: b78cee4cc4
+S: Separazione fra politica e gestione: agli organi di governo l'indirizzo politico-amministrativo e la verifica dei risultati; ai dirigenti atti, provvedimenti e gestione finanziaria, tecnica e amministrativa.
+
+Q EL-D3-3
+T: Di fronte agli atti di competenza dei dirigenti, il ministro:
+A: può avocarli quando lo ritenga opportuno
+B: può revocarli per ragioni di merito
+C: non può revocarli, riformarli, riservarli a sé o avocarli
+K: C
+F: 3746563506
+S: Art. 14, comma 3, d.lgs. 165/2001. In caso di inerzia del dirigente il ministro può fissare un termine e poi nominare un commissario ad acta, ma non sostituirsi direttamente.
+
+Q EL-D3-4
+T: Le agenzie disciplinate dal d.lgs. 300/1999:
+A: svolgono funzioni tecnico-operative di interesse nazionale sotto la vigilanza del ministro
+B: sono autorità indipendenti dall'indirizzo del Governo
+C: sono società di diritto privato a partecipazione pubblica
+K: A
+F: 4787e81e5e, 1597241d82
+S: Le agenzie (artt. 8-9 d.lgs. 300/1999, per esempio le agenzie fiscali) stanno sotto la vigilanza del ministro; le autorità indipendenti no. È la coppia da non confondere dopo la domanda SNA 11 sulle autorità.
+
+Q EL-D3-5
+T: L'atto adottato da un organo relativamente incompetente è:
+A: nullo
+B: annullabile e sanabile con la ratifica dell'organo competente
+C: inesistente e privo di qualunque effetto
+K: B
+F: 6c30788f62
+S: Incompetenza relativa (organo dello stesso settore): annullabilità, sanabile con ratifica. Il difetto assoluto di attribuzione porta invece alla nullità (art. 21-septies).
+
+Q EL-D3-6
+T: Un nuovo ente pubblico può essere istituito:
+A: solo per legge
+B: con decreto del ministro vigilante
+C: con deliberazione del Consiglio dei ministri
+K: A
+F: 2bb0d57e9a
+S: Riserva di legge: nessun nuovo ente pubblico se non per legge (art. 4 L. 70/1975).
+
+## D4
+# Già chiesti (SNA): termine di 30 giorni, comunicazione di avvio, soccorso istruttorio, preavviso di
+# rigetto (10 giorni e motivi nuovi dopo l'annullamento), accordi, SCIA, silenzio assenso e autotutela,
+# diniego tardivo inefficace.
+U: 01be1cb723 = SNA9-B3-Q28
+U: 44c243cc25 = SNA9-B2-Q28
+U: b1b3c20e6c = SNA10-B1-Q31
+U: 5d6d8f85cb = SNA9-B1-Q28
+U: 3c1c6ae2f9 = SNA9-B1-Q28
+U: fb645bfc2f = SNA10-B2-Q31
+U: 19223f53af = SNA9-B2-Q29
+U: feb01637ea = SNA10-B2-Q32
+U: 387fad25f6 = SNA10-B2-Q32
+U: d82eee5172 = SNA9-B2-Q30
+U: d805c900b1 = SNA9-B2-Q30
+U: 12b7bf6967 = SNA10-B1-Q32
+
+Q EL-D4-1
+T: Il termine per la conclusione del procedimento può essere sospeso, per acquisire informazioni o certificazioni che l'amministrazione non possiede e non può acquisire da altre amministrazioni:
+A: una sola volta e per un periodo non superiore a 30 giorni
+B: più volte, fino a un massimo complessivo di 90 giorni
+C: una sola volta e per un periodo non superiore a 60 giorni
+K: A
+F: 244a4ef14e
+S: Art. 2, comma 7: una sola sospensione, al massimo 30 giorni. È uno dei numeri della pagina «30 / 90 / 180» che la Scuola non ha ancora chiesto.
+
+Q EL-D4-2
+T: Il limite massimo di 180 giorni per la conclusione dei procedimenti, fissato dall'art. 2, comma 4, L. 241/1990, non si applica ai procedimenti:
+A: di acquisto della cittadinanza italiana e in materia di immigrazione
+B: di rilascio delle autorizzazioni paesaggistiche
+C: di concessione di contributi economici
+K: A
+F: 1ac19784ff, 03c742b40d
+S: Per esigenze particolari i termini possono arrivare a 180 giorni, ma non oltre; la norma esclude da questo tetto i procedimenti di acquisto della cittadinanza e quelli sull'immigrazione, che possono avere termini più lunghi.
+
+Q EL-D4-3
+T: I portatori di interessi diffusi costituiti in associazioni o comitati, ai quali il provvedimento può recare pregiudizio:
+A: hanno diritto alla comunicazione di avvio del procedimento
+B: possono intervenire nel procedimento, ma non hanno diritto alla comunicazione di avvio
+C: non possono intervenire nel procedimento
+K: B
+F: 50608d5472, a1dd5fb43f
+S: Art. 9: facoltà di intervento anche per associazioni e comitati portatori di interessi diffusi. La comunicazione di avvio (art. 7) spetta invece ai destinatari, a chi deve intervenire per legge e ai soggetti individuati o facilmente individuabili cui il provvedimento può recare pregiudizio.
+
+Q EL-D4-4
+T: Le norme sulla partecipazione al procedimento amministrativo non si applicano:
+A: ai procedimenti a istanza di parte
+B: ai procedimenti che si concludono con un provvedimento sfavorevole
+C: ai procedimenti tributari
+K: C
+F: 1418723ccf
+S: Art. 13: sono esclusi gli atti normativi, amministrativi generali, di pianificazione e programmazione, e i procedimenti tributari, che hanno regole proprie.
+
+Q EL-D4-5
+T: La comunicazione dei motivi ostativi all'accoglimento dell'istanza (art. 10-bis L. 241/1990):
+A: interrompe i termini di conclusione del procedimento, che ricominciano a decorrere da capo
+B: sospende i termini di conclusione del procedimento
+C: non incide sui termini di conclusione del procedimento
+K: B
+F: bd5485319b, 3c1c6ae2f9
+S: Dal 2020 il preavviso di rigetto sospende i termini, che riprendono dopo le osservazioni o alla scadenza dei 10 giorni; prima li interrompeva. È il dettaglio che la Scuola non ha ancora chiesto dopo i 10 giorni (SNA 9).
+N: modifica 2020
+
+Q EL-D4-6
+T: Nella conferenza di servizi semplificata, le amministrazioni che non tutelano interessi ambientali, paesaggistici, culturali o della salute rendono le proprie determinazioni entro:
+A: 30 giorni
+B: 45 giorni
+C: 90 giorni
+K: A
+F: 7984d26fee, cc8ce49e6f
+S: Dopo il d.l. 19/2026 (convertito dalla L. 50/2026) i termini sono 30 giorni, 60 per gli interessi sensibili; prima erano 45 e 90. Le opzioni B e C sono i vecchi termini, la trappola più probabile se la domanda esce.
+N: d.l. 19/2026
+
+Q EL-D4-7
+T: Nella conferenza di servizi semplificata, la mancata comunicazione della determinazione entro il termine, o un dissenso privo di motivazione:
+A: equivale ad assenso senza condizioni
+B: equivale a dissenso
+C: obbliga l'amministrazione procedente a convocare la conferenza simultanea
+K: A
+F: 618dcd8d68
+S: Le determinazioni devono essere congruamente motivate; il silenzio o il dissenso non motivato valgono assenso senza condizioni, e la procedente chiude con la determinazione positiva.
+
+Q EL-D4-8
+T: Quando un'amministrazione deve rendere a un'altra amministrazione un assenso, un concerto o un nulla osta e non lo comunica entro il termine previsto:
+A: l'assenso si intende acquisito
+B: il procedimento resta sospeso fino alla pronuncia
+C: l'amministrazione procedente deve rivolgersi al giudice amministrativo
+K: A
+F: 2a0bc7ab1b
+S: Silenzio assenso fra amministrazioni (art. 17-bis): 30 giorni, 90 per le amministrazioni preposte a interessi sensibili; scaduto il termine, l'assenso è acquisito.
+
+Q EL-D4-9
+T: Nei rapporti con le pubbliche amministrazioni e con i gestori di pubblici servizi, i certificati attestanti stati, qualità personali e fatti:
+A: sono sempre sostituiti da dichiarazioni sostitutive o dall'acquisizione d'ufficio dei dati
+B: devono essere prodotti dall'interessato in originale
+C: sono ammessi solo se rilasciati nei sei mesi precedenti
+K: A
+F: bc62aa593f
+S: Dal 2012 i certificati valgono solo nei rapporti fra privati; con le PA si usano le dichiarazioni sostitutive (artt. 46-47 d.P.R. 445/2000) oppure la PA acquisisce i dati d'ufficio.
+
+Q EL-D4-10
+T: Gli accordi integrativi o sostitutivi del provvedimento (art. 11 L. 241/1990) devono essere stipulati:
+A: per atto pubblico notarile
+B: per atto scritto, a pena di nullità, salvo che la legge disponga altrimenti
+C: anche in forma orale, se l'amministrazione lo ritiene opportuno
+K: B
+F: c40e3a55f0
+S: Forma scritta a pena di nullità, motivazione, principi del codice civile in quanto compatibili; recesso unilaterale per sopravvenuti motivi di interesse pubblico con indennizzo; giurisdizione esclusiva del giudice amministrativo.
+
+## D5
+# Già chiesti (SNA): imperatività, esecutorietà, efficacia degli atti cautelari e urgenti, ordinanze
+# contingibili e urgenti, incompetenza assoluta, conferma, annullamento d'ufficio (interesse pubblico).
+U: 07dd533940 = SNA11-B1-Q30
+U: 151a5971ba = SNA8-B3-Q19
+U: 17bf316227 = SNA8-B3-Q19
+U: 451ec14a09 = SNA9-B1-Q30
+U: 5e501b605d = SNA10-B3-Q30
+U: b93b71d5e8 = SNA9-B1-Q29
+U: e5a697b72e = SNA8-B3-Q20
+U: b349cf0f20 = SNA9-B3-Q29
+U: 83e73da3bb = SNA9-B3-Q29
+
+Q EL-D5-1
+T: L'annullamento d'ufficio dei provvedimenti di autorizzazione o di attribuzione di vantaggi economici, illegittimi, è possibile entro un termine ragionevole e comunque non superiore a:
+A: 6 mesi dall'adozione
+B: 12 mesi dall'adozione
+C: 18 mesi dall'adozione
+K: A
+F: 5ba3c8eade, 83e73da3bb
+S: Il termine massimo è oggi di 6 mesi (L. 182/2025); 12 e 18 mesi sono i termini delle versioni precedenti, che molti manuali riportano ancora. Vale anche per gli atti formati per silenzio assenso.
+N: L. 182/2025
+
+Q EL-D5-2
+T: Quale figura sintomatica dell'eccesso di potere richiede il confronto con altri casi uguali trattati in modo diverso?
+A: l'ingiustizia manifesta
+B: lo sviamento di potere
+C: la disparità di trattamento
+K: C
+F: d18f44284b, e217938db7, f7cb89b07e
+S: La disparità di trattamento presuppone il confronto con casi analoghi; l'ingiustizia manifesta si configura verso un solo soggetto, senza confronto; lo sviamento è l'uso del potere per un fine diverso da quello per cui è attribuito.
+
+Q EL-D5-3
+T: Ai sensi dell'art. 21-octies, comma 2, L. 241/1990, non è annullabile il provvedimento adottato in violazione di norme sul procedimento o sulla forma quando:
+A: per la natura vincolata del provvedimento, è palese che il suo contenuto dispositivo non avrebbe potuto essere diverso
+B: l'interessato non lo ha contestato entro 30 giorni dalla comunicazione
+C: l'amministrazione lo ha confermato con un atto successivo
+K: A
+F: c9cfc3fd92
+S: È la regola dei vizi non invalidanti; vale anche per la mancata comunicazione di avvio se la PA dimostra in giudizio che il contenuto non poteva essere diverso. Dal 2020 non vale per la mancanza del preavviso di rigetto.
+
+Q EL-D5-4
+T: La revoca del provvedimento amministrativo:
+A: opera ex nunc e riguarda provvedimenti ad efficacia durevole
+B: opera ex tunc ed elimina i vizi di legittimità dell'atto
+C: è ammessa solo entro 6 mesi dall'adozione del provvedimento
+K: A
+F: f6d4a97da7, 42b2b6ea7b, d34067b1e7
+S: La revoca (art. 21-quinquies) colpisce l'opportunità, non la legittimità: effetti dal momento della revoca, solo per atti che durano nel tempo, con indennizzo se ci sono pregiudizi. Il limite dei 6 mesi riguarda l'annullamento d'ufficio.
+
+Q EL-D5-5
+T: L'atto meramente confermativo, adottato senza una nuova istruttoria:
+A: è un nuovo provvedimento autonomamente impugnabile
+B: non riapre i termini per impugnare il provvedimento precedente
+C: sana i vizi del provvedimento confermato
+K: B
+F: 84a94254a6, e5a697b72e
+S: La conferma propria nasce da una nuova istruttoria ed è un nuovo provvedimento impugnabile (SNA 8 l'ha chiesta). L'atto meramente confermativo richiama il precedente senza riesame: non riapre i termini.
+
+Q EL-D5-6
+T: L'azione per l'accertamento della nullità di un provvedimento amministrativo si propone, di regola, entro:
+A: 60 giorni
+B: 180 giorni
+C: un anno
+K: B
+F: b4cc44ab2d
+S: Art. 31, comma 4, c.p.a.: 180 giorni; la nullità è comunque rilevabile d'ufficio dal giudice. I 60 giorni sono il termine per l'azione di annullamento, l'anno quello dell'azione contro il silenzio.
+
+Q EL-D5-7
+T: La convalida di un provvedimento annullabile:
+A: è ammessa, sussistendone le ragioni di interesse pubblico, entro un termine ragionevole
+B: è ammessa anche per i provvedimenti nulli
+C: spetta esclusivamente al giudice amministrativo
+K: A
+F: f58954c642
+S: Art. 21-nonies, comma 2: la PA elimina il vizio dell'atto annullabile con un nuovo provvedimento. L'atto nullo non si convalida; al più si converte, se ha i requisiti di un altro atto.
+
+## D6
+# Già chiesti (SNA): accesso difensivo, responsabilità del RPCT.
+U: 5dc589e499 = SNA10-B3-Q32
+U: b9a8c7b354 = SNA11-B2-Q32
+U: 290e32a699 = SNA11-B2-Q32
+
+Q EL-D6-1
+T: L'accesso civico generalizzato (art. 5, comma 2, d.lgs. 33/2013) spetta:
+A: a chiunque, senza obbligo di motivare la richiesta
+B: solo a chi ha un interesse diretto, concreto e attuale
+C: solo ai cittadini residenti nel territorio dell'amministrazione
+K: A
+F: c468a59794, 9d968b51da
+S: Il generalizzato (come il civico semplice) spetta a chiunque e non va motivato; l'interesse diretto, concreto e attuale e la motivazione sono i requisiti dell'accesso documentale della L. 241/1990 (B).
+
+Q EL-D6-2
+T: Il divieto di pantouflage (art. 53, comma 16-ter, d.lgs. 165/2001) impedisce ai dipendenti che hanno esercitato poteri autoritativi o negoziali di lavorare per i privati destinatari di quei poteri per:
+A: 1 anno dalla cessazione del servizio
+B: 3 anni dalla cessazione del servizio
+C: 5 anni dalla cessazione del servizio
+K: B
+F: 659d72d928
+S: Tre anni dalla cessazione del rapporto. È una delle misure anticorruzione della scheda non ancora chieste, insieme a rotazione, inconferibilità e whistleblowing.
+
+Q EL-D6-3
+T: Ai sensi del d.lgs. 39/2013, l'incarico conferito in violazione delle disposizioni sull'inconferibilità:
+A: è nullo
+B: è valido, ma l'interessato decade se non opta fra gli incarichi
+C: è annullabile su richiesta dell'ANAC entro 6 mesi
+K: A
+F: ad073b9789
+S: Inconferibilità = nullità dell'incarico; incompatibilità = decadenza se l'interessato non sceglie (B). La coppia è la tipica trappola «due istituti veri, effetti scambiati».
+
+Q EL-D6-4
+T: Contro il diniego di accesso documentale opposto da un'amministrazione statale, in alternativa al ricorso al TAR, l'interessato può chiedere il riesame:
+A: al Responsabile della prevenzione della corruzione e della trasparenza
+B: all'ANAC
+C: alla Commissione per l'accesso ai documenti amministrativi
+K: C
+F: 42af497037, c99d57f4bf
+S: Per l'accesso documentale il riesame spetta alla Commissione per l'accesso (amministrazioni statali) o al difensore civico (regioni ed enti locali), entro 30 giorni. Il RPCT riesamina invece l'accesso civico (A).
+
+## D7
+# Già chiesti (SNA): demanio e acque, organismo di diritto pubblico, società a partecipazione
+# pubblica, soccorso istruttorio negli appalti (SNA 8). Esclusi per scelta i dettagli tecnici dei
+# contratti pubblici (soglie, termini di gara), che l'analisi considera nicchia.
+U: 6a2fd374dc = SNA11-B3-Q30
+U: c51bf62f87 = SNA11-B3-Q30
+U: 90124a74a9 = SNA8-B3-Q24
+U: c357da2b5f = SNA8-B3-Q24
+U: 0bf8c2ea3d = SNA9-B2-Q31
+U: 3a1b2c6ec9 = SNA9-B2-Q31
+U: 07b12c097c = SNA9-B3-Q31
+U: eb866eb271 = SNA9-B3-Q31
+
+Q EL-D7-1
+T: Gli edifici destinati a sede di pubblici uffici, con i loro arredi, appartengono:
+A: al demanio pubblico necessario
+B: al patrimonio indisponibile
+C: al patrimonio disponibile
+K: B
+F: a398fa6c54, c51bf62f87
+S: Art. 826 c.c.: patrimonio indisponibile, vincolato alla destinazione. È il completamento naturale della domanda SNA 11 sul demanio: le acque sono demanio, gli uffici no.
+
+Q EL-D7-2
+T: Perché sia legittimo l'affidamento in house, la società controllata deve svolgere a favore degli enti che la controllano:
+A: oltre l'80% del proprio fatturato
+B: almeno il 51% del proprio fatturato
+C: la totalità della propria attività
+K: A
+F: d7ff732a6a
+S: Tre requisiti: controllo analogo (anche congiunto), oltre l'80% del fatturato per compiti affidati dagli enti soci, niente capitali privati salvo quelli imposti dalla legge senza poteri di controllo.
+
+Q EL-D7-3
+T: Nel codice dei contratti pubblici (d.lgs. 36/2023), il principio della fiducia riguarda:
+A: la fiducia nell'azione legittima, trasparente e corretta dell'amministrazione e dei suoi funzionari
+B: l'affidamento degli operatori economici nella stabilità dei prezzi contrattuali
+C: il rapporto fiduciario fra il responsabile del progetto e il dirigente che lo nomina
+K: A
+F: f0c4803539
+S: Il codice si apre con i principi del risultato (art. 1) e della fiducia (art. 2), pensato per valorizzare l'iniziativa e l'autonomia decisionale dei funzionari. B evoca la conservazione dell'equilibrio contrattuale, che è un altro principio.
+
+Q EL-D7-4
+T: Nel codice dei contratti pubblici del 2023 l'acronimo RUP indica:
+A: il responsabile unico del procedimento
+B: il responsabile unico del progetto
+C: il responsabile dell'ufficio procedimenti
+K: B
+F: fd9d439009
+S: Art. 15 d.lgs. 36/2023: «responsabile unico del progetto», non più «del procedimento» come nel codice del 2016. Domanda breve, ma la trappola è proprio la vecchia denominazione.
+
+## D8
+# Già chiesti (SNA): incarichi di collaborazione, spoils system (90 giorni), mansioni superiori e
+# reclutamento (SNA 8).
+U: be0bae2975 = SNA11-B1-Q32
+U: 732e2f3574 = SNA11-B1-Q32
+U: 2e6713a89f = SNA11-B3-Q29
+U: 2dab5777e4 = SNA11-B3-Q29
+U: 1cf1f2c29f = SNA8-B3-Q21
+U: c86eacc137 = SNA8-B3-Q21
+U: 5d97d54d4e = SNA8-B3-Q22
+
+Q EL-D8-1
+T: Nel lavoro pubblico privatizzato, sono devolute al giudice amministrativo le controversie relative:
+A: al licenziamento disciplinare del dipendente
+B: alle procedure concorsuali per l'assunzione
+C: all'attribuzione di mansioni superiori
+K: B
+F: 463197d4f5, 53a1f574b6, 90c4565c07
+S: Dal 1993 il rapporto di lavoro è privatizzato e le liti vanno al giudice ordinario del lavoro (art. 63 d.lgs. 165/2001); restano al giudice amministrativo i concorsi e il personale in regime di diritto pubblico.
+
+Q EL-D8-2
+T: La violazione delle norme sull'assunzione a tempo determinato nelle pubbliche amministrazioni:
+A: comporta la conversione del rapporto a tempo indeterminato
+B: non comporta la conversione del rapporto, ma dà diritto al risarcimento del danno
+C: comporta la nullità del rapporto senza alcun risarcimento
+K: B
+F: afe4b60cc3, 54a97c4e2b
+S: Per il fabbisogno ordinario si assume solo a tempo indeterminato e per concorso; l'uso illegittimo dei contratti flessibili non converte il rapporto (sarebbe un accesso senza concorso), ma dà diritto al risarcimento e fa scattare la responsabilità del dirigente.
+
+Q EL-D8-3
+T: Al dipendente pubblico legittimamente adibito a mansioni superiori spetta:
+A: l'inquadramento nella qualifica superiore dopo 6 mesi
+B: la differenza di trattamento economico, ma non l'inquadramento superiore
+C: il solo trattamento della qualifica di appartenenza
+K: B
+F: fcfb37f389, c86eacc137
+S: Art. 52 d.lgs. 165/2001: le mansioni superiori danno diritto alla differenza retributiva per il periodo, mai alla promozione. SNA 8 ha chiesto la durata (6 mesi, 12 se le procedure sono avviate): questo è l'altro lato.
+
+Q EL-D8-4
+T: Secondo la L. 119/2026, l'accesso alla seconda fascia della dirigenza statale avviene per il 50% dei posti tramite:
+A: corso-concorso della Scuola nazionale dell'amministrazione
+B: concorso pubblico per esami
+C: sviluppo di carriera dei funzionari interni
+K: A
+F: c7c0251dec
+S: Seconda fascia: 50% corso-concorso SNA, 20% concorso pubblico, 30% sviluppo di carriera interno. Domanda di attualità che riguarda proprio il concorso che stai facendo.
+N: L. 119/2026
+
+Q EL-D8-5
+T: L'omessa vigilanza colpevole del dirigente sul rispetto, da parte del personale assegnato, degli standard quantitativi e qualitativi comporta:
+A: la decurtazione della retribuzione di risultato fino all'80%
+B: il licenziamento disciplinare
+C: l'impossibilità di rinnovo dell'incarico
+K: A
+F: db0967f7e4, 00e5e826a2
+S: Art. 21, comma 1-bis, d.lgs. 165/2001: decurtazione fino all'80%. Il mancato raggiungimento degli obiettivi porta invece all'impossibilità di rinnovo dell'incarico (C), che Formez ha già chiesto.
+
+Q EL-D8-6
+T: Gli incarichi dirigenziali a soggetti esterni all'amministrazione (art. 19, comma 6, d.lgs. 165/2001) possono essere conferiti entro il limite:
+A: del 5% della dotazione di ciascuna fascia
+B: del 20% della dotazione della prima fascia e del 15% della seconda
+C: del 10% della dotazione della prima fascia e dell'8% della seconda
+K: C
+F: cff6faf1e7, 2dab5777e4
+S: 10% prima fascia, 8% seconda. Sta nella stessa riga «da non confondere» dello spoils system, già chiesto in SNA 11.
+
+## D9
+# Già chiesti (SNA): prescrizione del danno erariale (due volte), controllo preventivo di
+# legittimità (due volte), sezioni del DEF (SNA 8).
+U: b37a2f79fb = SNA11-B3-Q31, SNA8-B3-Q26
+U: 84a84cd72b = SNA11-B3-Q31, SNA8-B3-Q26
+U: fc713653df = SNA11-B3-Q32, SNA8-B3-Q27
+U: 2ee3779687 = SNA11-B3-Q32
+U: f45b3055c8 = SNA8-B3-Q23
+
+Q EL-D9-1
+T: Dopo la L. 1/2026, per i danni erariali causati senza dolo, il risarcimento a carico del responsabile:
+A: non può superare il 30% del pregiudizio accertato né il doppio della retribuzione annua lorda
+B: non può superare il 50% del pregiudizio accertato
+C: è dovuto per l'intero, senza limiti
+K: A
+F: 54027b562e, ed840acd63
+S: Doppio tetto: al massimo il 30% del danno e comunque non oltre il doppio della retribuzione annua lorda. Non vale per il dolo e l'illecito arricchimento. La prescrizione (5 anni) è rimasta invariata.
+N: L. 1/2026
+
+Q EL-D9-2
+T: Il debito per responsabilità amministrativo-contabile si trasmette agli eredi:
+A: sempre, nei limiti dell'asse ereditario
+B: mai
+C: solo in caso di illecito arricchimento del dante causa e di conseguente arricchimento degli eredi
+K: C
+F: ecb8b98a08
+S: La responsabilità erariale ha carattere personale: passa agli eredi solo se il dante causa si è illecitamente arricchito e gli eredi ne hanno tratto vantaggio.
+
+Q EL-D9-3
+T: La responsabilità amministrativo-contabile del dipendente pubblico presuppone, sul piano soggettivo:
+A: il dolo o la colpa grave
+B: anche la colpa lieve
+C: il solo dolo
+K: A
+F: af73ecc878
+S: Presupposti: rapporto di servizio, danno erariale, dolo o colpa grave, nesso causale. La L. 1/2026 ha tipizzato la colpa grave, senza estendere la responsabilità alla colpa lieve.
+
+Q EL-D9-4
+T: Il reato di abuso d'ufficio (art. 323 c.p.):
+A: è stato abrogato nel 2024
+B: è stato trasformato in illecito amministrativo
+C: è punito solo se il fatto è commesso con violenza o minaccia
+K: A
+F: 9732fcaea2, ec05da2eaa
+S: Abrogato dalla L. 114/2024; la Corte costituzionale ha ritenuto legittima l'abrogazione (sent. n. 95/2025). Nello stesso anno è stato introdotto il peculato per distrazione (indebita destinazione, art. 314-bis c.p.).
+N: L. 114/2024
+
+Q EL-D9-5
+T: Dopo la riforma del 2012, il reato di concussione (art. 317 c.p.) si configura:
+A: solo quando il pubblico ufficiale costringe taluno a dare o promettere utilità
+B: sia per costrizione sia per induzione
+C: solo quando il pubblico ufficiale induce taluno a dare o promettere utilità
+K: A
+F: 763d60430a, ec05da2eaa
+S: Dal 2012 la concussione è solo per costrizione; l'induzione è un reato autonomo, l'induzione indebita a dare o promettere utilità (art. 319-quater), in cui risponde anche chi dà.
+
+Q EL-D9-6
+T: Nel sistema dei controlli interni delle amministrazioni, le verifiche di regolarità amministrativa e contabile:
+A: sono svolte dalla stessa struttura che effettua il controllo di gestione
+B: non possono essere affidate alle strutture addette al controllo di gestione, alla valutazione dei dirigenti e al controllo strategico
+C: spettano esclusivamente alla Corte dei conti
+K: B
+F: d2eb1f8982, bcfb0cb6a9
+S: Separazione delle funzioni: chi misura i risultati non controlla la legittimità. La Corte dei conti esercita controlli esterni, non quelli interni.
+
+## D10
+# Già chiesti (SNA): tutela cautelare, art. 113 Cost., incompetenza del giudice (SNA 8), ricorso
+# straordinario (parere vincolante), diritti soggettivi davanti al giudice amministrativo, azione
+# contro il silenzio.
+U: 7b9358a17d = SNA10-B3-Q31
+U: a72097158e = SNA10-B3-Q31
+U: 97b2c44a64 = SNA11-B1-Q29
+U: 3633a6937a = SNA8-B3-Q25
+U: f959c90557 = SNA8-B3-Q25
+U: fd15f13e84 = SNA9-B1-Q32
+U: c48103876b = SNA9-B1-Q32
+U: 0c20708aed = SNA9-B2-Q32
+U: 43f6bf48d6 = SNA9-B2-Q32
+U: 7323a91e54 = SNA9-B3-Q32
+U: 832044305a = SNA9-B3-Q32
+
+Q EL-D10-1
+T: L'azione di condanna al risarcimento del danno per lesione di interessi legittimi (art. 30 c.p.a.) può essere proposta, anche in via autonoma, entro:
+A: 60 giorni
+B: 120 giorni
+C: 5 anni
+K: B
+F: d420129ba1
+S: 120 giorni dal fatto o dalla conoscenza del provvedimento, anche senza chiedere l'annullamento; il giudice esclude i danni che si sarebbero evitati con l'ordinaria diligenza, anche usando gli strumenti di tutela. 60 giorni è il termine dell'annullamento.
+
+Q EL-D10-2
+T: Il ricorso gerarchico:
+A: si propone entro 30 giorni e può essere fondato su motivi di legittimità e di merito
+B: si propone entro 120 giorni ed è ammesso solo per motivi di legittimità
+C: è alternativo al ricorso giurisdizionale al TAR
+K: A
+F: d4ddf64530, 32bd33b312, 620994ad77
+S: B e C descrivono il ricorso straordinario al Presidente della Repubblica (120 giorni, solo legittimità, alternativo al TAR). Il merito si fa valere con il ricorso gerarchico.
+
+Q EL-D10-3
+T: Se il ricorso gerarchico non è deciso entro 90 giorni dalla presentazione:
+A: si intende accolto
+B: si intende respinto, e il ricorrente può rivolgersi al giudice
+C: il termine si proroga di diritto di altri 90 giorni
+K: B
+F: 1ecce5d0cd, bc08bd5b74
+S: È un caso di silenzio rigetto previsto dalla legge: decorsi 90 giorni il ricorso si intende respinto e si può ricorrere al TAR o con ricorso straordinario.
+
+Q EL-D10-4
+T: Nel ricorso straordinario al Presidente della Repubblica, i controinteressati che preferiscono la sede giurisdizionale possono chiederne la trasposizione entro:
+A: 30 giorni
+B: 60 giorni
+C: 120 giorni
+K: B
+F: 620994ad77
+S: Il ricorso straordinario è alternativo al TAR; i controinteressati possono chiedere entro 60 giorni la trasposizione in sede giurisdizionale.
+
+Q EL-D10-5
+T: Il giudizio di ottemperanza:
+A: rientra fra i casi di giurisdizione di merito del giudice amministrativo
+B: si propone entro 60 giorni dal passaggio in giudicato della sentenza
+C: è attribuito al giudice ordinario
+K: A
+F: 3970f621b9, 90c914a655
+S: L'ottemperanza è il caso tipico di giurisdizione di merito (art. 134 c.p.a.) e si propone entro la prescrizione dell'actio iudicati, 10 anni.
+
+Q EL-D10-6
+T: Nei casi di estrema gravità e urgenza, che non consentono di attendere la camera di consiglio, il giudice amministrativo può concedere misure cautelari:
+A: con decreto monocratico del presidente
+B: solo con sentenza in forma semplificata
+C: solo previo versamento di una cauzione da parte del ricorrente
+K: A
+F: 54bccf7a02, 9aef9fd9fc
+S: Art. 56 c.p.a.: decreto presidenziale. La sentenza semplificata (art. 60) è una possibilità, non un presupposto; la cauzione è facoltativa.
+
+Q EL-D10-7
+T: L'appello al Consiglio di Stato contro una sentenza del TAR notificata si propone entro:
+A: 30 giorni dalla notifica
+B: 60 giorni dalla notifica
+C: 6 mesi dalla notifica
+K: B
+F: 3060590785
+S: Art. 92 c.p.a.: 60 giorni dalla notifica; se la sentenza non è notificata, 6 mesi dalla pubblicazione (C mescola le due regole).
+
+Q EL-D10-8
+T: Il ricorso per l'efficienza delle amministrazioni e dei concessionari di servizi pubblici (d.lgs. 198/2009) serve a:
+A: ottenere il risarcimento del danno subito dagli utenti
+B: ripristinare il corretto svolgimento della funzione o la corretta erogazione del servizio
+C: far valere la responsabilità erariale dei dirigenti davanti alla Corte dei conti
+K: B
+F: f84fe23dcc, 45256b72ed
+S: La «class action pubblica» tutela il buon andamento: ripristina il corretto svolgimento della funzione o del servizio, senza risarcimento.

@@ -22,7 +22,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
-from sna12 import simulazioni  # noqa: E402
+from sna12 import elaborate, simulazioni  # noqa: E402
 from sna12.figure import attach  # noqa: E402
 from sna12.ripassi import iter_points, parse_ripasso  # noqa: E402
 
@@ -73,6 +73,21 @@ def to_fragment(page):
     return "%s\n%s\n%s" % (title, style, body.strip())
 
 
+def add_elaborate(sim, volumes):
+    """Aggiunge alle simulazioni la banca «Elaborate» (elaborate/*.txt) e i punti già usciti."""
+    point_ids = {p["id"] for v in volumes for sc in v["schede"] for p in iter_points(sc["b"])}
+    codes = {sc["code"] for v in volumes for sc in v["schede"] if sc.get("code")}
+    areas = {a[0] for a in sim["areas"]}
+    qs, usc = elaborate.load(os.path.join(HERE, "elaborate"), point_ids, codes, areas)
+    sim["q"].extend(qs)
+    sim["usc"] = usc
+    by = {}
+    for q in qs:
+        by[q["a"]] = by.get(q["a"], 0) + 1
+    return "Banca Elaborate: %d domande%s; punti segnati come già usciti: %d" % (
+        len(qs), (" (" + ", ".join("%s %d" % kv for kv in sorted(by.items())) + ")") if by else "", len(usc))
+
+
 def report(volumes):
     lines = ["Volumi letti (esclusi: %s)" % ", ".join(ESCLUSI), ""]
     lines.append("%-36s %6s %6s %8s %8s %7s %6s" % ("file", "schede", "punti", "essenz.", "tabelle", "novità", "numeri"))
@@ -108,6 +123,11 @@ def main(argv=None):
     sim = None if args.senza_simulazioni else simulazioni.build(args.materiali)
     print()
     print(simulazioni.report(sim) if not args.senza_simulazioni else "Simulazioni: escluse (--senza-simulazioni).")
+    if sim:
+        try:
+            print(add_elaborate(sim, volumes))
+        except elaborate.ElaborateError as e:
+            sys.exit("Banca Elaborate: %s" % e)
     out = args.out or os.path.join(HERE, "dist", "ripasso-sna12%s.html" % ("-artifact" if args.artifact else ""))
     page = render_html(build_data(volumes, sim), hosted=args.artifact)
     os.makedirs(os.path.dirname(os.path.abspath(out)), exist_ok=True)

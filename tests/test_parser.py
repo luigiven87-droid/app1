@@ -10,7 +10,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
 from build import ESCLUSI, collect  # noqa: E402
-from sna12 import quesiti, simulazioni  # noqa: E402
+from sna12 import elaborate, quesiti, simulazioni  # noqa: E402
 from sna12.common import md_inline  # noqa: E402
 from sna12.ripassi import iter_points  # noqa: E402
 
@@ -183,6 +183,45 @@ class TestQuesiti(unittest.TestCase):
         self.assertEqual(sum(plans["H1"]["aree"].values()), 60)
         for p in plans.values():
             self.assertEqual(sum(p["aree"].values()), p["n"], p["id"])
+
+
+class TestElaborate(unittest.TestCase):
+    """Banca «Elaborate»: formato, chiavi, punti del ripasso citati."""
+
+    @classmethod
+    def setUpClass(cls):
+        if not glob.glob(os.path.join(REAL, "RIPASSO_*.md")):
+            raise unittest.SkipTest("nessun RIPASSO_*.md in materiali/")
+        vols = collect(REAL)
+        cls.points = {p["id"] for v in vols for sc in v["schede"] for p in iter_points(sc["b"])}
+        cls.codes = {sc["code"] for v in vols for sc in v["schede"] if sc.get("code")}
+        areas = {a[0] for a in simulazioni.AREAS}
+        cls.qs, cls.usc = elaborate.load(os.path.join(ROOT, "elaborate"), cls.points, cls.codes, areas)
+
+    def test_domande(self):
+        self.assertGreater(len(self.qs), 50)
+        for q in self.qs:
+            self.assertTrue(q["id"].startswith("EL-"), q["id"])
+            self.assertEqual(q["inc"], "el")
+            letters = [o[0] for o in q["o"]]
+            self.assertEqual(letters, list("ABCDE"[:len(letters)]), q["id"])
+            self.assertIn(q["k"], letters, q["id"])
+            texts = [o[1] for o in q["o"]]
+            self.assertEqual(len(set(texts)), len(texts), q["id"])
+            self.assertNotIn(q["q"], texts, q["id"])
+            if q["a"] != "inglese":
+                self.assertTrue(q["cite"] and all(c in self.points for c in q["cite"]), q["id"])
+
+    def test_uscite(self):
+        self.assertTrue(all(re.match(r"SNA\d+-B\d-Q\d+$", c) for v in self.usc.values() for c in v))
+
+    def test_errori_di_formato(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            with open(os.path.join(d, "x.txt"), "w", encoding="utf-8") as f:
+                f.write("@area diritto_amministrativo\n## D4\nQ EL-X-1\nT: domanda\nA: a\nB: b\nC: c\nK: D\nF: zzz\nS: s\n")
+            with self.assertRaises(elaborate.ElaborateError):
+                elaborate.load(d, self.points, self.codes, {"diritto_amministrativo"})
 
 
 class TestInline(unittest.TestCase):
