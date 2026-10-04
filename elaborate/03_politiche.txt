@@ -1,0 +1,401 @@
+# Analisi delle politiche pubbliche — domande elaborate (non d'archivio)
+@area politiche_pubbliche
+
+## P1
+# Già chiesti (SNA): interventi del dopoguerra, policy transfer, target groups, policy network (due
+# volte), governance, issue network, burocrati di strada.
+U: 3ae5ffcffc = SNA10-B1-Q50
+U: 7f9d6a2c3c = SNA10-B2-Q51
+U: f233457ade = SNA11-B1-Q50
+U: ebfd5faee5 = SNA11-B1-Q50
+U: 8e23b88c81 = SNA11-B3-Q54, SNA9-B3-Q52
+U: 2103ddd05e = SNA11-B3-Q54, SNA9-B3-Q52
+U: 1385440f56 = SNA9-B1-Q50
+U: 0e1578748c = SNA9-B1-Q50
+U: 56786d127c = SNA9-B1-Q54
+U: 78949a696e = SNA9-B1-Q54
+U: 0a0ae72f8e = SNA9-B2-Q51
+U: bce580c088 = SNA9-B2-Q51
+
+Q EL-P1-1
+T: In una politica antinquinamento che impone limiti alle emissioni delle imprese, i residenti delle zone interessate sono:
+A: i gruppi destinatari della politica
+B: i beneficiari finali della politica
+C: i promotori della politica
+K: B
+F: 61efe61f35, f233457ade
+S: Destinatari = chi deve cambiare comportamento (le imprese); beneficiari finali = chi trae vantaggio dal cambiamento (i residenti). SNA 11 ha chiesto la definizione dei target groups: la distinzione con i beneficiari è il passo successivo.
+
+Q EL-P1-2
+T: Una comunità epistemica (Haas) è:
+A: una rete aperta e instabile, a geometria variabile, con molti attori
+B: la concertazione stabile fra Stato, sindacati e organizzazioni imprenditoriali
+C: una rete ristretta di esperti che condividono conoscenze, credenze causali e valori
+K: C
+F: 1a880f3650
+S: A è l'issue network di Heclo (uscito in SNA 9), B il neocorporativismo. La comunità epistemica è fatta di esperti.
+
+Q EL-P1-3
+T: Il «triangolo di ferro», nell'analisi delle reti di policy, lega:
+A: una commissione parlamentare, un'agenzia amministrativa e un gruppo di interesse
+B: il governo, i sindacati e le organizzazioni imprenditoriali
+C: gli esperti, i giornalisti e i partiti
+K: A
+F: 4cc5ae2f10
+S: Figura nata negli Stati Uniti: rete chiusa a tre lati che controlla un settore di policy. B è il neocorporativismo.
+
+Q EL-P1-4
+T: Nel continuum di Marsh e Rhodes, la policy community si distingue dall'issue network perché è:
+A: una rete aperta, instabile e a geometria variabile
+B: una rete chiusa e stabile, con pochi attori che condividono valori
+C: una rete composta esclusivamente da attori pubblici
+K: B
+F: 9cd8fe1d14, 56786d127c
+S: Ai due estremi del continuum: policy community (chiusa, stabile, pochi attori) e issue network (A). C è sbagliata per tutte le reti di policy, che mescolano attori pubblici e privati.
+
+Q EL-P1-5
+T: Nella tipologia degli attori delle politiche pubbliche proposta da Dente, accanto a politici, burocrati ed esperti figurano:
+A: i magistrati e i giornalisti
+B: gli elettori e i partiti
+C: i portatori di interessi speciali e i portatori di interessi generali
+K: C
+F: 304a57243d, d575a94163
+S: Cinque tipi di attori: politici, burocrati, esperti, portatori di interessi speciali, portatori di interessi generali. Le risorse che usano sono politiche, economiche, giuridiche e cognitive.
+
+## P2
+# Già chiesti (SNA): policy design, politiche redistributive, regolative e distributive (SNA 8),
+# classificazione degli strumenti, strumenti sostanziali e procedurali, nudge.
+U: d221c524d2 = SNA10-B2-Q50
+U: c1bdfc520d = SNA10-B2-Q50
+U: 40a9fe14b7 = SNA11-B2-Q50
+U: 931baf2af8 = SNA11-B2-Q50
+U: 02383f66b8 = SNA11-B3-Q50
+U: 83f3672b88 = SNA11-B3-Q50
+U: 61db08488d = SNA11-B3-Q52
+U: 45c29e5ba7 = SNA8-B3-Q43
+U: 3508dbde74 = SNA8-B3-Q43
+U: 3f6331d2ce = SNA9-B1-Q51
+U: 41c8c35681 = SNA9-B2-Q52
+U: fb8f11cf9e = SNA9-B2-Q52
+
+Q EL-P2-1
+T: Nella classificazione di Lowi, le politiche costitutive:
+A: trasferiscono risorse da un gruppo sociale a un altro
+B: stabiliscono regole sulle regole: istituzioni, procedure e competenze
+C: attribuiscono benefici a destinatari specifici, con costi dispersi sulla collettività
+K: B
+F: 625ea1469f
+S: Di Lowi sono uscite distributive (SNA 8), regolative e redistributive (SNA 11): manca solo la quarta. A sono le redistributive, C le distributive.
+
+Q EL-P2-2
+T: Secondo la tipologia di Wilson, una politica con benefici concentrati e costi diffusi è detta:
+A: clientelare
+B: imprenditoriale
+C: maggioritaria
+K: A
+F: 03958c7eae
+S: Benefici concentrati e costi diffusi: si mobilitano i beneficiari organizzati (clientelare). Imprenditoriale = benefici diffusi e costi concentrati; maggioritaria = benefici e costi diffusi.
+
+Q EL-P2-3
+T: Nella tipologia di Wilson, una politica con benefici diffusi e costi concentrati, per essere adottata, richiede tipicamente:
+A: l'iniziativa dei soli beneficiari organizzati
+B: nessuna mobilitazione particolare
+C: un imprenditore di policy capace di mobilitarsi contro i perdenti organizzati
+K: C
+F: f09f1f3686
+S: È la politica «imprenditoriale»: chi paga è concentrato e organizzato, chi guadagna è disperso; serve un imprenditore di policy.
+
+Q EL-P2-4
+T: Nella classificazione degli strumenti di Christopher Hood (modello «NATO»), la «T» di Treasure indica:
+A: le risorse finanziarie
+B: l'informazione
+C: l'organizzazione diretta
+K: A
+F: 96f43897c8
+S: Nodality (informazione), Authority (autorità), Treasure (risorse finanziarie), Organization (organizzazione diretta).
+
+Q EL-P2-5
+T: Vedung classifica gli strumenti di policy con la metafora:
+A: mercato, gerarchia e rete
+B: bastone, carota e predica
+C: voce, uscita e lealtà
+K: B
+F: 1e68ec8dd9
+S: Bastone (regolazione), carota (incentivi), predica (informazione e persuasione). A è la classica tripartizione delle forme di coordinamento, C è Hirschman.
+
+Q EL-P2-6
+T: Quale dei seguenti è un esempio di nudge?
+A: una sanzione per chi non si iscrive a un fondo pensione
+B: l'iscrizione automatica a un fondo pensione, con possibilità di uscire
+C: un incentivo fiscale per chi si iscrive a un fondo pensione
+K: B
+F: 41c8c35681, fb8f11cf9e
+S: Il nudge (Thaler e Sunstein) agisce sull'architettura delle scelte, per esempio con la scelta predefinita, senza obblighi (A) né incentivi economici (C).
+
+## P3
+# Già chiesti (SNA): razionalità sinottica, garbage can (due volte), piccoli passi, Lindblom,
+# negoziazione, problemi maligni, Kingdon, agenda pubblica e istituzionale, voto (SNA 8), Simon,
+# logica dell'appropriatezza.
+U: b274246f0c = SNA10-B1-Q51
+U: 1d3c7f1e59 = SNA10-B1-Q51
+U: 954ed00706 = SNA10-B1-Q52, SNA9-B3-Q54
+U: e1d85dceb1 = SNA10-B1-Q52, SNA9-B3-Q54
+U: 7b21bd3ed8 = SNA10-B2-Q52
+U: 6e675fddb0 = SNA10-B2-Q52
+U: 8ce8b8d73e = SNA10-B3-Q51
+U: 4aec721735 = SNA10-B3-Q52
+U: e02eeb98aa = SNA10-B3-Q52, SNA8-B3-Q44
+U: 6b3557da22 = SNA11-B1-Q51
+U: 574c4e7a64 = SNA11-B2-Q51
+U: 7336f10e4a = SNA11-B2-Q51
+U: a0901f13bb = SNA11-B3-Q51
+U: dc9d6a64bc = SNA11-B3-Q51
+U: 8a4a2f997d = SNA8-B3-Q44
+U: d6b2aaebad = SNA9-B1-Q52
+U: 123d41faf3 = SNA9-B1-Q52
+U: ba4c603ada = SNA9-B2-Q53
+U: e83581c202 = SNA9-B2-Q53
+
+Q EL-P3-1
+T: Il concetto di non-decisione (Bachrach e Baratz) indica che:
+A: il potere si esercita anche impedendo che un tema entri nell'agenda
+B: le decisioni nascono dall'incontro casuale fra problemi e soluzioni
+C: i decisori scelgono la prima alternativa soddisfacente
+K: A
+F: 330f113e13
+S: Il «secondo volto del potere»: tenere fuori dall'agenda. B è il garbage can, C la razionalità limitata di Simon: entrambi già usciti.
+
+Q EL-P3-2
+T: Il modello della scansione mista (mixed scanning) si associa al contributo di:
+A: Lindblom
+B: Etzioni
+C: Simon
+K: B
+F: 3b7a7da981
+S: Etzioni (1967): una scansione ampia delle alternative, poi approfondimento incrementale. È la sintesi fra il modello sinottico e l'incrementalismo di Lindblom (uscito in SNA 10).
+
+Q EL-P3-3
+T: Nella negoziazione fra attori con posizioni contrastanti, si parla di accordo integrativo quando:
+A: le parti si dividono una quantità data di risorse, in un gioco a somma zero
+B: una parte impone la propria soluzione grazie all'autorità
+C: le parti allargano la «torta» con scambi vantaggiosi per tutte, in un gioco a somma positiva
+K: C
+F: 4aec721735, e02eeb98aa
+S: Accordo distributivo (A) e integrativo (C). B descrive la gerarchia, un altro modo di risolvere il conflitto.
+
+Q EL-P3-4
+T: Quando i fini sono condivisi ma i mezzi per raggiungerli sono incerti, la decisione si affida tipicamente:
+A: al giudizio, per esempio al voto fra esperti
+B: al calcolo tecnico
+C: al compromesso negoziale
+K: A
+F: 75370892e6, 7b21bd3ed8
+S: Matrice fini/mezzi: fini condivisi e mezzi certi → calcolo; fini condivisi e mezzi incerti → giudizio; fini in conflitto e mezzi certi → compromesso; entrambi incerti → ispirazione o piccoli passi (uscito in SNA 10).
+
+Q EL-P3-5
+T: Nella teoria dei flussi multipli di Kingdon, chi sfrutta la finestra di opportunità per legare un problema a una soluzione è:
+A: il burocrate di strada
+B: l'imprenditore di policy
+C: il mediatore (policy broker) delle coalizioni di sostegno
+K: B
+F: 574c4e7a64
+S: SNA 11 ha chiesto i tre flussi; la figura che li accoppia è l'imprenditore di policy. Il policy broker appartiene all'advocacy coalition framework.
+
+Q EL-P3-6
+T: Secondo Cobb, Ross e Ross, quando una questione arriva nell'agenda istituzionale su spinta di gruppi esterni al governo si parla di modello:
+A: della mobilitazione dall'alto
+B: dell'accesso interno
+C: dell'iniziativa esterna
+K: C
+F: c00c803821, a0901f13bb
+S: Tre modelli di accesso all'agenda: iniziativa esterna, mobilitazione dall'alto (il governo porta il tema nell'agenda pubblica), accesso interno (il tema resta fra élite e uffici).
+
+## P4
+# Già chiesti (SNA): incertezza dell'attuazione, top-down (due volte), logica del programma e
+# dell'organizzazione, programmi di scopo.
+U: a0cda7aa00 = SNA10-B3-Q50
+U: f916c00210 = SNA10-B3-Q50
+U: 632ee249c8 = SNA11-B2-Q53, SNA9-B3-Q53
+U: 9d26004de4 = SNA11-B2-Q53, SNA9-B3-Q53
+U: 4b9f52f68c = SNA11-B2-Q53, SNA9-B3-Q53
+U: 218bdf3ccd = SNA9-B2-Q50
+U: 4a8ad9dbb6 = SNA9-B2-Q50
+U: f67b2814a9 = SNA9-B3-Q50
+U: 2e69cd5620 = SNA9-B3-Q50
+
+Q EL-P4-1
+T: Nel modello di Matland, un'attuazione caratterizzata da alta ambiguità e basso conflitto è detta:
+A: sperimentale
+B: simbolica
+C: amministrativa
+K: A
+F: 75c917b17f
+S: Ambiguità × conflitto: bassa-bassa amministrativa; bassa ambiguità e alto conflitto politica; alta ambiguità e basso conflitto sperimentale; alta-alta simbolica.
+
+Q EL-P4-2
+T: Il backward mapping di Elmore appartiene all'approccio all'attuazione:
+A: top-down
+B: bottom-up
+C: razionale sinottico
+K: B
+F: 7b753cd02e
+S: Bottom-up: Lipsky, Hjern, Elmore (si parte dagli attuatori e dai destinatari e si risale). Top-down: Pressman e Wildavsky, Sabatier e Mazmanian.
+
+Q EL-P4-3
+T: Lo studio di Pressman e Wildavsky (1973) ha messo in evidenza:
+A: il deficit di attuazione fra decisione e risultati
+B: il modello del bidone della spazzatura
+C: la teoria dei flussi multipli
+K: A
+F: eb0798bfc7, 7b753cd02e
+S: «Implementation» (1973): fra quello che si decide a Washington e quello che succede a Oakland si perde molto. È l'origine dell'approccio top-down chiesto due volte.
+
+Q EL-P4-4
+T: I programmi a procedura vincolata funzionano meglio quando:
+A: i contesti di attuazione sono molto eterogenei
+B: gli attuatori devono scegliere i mezzi in autonomia
+C: i problemi sono omogenei e standardizzabili
+K: C
+F: b0986cc2b6, f67b2814a9
+S: Procedura vincolata: il centro fissa obiettivi e procedure, discrezionalità minima. A e B descrivono i programmi di scopo, chiesti in SNA 9.
+
+## P5
+# Già chiesti (SNA): dati primari, indicatori d'impatto, monitoraggio (due volte), evidence-based,
+# valutazione di processo, realista, efficienza, valutazione economica, ex ante/in itinere/ex post,
+# ex ante (SNA 8), sperimentale, costruttivista, output. Molte domande Formez sugli indicatori.
+U: 3c99279393 = SNA10-B1-Q53
+U: 7cdb3b55ab = SNA10-B1-Q53
+U: 48db350c92 = SNA10-B1-Q54
+U: f6f8a08250 = SNA10-B1-Q54
+U: 2e9db4f34f = SNA10-B1-Q54
+U: 09b244d600 = SNA10-B2-Q54, SNA10-B3-Q54
+U: 1fdce710db = SNA10-B2-Q54, SNA10-B3-Q54
+U: 51c32813ee = SNA11-B1-Q52
+U: 620794f33e = SNA11-B1-Q53
+U: 0e897b3e34 = SNA11-B1-Q54
+U: 634d6d7006 = SNA11-B1-Q54, SNA9-B2-Q54
+U: 21a536ad33 = SNA11-B2-Q52
+U: f08057dff1 = SNA11-B2-Q52
+U: 01e20c4a94 = SNA11-B2-Q54
+U: 6b8530a9c9 = SNA11-B3-Q53
+U: 54bc54b7ef = SNA8-B3-Q45
+U: 17a17145bb = SNA9-B1-Q53
+U: 43894e434c = SNA9-B1-Q53
+U: 0a074c9e11 = SNA9-B2-Q54
+U: 3508aba810 = SNA9-B3-Q51
+U: 66d018ea0c = SNA9-B3-Q51
+
+Q EL-P5-1
+T: In Italia la valutazione ex ante degli effetti degli atti normativi del Governo prende il nome di:
+A: verifica dell'impatto della regolamentazione (VIR)
+B: analisi di impatto della regolamentazione (AIR)
+C: valutazione di impatto ambientale (VIA)
+K: B
+F: 54bc54b7ef, 9c50c47454
+S: AIR ex ante (problema, obiettivi, opzioni compresa l'opzione zero, confronto, consultazioni; d.P.C.m. 169/2017); VIR ex post. SNA 8 ha chiesto il momento più utile della valutazione ex ante.
+
+Q EL-P5-2
+T: La valutazione controfattuale (o d'impatto) risponde alla domanda:
+A: gli obiettivi sono stati raggiunti?
+B: come vedono l'intervento gli attori coinvolti?
+C: che cosa sarebbe successo senza la politica?
+K: C
+F: 43894e434c, f6f8a08250
+S: Il controfattuale serve ad attribuire l'effetto alla politica, al netto dei fattori esterni. A è la valutazione per obiettivi, B quella costruttivista.
+
+Q EL-P5-3
+T: Nella valutazione d'impatto, la minaccia alla validità interna detta «maturazione» si verifica quando:
+A: i soggetti cambiano spontaneamente nel tempo, indipendentemente dall'intervento
+B: i gruppi confrontati sono diversi già in partenza
+C: una parte dei soggetti abbandona lo studio in modo non casuale
+K: A
+F: cf7f075ed2
+S: Minacce alla validità interna: selezione (B), attrito (C, chiesto da Formez nel 2026), storia (eventi esterni), maturazione (A).
+
+Q EL-P5-4
+T: L'analisi costi-efficacia, a differenza dell'analisi costi-benefici:
+A: traduce in moneta tutti i costi e tutti i benefici dell'intervento
+B: esprime il risultato come costo per unità di effetto, senza monetizzare gli effetti
+C: confronta più criteri non monetari attribuendo loro dei pesi
+K: B
+F: 01e20c4a94
+S: Costi-benefici = tutto in moneta (A); costi-efficacia = costo per unità di effetto; multicriteri = più criteri pesati (C).
+
+Q EL-P5-5
+T: Alla domanda «è stato fatto secondo le regole?» risponde:
+A: il monitoraggio
+B: la valutazione
+C: il controllo di regolarità
+K: C
+F: 5033e60a29, 09b244d600, 57ec2c3b9b
+S: Tre domande diverse: «a che punto siamo?» (monitoraggio), «ha funzionato?» (valutazione), «è stato fatto secondo le regole?» (controllo di regolarità).
+
+Q EL-P5-6
+T: La valutazione basata sulla teoria (theory-based evaluation), associata a Carol Weiss, ricostruisce:
+A: la catena causale fra attività, output, risultati e impatti, cioè la teoria del cambiamento
+B: il punto di vista degli attori attraverso uno studio di caso
+C: il rapporto fra output e input dell'intervento
+K: A
+F: 3251cc81d3
+S: Teoria del cambiamento: perché l'intervento dovrebbe funzionare. B è l'approccio costruttivista (uscito in SNA 9), C l'efficienza.
+
+Q EL-P5-7
+T: Per poter valutare il raggiungimento degli obiettivi di una politica, oltre a obiettivi chiari servono:
+A: un gruppo di controllo costruito in ogni caso
+B: un valore di partenza (baseline) e un valore obiettivo (target)
+C: il consenso di tutti i destinatari dell'intervento
+K: B
+F: 16422302ba
+S: Obiettivi SMART, baseline e target: senza, non si misura lo scostamento. Il gruppo di controllo serve alla valutazione controfattuale e non è sempre possibile (per esempio nelle politiche universali).
+
+Q EL-P5-8
+T: Un indicatore si dice valido quando:
+A: misura davvero il concetto che si vuole misurare
+B: dà risultati coerenti e riproducibili a parità di condizioni
+C: è disponibile in tempi brevi
+K: A
+F: cd274b10fc, 06069f31b6, 7329581dce
+S: Validità ≠ affidabilità (B, chiesta da Formez) ≠ tempestività (C). Un indicatore può essere affidabile ma non valido: misura con precisione la cosa sbagliata.
+
+## P6
+# Già chiesti (SNA): Hall (mutamento di terzo ordine), coalizioni di sostegno.
+U: 7f1c513bc9 = SNA10-B2-Q53
+U: 9729c9c67b = SNA10-B2-Q53
+U: ba46b6461f = SNA10-B3-Q53
+U: b1fe888354 = SNA10-B3-Q53
+
+Q EL-P6-1
+T: Secondo Hall, sostituire un sussidio con un credito d'imposta costituisce un mutamento di:
+A: primo ordine
+B: secondo ordine
+C: terzo ordine
+K: B
+F: b80b9950d7, 9729c9c67b
+S: 1° ordine = taratura dei parametri (si alza un'aliquota); 2° = cambio di strumento; 3° = fini e paradigma (chiesto in SNA 10).
+
+Q EL-P6-2
+T: Il modello dell'equilibrio punteggiato (Baumgartner e Jones) descrive le politiche come:
+A: un adattamento continuo per piccoli passi
+B: lunghi periodi di stabilità interrotti da cambiamenti bruschi
+C: il risultato della competizione fra coalizioni stabili
+K: B
+F: 14a70236e5
+S: Stabilità garantita da un monopolio di policy, poi rotture improvvise. A è l'incrementalismo, C l'advocacy coalition framework.
+
+Q EL-P6-3
+T: Il concetto di dipendenza dal percorso (path dependence, Pierson) indica che:
+A: le scelte passate rendono costoso cambiare strada e il cambiamento avviene nei momenti critici
+B: le politiche cambiano solo per apprendimento
+C: ogni nuova politica annulla gli effetti di quelle precedenti
+K: A
+F: c8b5db88fe
+S: Path dependence: i rendimenti crescenti delle scelte passate vincolano quelle future.
+
+Q EL-P6-4
+T: Nell'advocacy coalition framework di Sabatier, il mutamento maggiore di una politica deriva soprattutto da:
+A: l'apprendimento orientato alle politiche
+B: la mediazione del policy broker
+C: shock esterni al sottosistema di policy
+K: C
+F: 2261cc4536
+S: Shock esterni → mutamento maggiore; apprendimento → mutamento minore; il broker cerca compromessi fra le coalizioni.
