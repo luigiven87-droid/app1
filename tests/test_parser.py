@@ -224,6 +224,25 @@ class TestElaborate(unittest.TestCase):
                 elaborate.load(d, self.points, self.codes, {"diritto_amministrativo"})
 
 
+class TestGemelli(unittest.TestCase):
+    """Quesiti ripetuti: riprese da un anno all'altro e varianti contano come un solo quesito."""
+
+    def test_riferimenti(self):
+        self.assertEqual(simulazioni.repeats("riprende SNA8-B3-Q38", "economia_pa"), ["SNA8-B3-Q38"])
+        self.assertEqual(simulazioni.repeats("SNA9-B1-Q1, SNA9-B2-Q1", "situazionali"), ["SNA9-B1-Q1", "SNA9-B2-Q1"])
+        self.assertEqual(simulazioni.repeats("variante di AD2-A.1", "situazionali"), ["AD2-A.1"])
+        self.assertEqual(simulazioni.repeats("variante di AD2-I.7", "ragionamento"), [])
+        self.assertEqual(simulazioni.repeats("parallelo stesso anno: SNA11-B3-Q49, SNA11-B1-Q49", "x"), [])
+        self.assertEqual(simulazioni.repeats("parallelo stesso anno: SNA9-B3-Q16 | stesso brano in SNA9-B3-Q16-Q18", "x"), [])
+
+    def test_gruppi(self):
+        qs = [{"id": "A", "c": "SNA8-B3-Q38"}, {"id": "B", "c": "SNA10-B3-Q49", "rep": ["SNA8-B3-Q38"]},
+              {"id": "C", "c": "", "rep": ["B"]}, {"id": "D", "c": "SNA9-B1-Q1", "rep": ["SNA9-B9-Q9"]}]
+        simulazioni.twins(qs)
+        self.assertEqual([q.get("tw") for q in qs], [["B", "C"], ["A", "C"], ["A", "B"], None])
+        self.assertTrue(all("rep" not in q for q in qs))
+
+
 class TestInline(unittest.TestCase):
     def test_inline(self):
         self.assertEqual(md_inline("**a** e *b* \\* c"), "<b>a</b> e <i>b</i> * c")

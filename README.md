@@ -61,6 +61,13 @@ Nella stessa sezione, oltre alle **Prove**:
 - **Sorteggio**: le quote per scheda e per tipo di ogni prova; prima i quesiti
   mai visti, niente doppioni nella stessa prova, brani da tre domande come nelle
   buste, ordine della busta SNA 11.
+- **Gemelli**: lo stesso quesito ripreso in un altro anno («riprende» /
+  «ripreso in» nel CSV), le varianti Formez dello stesso scenario o quesito e
+  pochi casi verificati a mano (`GEMELLI` in `sna12/simulazioni.py`) formano un
+  gruppo: in una prova, in un blocco o nel ripasso errori ne esce uno solo, i
+  conteggi li contano una volta e chi ne ha visto uno trova l'altro come già
+  visto a metà. Non sono gemelli i paralleli dello stesso anno né le varianti di
+  ragionamento (esercizi diversi dello stesso tipo).
 - **Punteggio del bando**: esatta +1, errata −0,53, omessa 0; situazionali 1 /
   0,50 / 0. Per i dodici modelli SNA 9 la Scuola ha pubblicato solo la migliore:
   il risultato indica anche il punteggio se le altre scelte fossero le neutre.

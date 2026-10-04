@@ -60,13 +60,13 @@ S: L'Italia ha un piano 2025-2029 con aggiustamento in 7 anni. Ogni anno, entro 
 N: governance europea 2024
 
 Q EL-A1-6
-T: Secondo l'art. 81 della Costituzione, come riscritto dalla L. cost. 1/2012, il ricorso all'indebitamento è consentito:
-A: solo per finanziare spese di investimento
-B: liberamente, entro il limite del 3% del PIL
-C: solo per considerare gli effetti del ciclo economico o, con la maggioranza assoluta delle Camere, al verificarsi di eventi eccezionali
-K: C
+T: Secondo l'art. 81 della Costituzione, ogni legge che comporta nuovi o maggiori oneri:
+A: provvede ai mezzi per farvi fronte (obbligo di copertura)
+B: deve essere approvata a maggioranza assoluta dei componenti di ciascuna Camera
+C: può essere finanziata solo con il ricorso all'indebitamento
+K: A
 F: dee2dfe332
-S: L'art. 81 chiede l'equilibrio fra entrate e spese, tenendo conto del ciclo. Il limite agli investimenti (A) è la «regola d'oro» dell'art. 119 per regioni ed enti locali.
+S: È l'obbligo di copertura finanziaria. La maggioranza assoluta (B) serve invece per autorizzare l'indebitamento in caso di eventi eccezionali e per approvare la legge «rinforzata» 243/2012; i casi in cui l'indebitamento è ammesso sono nella scheda C5.
 
 Q EL-A1-7
 T: L'Ufficio parlamentare di bilancio, organismo indipendente che valuta le previsioni e il rispetto delle regole di bilancio, è stato istituito da:
@@ -167,13 +167,13 @@ F: c19eb369ee, b5bd6db39a
 S: Oneri inderogabili = vincolati da meccanismi o parametri di legge; fattori legislativi = importo fissato da una legge; adeguamento al fabbisogno = quantificate sulle esigenze delle amministrazioni. La revisione della spesa lavora soprattutto sulle ultime due.
 
 Q EL-A2-8
-T: Quale saldo del quadro generale riassuntivo comprende anche il rimborso dei prestiti e indica quanto debito occorre emettere?
-A: Il saldo netto da finanziare
-B: Il risparmio pubblico
-C: Il ricorso al mercato
-K: C
-F: c5efa4fcad, d203eda94a
-S: Ricorso al mercato = entrate finali − totale delle spese, rimborso dei prestiti compreso. Il saldo netto da finanziare esclude accensione e rimborso di prestiti.
+T: La seconda sezione del disegno di legge di bilancio contiene:
+A: le misure della manovra che modificano la legislazione vigente
+B: le previsioni di entrata e di spesa a legislazione vigente, articolate in unità di voto, con le rimodulazioni consentite
+C: il Programma nazionale di riforma
+K: B
+F: 7f8af51254, e98b4ff5dc
+S: Formez ha chiesto la prima sezione, cioè la manovra (A). Il Programma nazionale di riforma (C) era una delle tre sezioni del DEF, non della legge di bilancio.
 
 ## A3
 # Già chiesti (SNA): residui passivi (due volte), costo primo, fasi dell'entrata, immobilizzazioni
@@ -233,13 +233,13 @@ F: 1fce448121, a9d9dcd1bf
 S: L'esercizio provvisorio è concesso solo per legge e per non più di quattro mesi complessivi (art. 81, c. 5, Cost.; art. 32 L. 196/2009).
 
 Q EL-A3-6
-T: Il rendiconto generale dello Stato è:
-A: approvato con decreto del Ministro dell'economia, senza passaggio parlamentare
-B: parificato dalla Corte dei conti e poi approvato dalle Camere con legge
-C: approvato dalla Banca d'Italia, che svolge il servizio di tesoreria
-K: B
+T: Dopo la parificazione da parte della Corte dei conti, il rendiconto generale dello Stato:
+A: è approvato dalle Camere con legge
+B: è approvato con decreto del Ministro dell'economia, senza passaggio parlamentare
+C: è approvato dalla Banca d'Italia, che svolge il servizio di tesoreria
+K: A
 F: bff24ffca0, ec89563d0e
-S: La parificazione avviene con le formalità della giurisdizione contenziosa. Il rendiconto ha natura finanziaria (conto del bilancio) e patrimoniale (conto generale del patrimonio).
+S: La parificazione (chiesta da Formez) avviene con le formalità della giurisdizione contenziosa; l'approvazione spetta poi al Parlamento con legge (art. 81 Cost.). Il rendiconto ha natura finanziaria e patrimoniale.
 
 Q EL-A3-7
 T: A seguito della L. cost. 1/2012, l'armonizzazione dei bilanci pubblici è:
@@ -343,15 +343,6 @@ C: economicità
 K: C
 F: c13b6163c4
 S: SNA ha chiesto che cosa verifica il controllo di gestione (efficienza, efficacia ed economicità), non le singole definizioni.
-
-Q EL-A4-5
-T: Il paradigma della New Public Governance si caratterizza per:
-A: l'introduzione di pratiche mutuate dalle imprese private e di esternalizzazioni
-B: la rigida applicazione di regole e procedure
-C: reti di attori pubblici e privati, partecipazione e coproduzione dei servizi
-K: C
-F: b5cbb48f7f, f465f76d72
-S: A descrive il New Public Management (chiesto in SNA 10); B il modello burocratico.
 
 Q EL-A4-6
 T: Nella teoria principale-agente, i costi di agenzia si riducono principalmente:

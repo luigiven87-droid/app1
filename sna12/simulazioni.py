@@ -98,6 +98,57 @@ def plans(analysis):
     return out
 
 
+REF = re.compile(r"SNA\d+-B\d-Q\d+|AD\d-[A-Z]\.\d+")
+
+# Stesso quesito in fonti diverse che l'analisi non segnala come ripetuto (verificati a mano).
+# Le tre domande sul brano di SNA 9 uscito nelle buste 2 e 3 sono identiche.
+GEMELLI = {"AD2-C.6": ["D3-6", "D3-7"], "AD2-C.2": ["D3-5"], "AD2-D.14": ["AD1-D.1"],
+           "D6-49": ["D6-46"], "D6-50": ["D6-47"], "D6-51": ["D6-48"]}
+
+
+def repeats(text, area):
+    """Dal campo «ripetuto_in»: i riferimenti allo stesso quesito altrove (ripreso in un altro
+    anno, variante Formez dello stesso scenario o quesito, stessa domanda nelle altre buste).
+    Non contano i paralleli dello stesso anno, che sono domande diverse sullo stesso tema, i
+    brani condivisi, gestiti con il brano, e le varianti di ragionamento, che sono esercizi
+    dello stesso tipo con dati diversi."""
+    out = []
+    for seg in text.split("|"):
+        if re.match(r"\s*(parallelo|stesso brano)", seg):
+            continue
+        if area == "ragionamento" and re.match(r"\s*variante", seg):
+            continue
+        out.extend(REF.findall(seg))
+    return out
+
+
+def twins(qs):
+    """Raggruppa i gemelli (anche a catena) e scrive in ciascuno gli altri del gruppo (chiave «tw»)."""
+    by = {}
+    for q in qs:
+        by[q["id"]] = q["id"]
+        if q.get("c"):
+            by[q["c"]] = q["id"]
+    parent, linked = {}, set()
+
+    def root(x):
+        while parent.get(x, x) != x:
+            x = parent[x]
+        return x
+    for q in qs:
+        for ref in q.pop("rep", []) + GEMELLI.get(q["id"], []):
+            other = by.get(ref)
+            if other and other != q["id"]:
+                parent[root(other)] = root(q["id"])
+                linked.update((q["id"], other))
+    groups = {}
+    for qid in linked:
+        groups.setdefault(root(qid), []).append(qid)
+    for q in qs:
+        if q["id"] in linked:
+            q["tw"] = sorted(x for x in groups[root(q["id"])] if x != q["id"])
+
+
 def compact(q, row):
     """Il quesito come lo usa la pagina (chiavi corte: sono centinaia)."""
     com = q.get("com") or []
@@ -115,7 +166,7 @@ def compact(q, row):
         if q.get(src):
             out[dst] = q[src]
     if row.get("ripetuto_in"):
-        out["rep"] = [x.strip() for x in row["ripetuto_in"].split(",") if x.strip()]
+        out["rep"] = repeats(row["ripetuto_in"], row["area"])
     if row.get("motivo"):
         out["mo"] = row["motivo"]
     first = com[0] if com else ""
@@ -167,6 +218,7 @@ def build(materiali, with_images=True):
             missing.append(row["id"])
             continue
         qs.append(compact(q, row))
+    twins(qs)
     used = {q["p"] for q in qs if q.get("p")}
     passages = {ps["id"]: {"title": ps["title"], "label": ps["label"], "text": ps["text"]}
                 for ps in parsed["passages"] if ps["id"] in used}

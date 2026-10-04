@@ -307,10 +307,30 @@ const shot = (page, name, full) => page.screenshot({ path: path.join(SHOTS, name
   await ps.click('[data-act=simSet][data-g=b][data-k=n][data-v="100000"]');
   await ps.click('[data-act=simDrill]');
   const all = (await simState()).cur.ids;
-  const nUe = D.q.filter(q => q.inc === 'sì' && q.a === 'diritto_ue').length;
-  const nCost = D.q.filter(q => q.inc === 'sì' && q.a === 'diritto_costituzionale').length;
-  check(nAll === nUe + nCost && all.length === nAll, '«Tutti»: diritto UE e costituzionale interi in una sessione (' + all.length + ')');
+  const twinKey = q => q.tw ? [q.id].concat(q.tw).sort()[0] : q.id;
+  const groups = list => new Set(list.map(twinKey)).size;
+  const nUeCost = groups(D.q.filter(q => q.inc === 'sì' && (q.a === 'diritto_ue' || q.a === 'diritto_costituzionale')));
+  check(nAll === nUeCost && all.length === nAll, '«Tutti»: diritto UE e costituzionale interi in una sessione (' + all.length + ')');
   check(all.every((id, i) => !i || D.areas.findIndex(a => a[0] === QD[id].a) >= D.areas.findIndex(a => a[0] === QD[all[i - 1]].a)), '«Tutti»: quesiti in ordine di materia');
+  // gemelli (stesso quesito ripreso in un altro anno o in un'altra fonte): uno solo per blocco
+  check(D.q.every(q => (q.tw || []).every(t => QD[t] && QD[t].tw.indexOf(q.id) >= 0)), 'gemelli collegati nei due sensi');
+  check(['D3-6', 'D3-7', 'AD2-C.6'].every(id => QD[id].tw && QD[id].tw.length === 2), 'gemelli: atti non autoritativi in SNA 9, SNA 10 e Formez');
+  await ps.click('[data-tab=sim]');
+  await ps.click('[data-act=simDrop]');
+  await ps.click('#modal-yes');
+  for (const a of ['diritto_ue', 'diritto_costituzionale', 'diritto_amministrativo']) await ps.click('[data-act=simChip][data-g=ba][data-v=' + a + ']');
+  const nAmm = await ps.$eval('#n-b', i => Number(i.max));
+  await ps.click('[data-act=simDrill]');
+  const amm = (await simState()).cur.ids;
+  const ammPool = D.q.filter(q => q.inc === 'sì' && q.a === 'diritto_amministrativo');
+  check(ammPool.length > groups(ammPool) && amm.length === groups(ammPool) && nAmm === amm.length,
+    '«Tutti» diritto amministrativo: ' + amm.length + ' quesiti, gemelli contati una volta (' + ammPool.length + ' righe)');
+  check(new Set(amm.map(id => twinKey(QD[id]))).size === amm.length, 'nessun gemello due volte nello stesso blocco');
+  await ps.click('[data-tab=sim]');
+  await ps.click('[data-act=simDrop]');
+  await ps.click('#modal-yes');
+  for (const a of ['diritto_amministrativo', 'diritto_ue', 'diritto_costituzionale']) await ps.click('[data-act=simChip][data-g=ba][data-v=' + a + ']');
+  await ps.click('[data-act=simDrill]');
   // dalla scheda del ripasso ai suoi quesiti; scorrimento col dito; testo più grande; rifai gli errori
   await ps.click('[data-tab=sim]');
   await ps.click('[data-act=simDrop]');
@@ -320,7 +340,7 @@ const shot = (page, name, full) => page.screenshot({ path: path.join(SHOTS, name
   await ps.click('.srow[data-k="1:D4"]');
   await ps.click('[data-act=simDrillScheda]');
   const sd = (await simState()).cur;
-  check(sd && sd.ids.length === D.q.filter(q => q.t === 'D4' && q.inc === 'sì').length && sd.fb, 'dalla scheda D4: tutti i suoi quesiti, con correzione subito');
+  check(sd && sd.ids.length === groups(D.q.filter(q => q.t === 'D4' && q.inc === 'sì')) && sd.fb, 'dalla scheda D4: tutti i suoi quesiti, con correzione subito');
   await ps.evaluate(() => {
     const el = document.getElementById('app');
     const mk = (type, x) => { const t = new Touch({ identifier: 1, target: el, clientX: x, clientY: 300 }); el.dispatchEvent(new TouchEvent(type, { touches: type === 'touchend' ? [] : [t], changedTouches: [t], bubbles: true })); };

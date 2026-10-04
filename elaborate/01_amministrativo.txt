@@ -664,13 +664,13 @@ F: 620994ad77
 S: Il ricorso straordinario è alternativo al TAR; i controinteressati possono chiedere entro 60 giorni la trasposizione in sede giurisdizionale.
 
 Q EL-D10-5
-T: Il giudizio di ottemperanza:
-A: rientra fra i casi di giurisdizione di merito del giudice amministrativo
-B: si propone entro 60 giorni dal passaggio in giudicato della sentenza
-C: è attribuito al giudice ordinario
-K: A
-F: 3970f621b9, 90c914a655
-S: L'ottemperanza è il caso tipico di giurisdizione di merito (art. 134 c.p.a.) e si propone entro la prescrizione dell'actio iudicati, 10 anni.
+T: Il ricorso per l'ottemperanza a una sentenza passata in giudicato può essere proposto:
+A: entro 60 giorni dal passaggio in giudicato della sentenza
+B: finché non si prescrive l'actio iudicati, cioè entro 10 anni
+C: entro 120 giorni, come il ricorso straordinario al Presidente della Repubblica
+K: B
+F: 90c914a655, 3970f621b9
+S: L'ottemperanza (art. 114 c.p.a.) non ha il termine breve di 60 giorni dell'azione di annullamento: si propone entro la prescrizione dell'actio iudicati, 10 anni. È anche il caso tipico di giurisdizione di merito (art. 134 c.p.a.).
 
 Q EL-D10-6
 T: Nei casi di estrema gravità e urgenza, che non consentono di attendere la camera di consiglio, il giudice amministrativo può concedere misure cautelari:

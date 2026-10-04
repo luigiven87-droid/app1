@@ -15,16 +15,18 @@
     var schedaOfCode = {};
     SCHEDE.forEach(function (e) { if (e.sc.code) schedaOfCode[e.sc.code] = e.sc.key; });
     var SIM_KEY = 'sna12-simulazioni-v1';
-    /* Gemelli: lo stesso quesito in un altro dossier o quasi identico in un altro anno. */
+    /* Gemelli: lo stesso quesito ripreso in un altro anno, in un'altra fonte o come variante
+       (q.tw, già simmetrico). Non escono insieme e uno visto conta a metà per l'altro. */
     var TWINS = {};
-    (function () {
-      var byCoord = {};
-      SIM.q.forEach(function (q) { if (q.c) (byCoord[q.c] = byCoord[q.c] || []).push(q.id); });
-      function link(a, b) { if (a !== b) { (TWINS[a] = TWINS[a] || {})[b] = 1; (TWINS[b] = TWINS[b] || {})[a] = 1; } }
-      SIM.q.forEach(function (q) {
-        [q.c].concat(q.rep || []).forEach(function (c) { (byCoord[c] || []).forEach(function (id) { link(q.id, id); }); });
-      });
-    })();
+    SIM.q.forEach(function (q) {
+      (q.tw || []).forEach(function (t) { (TWINS[q.id] = TWINS[q.id] || {})[t] = 1; });
+    });
+    function twinKey(q) { return q.tw ? [q.id].concat(q.tw).sort()[0] : q.id; }
+    /* Un solo quesito per gruppo di gemelli (il primo della lista): per i conteggi e il ripasso errori. */
+    function uniq(list) {
+      var got = {};
+      return list.filter(function (q) { var k = twinKey(q); if (got[k]) return false; got[k] = 1; return true; });
+    }
     var REVIEW = 'R';
 
     TABS.push({ id: 'sim', label: 'Simulazioni' });
@@ -169,14 +171,12 @@
       if (this.taken[q.id]) return true;
       if (q.c && this.coords[q.c]) return true;
       var self = this;
-      return (q.rep || []).some(function (c) { return self.coords[c]; });
+      return Object.keys(TWINS[q.id] || {}).some(function (t) { return self.taken[t]; });
     };
     Picker.prototype.take = function (q) {
-      var self = this;
       this.ids.push(q.id);
       this.taken[q.id] = 1;
       if (q.c) this.coords[q.c] = 1;
-      (q.rep || []).forEach(function (c) { self.coords[c] = 1; });
       if (q.p) this.passages[q.p] = 1;
     };
     /* Ordine: mai visti prima, poi «sì» prima di «riserva», poi la fonte preferita
@@ -376,7 +376,7 @@
     var DUE = 12 * 3600e3;
     function errPool(f) {
       var st = errStats(!!f.om), now = Date.now();
-      return Object.keys(st).filter(function (id) {
+      var list = Object.keys(st).filter(function (id) {
         return st[id].bad && st[id].err > 0 && (!f.a.length || f.a.indexOf(Q[id].a) >= 0);
       }).map(function (id) {
         var r = st[id];
@@ -384,7 +384,8 @@
       }).sort(function (a, b) {
         for (var i = 0; i < a.k.length; i++) if (a.k[i] !== b.k[i]) return a.k[i] - b.k[i];
         return 0;
-      }).map(function (x) { return x.id; });
+      }).map(function (x) { return Q[x.id]; }).filter(Boolean);
+      return uniq(list).map(function (q) { return q.id; });
     }
 
     function planOf(run) {
@@ -803,6 +804,14 @@
       list.forEach(function (q) { c[q[key]] = (c[q[key]] || 0) + 1; });
       return c;
     }
+    /* Come countBy, ma i gemelli dello stesso gruppo contano una volta. */
+    function countUniqBy(list, key) {
+      var by = {};
+      list.forEach(function (q) { (by[q[key]] = by[q[key]] || []).push(q); });
+      var c = {};
+      Object.keys(by).forEach(function (k) { c[k] = uniq(by[k]).length; });
+      return c;
+    }
 
     function resumeHtml() {
       var c = cur();
@@ -816,9 +825,9 @@
     }
     function statsHtml() {
       var seen = seenCounts();
-      var nSeen = SIM.q.filter(function (q) { return seen[q.id]; }).length;
+      var nSeen = uniq(SIM.q.filter(function (q) { return seen[q.id]; })).length;
       var nErr = errPool({ a: [] }).length;
-      return '<div class="stats"><div><b>' + SIM.q.length + '</b><span>quesiti</span></div>' +
+      return '<div class="stats"><div><b>' + uniq(SIM.q).length + '</b><span>quesiti</span></div>' +
         '<div><b>' + nSeen + '</b><span>già visti</span></div>' +
         '<div><b>' + nErr + '</b><span>errori da rivedere</span></div></div>';
     }
@@ -851,16 +860,16 @@
     function drillHtml() {
       var f = bPrefs();
       var all = drillPool(f, true);
-      var byArea = countBy(all, 'a');
-      var pool = drillPool(f);
-      var seen = seenCounts();
+      var byArea = countUniqBy(all, 'a');
+      var pool = uniq(drillPool(f));
+      var seen = seenCounts(true);
       var fresh = pool.filter(function (q) { return !seen[q.id]; }).length;
       var h = '<section class="panel"><h2>Blocco per materia</h2>' +
         '<p class="small muted">Scegli una o più materie (nessuna = tutte). Con una sola materia puoi restringere alle schede o ai tipi di quesito. Escono prima i quesiti mai visti; con «Tutti» fai l’intero blocco in una sessione.</p>' +
         '<div class="chips">' + SIM.areas.map(function (a) { return chip('ba', a[0], esc(a[1]), f.a.indexOf(a[0]) >= 0, byArea[a[0]] || 0); }).join('') + '</div>';
       if (f.a.length === 1) {
         var inArea = all.filter(function (q) { return q.a === f.a[0]; });
-        var byType = countBy(inArea, 't');
+        var byType = countUniqBy(inArea, 't');
         var types = Object.keys(byType).sort(function (x, y) {
           var nx = /^[A-Z]+\d+$/.test(x), ny = /^[A-Z]+\d+$/.test(y);
           if (nx && ny) return x.replace(/\d+/, '') === y.replace(/\d+/, '') ? Number(x.replace(/\D+/, '')) - Number(y.replace(/\D+/, '')) : (x < y ? -1 : 1);
@@ -1014,7 +1023,7 @@
       scCache = { key: key, v: v };
       return v;
     }
-    var bankOf = countBy(SIM.q.filter(function (q) { return q.inc === 'sì'; }), 't');
+    var bankOf = countUniqBy(SIM.q.filter(function (q) { return q.inc === 'sì'; }), 't');
     var USC = SIM.usc || {};
     hooks.pointBadge = function (id) {
       var c = USC[id];
