@@ -36,7 +36,19 @@ più la ripresa degli errori:
 | H4 | Spazio adiacente: domande mai viste (Formez) | 30 | 45 |
 | H5 | Fascia media: buchi da chiudere | 30 | 45 |
 | H6 | Riserva di formato (logica deduttiva e verbale, inglese) | 18 | 27 |
-| R | Ripresa degli errori (sbagliati, omessi, non migliori) | fino a 30 | 1,5 a quesito |
+
+Nella stessa sezione, oltre alle **Prove**:
+
+- **Materie** (blocco): una o più materie a scelta (nessuna = tutte); con una
+  sola materia anche le singole schede (D1…D10, M1…M7…) o i tipi di quesito
+  (brani, serie figurali, lessico…). Banche SNA e Formez, riserva a richiesta,
+  5-30 quesiti, con o senza tempo (1,5′ a quesito), correzione subito o alla fine.
+  Escono prima i quesiti mai visti; un brano entra con le sue domande.
+- **Errori**: solo i quesiti sbagliati (situazionali: non la migliore) e non
+  ancora risolti dopo, filtrabili per materia; escono quando li fai giusti.
+  Priorità: non rivisti da almeno 12 ore, poi i più sbagliati, poi i più vecchi.
+  Gli omessi solo a richiesta.
+- **Storico**: andamento per materia su tutte le risposte e prove consegnate.
 
 - **Quesiti**: quelli dei Dossier 1-6 (preselettive SNA 8-11) e delle Addenda
   Formez, letti dai PDF in `materiali/pdf/` (`sna12/quesiti.py`): testo, opzioni,

@@ -261,11 +261,36 @@ const shot = (page, name, full) => page.screenshot({ path: path.join(SHOTS, name
   await ps.click('[data-tab=sim]');
   await ps.click('[data-act=simDrop]');
   await ps.click('#modal-yes');
-  // ripresa degli errori
-  await ps.click('[data-act=simStart][data-p=R][data-mode=tempo]');
+  // ripasso errori: i quesiti sbagliati escono quando li risolvi
+  await ps.click('[data-act=seg][data-name=simTab][data-val=errori]');
+  await shot(ps, '15-errori.png', true);
+  await ps.click('[data-act=simErr]');
   const rc = (await simState()).cur;
-  check(rc && rc.ids.length === 30 && rc.min === 45, 'ripresa degli errori: 30 dei 50 sbagliati od omessi, 45 minuti');
-  check(rc.ids.every(id => cur0.indexOf(id) >= 10), 'ripresa: solo quesiti sbagliati od omessi');
+  check(rc && rc.ids.length === 5 && rc.fb && !rc.tl, 'ripasso errori: i 5 sbagliati della prova, con correzione subito');
+  check(rc.ids.every(id => cur0.indexOf(id) >= 10 && cur0.indexOf(id) < 15), 'ripasso errori: solo quesiti sbagliati (non gli omessi)');
+  for (let i = 0; i < rc.ids.length; i++) {
+    await ps.click('.opt[data-l="' + QD[rc.ids[i]].k + '"]');
+    if (i < rc.ids.length - 1) await ps.click('[data-act=simNext]');
+  }
+  await ps.click('[data-act=simEnd]');
+  await ps.click('#modal-yes');
+  await ps.click('[data-tab=sim]');
+  await ps.click('[data-act=seg][data-name=simTab][data-val=errori]');
+  check(await ps.$eval('[data-act=simErr]', b => b.disabled), 'risolti tutti: niente più da ripassare');
+  // blocco per materia
+  await ps.click('[data-act=seg][data-name=simTab][data-val=blocco]');
+  await ps.click('[data-act=simChip][data-g=ba][data-v=diritto_ue]');
+  const schede = await ps.$$eval('[data-act=simChip][data-g=bt]', b => b.map(x => x.getAttribute('data-v')));
+  check(schede.indexOf('U1') >= 0 && schede.indexOf('U4') >= 0, 'con una materia compaiono le sue schede: ' + schede.join(', '));
+  await ps.click('[data-act=simSet][data-g=b][data-k=n][data-v="5"]');
+  await ps.click('[data-act=simSet][data-g=b][data-k=tm][data-v="1"]');
+  check(await noHScroll(ps), 'blocco: nessuno scroll orizzontale');
+  await shot(ps, '16-blocco.png', true);
+  await ps.click('[data-act=simDrill]');
+  const bc = (await simState()).cur;
+  check(bc && bc.p === 'B' && bc.ids.length === 5 && bc.ids.every(id => QD[id].a === 'diritto_ue'), 'blocco: 5 quesiti di diritto UE');
+  check(bc.ids.every(id => cur0.indexOf(id) < 0), 'blocco: prima i quesiti mai visti');
+  check(bc.tl === 8 && !bc.fb, 'blocco a tempo: 1,5 minuti a quesito');
   check(ps.errors.length === 0, 'nessun errore JavaScript (' + ps.errors.join('; ') + ')');
   const ctxS = ps.context();
   await ps.close();
@@ -276,12 +301,12 @@ const shot = (page, name, full) => page.screenshot({ path: path.join(SHOTS, name
   pt.on('pageerror', e => pt.errors.push(e.message));
   await pt.addInitScript(() => {
     const s = JSON.parse(localStorage.getItem('sna12-simulazioni-v1') || 'null');
-    if (s && s.cur) { s.cur.el = s.cur.min * 60 - 1.5; localStorage.setItem('sna12-simulazioni-v1', JSON.stringify(s)); }
+    if (s && s.cur) { s.cur.el = s.cur.tl * 60 - 1.5; localStorage.setItem('sna12-simulazioni-v1', JSON.stringify(s)); }
   });
   await pt.goto('file://' + LOCAL);
   await pt.waitForTimeout(3500);
   const ts = await pt.evaluate(() => JSON.parse(localStorage.getItem('sna12-simulazioni-v1')));
-  check(!ts.cur && ts.hist.length === 2, 'tempo scaduto: prova consegnata da sola');
+  check(!ts.cur && ts.hist.length === 3, 'tempo scaduto: prova consegnata da sola');
   check(pt.errors.length === 0, 'nessun errore JavaScript (' + pt.errors.join('; ') + ')');
   await pt.close();
 
@@ -330,7 +355,9 @@ const shot = (page, name, full) => page.screenshot({ path: path.join(SHOTS, name
     window.__dbPush([{ id: 'sim', data: { v: 1, cur: null, resetAt: 0, hist: [{ id: 'H3-' + at, p: 'H3', at: at, end: at + 600e3, ids: ids, ans: { 0: 'A' }, fl: {}, el: 600, mode: 'tempo', min: 36, sc: 1, hi: 0 }] } }]);
   }, sq);
   await p2.click('[data-tab=sim]');
+  await p2.click('[data-act=seg][data-name=simTab][data-val=storico]');
   check((await p2.$$eval('.hist li', e => e.length)) === 1, 'la prova fatta su un altro dispositivo compare nello storico');
+  await p2.click('[data-act=seg][data-name=simTab][data-val=prove]');
   await p2.click('[data-act=simStart][data-p=H3][data-mode=tempo]');
   await p2.click('.opt[data-l="A"]');
   await p2.click('[data-act=simEnd]');

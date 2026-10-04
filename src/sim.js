@@ -27,8 +27,8 @@
         var s = JSON.parse(localStorage.getItem(SIM_KEY) || 'null');
         if (s && s.v === 1) {
           var b = blank();
-          b.cur = s.cur && Array.isArray(s.cur.ids) ? s.cur : null;
-          b.hist = Array.isArray(s.hist) ? s.hist.filter(validRun) : [];
+          b.cur = s.cur && Array.isArray(s.cur.ids) ? norm(s.cur) : null;
+          b.hist = Array.isArray(s.hist) ? s.hist.filter(validRun).map(norm) : [];
           b.resetAt = Number(s.resetAt) || 0;
           return b;
         }
@@ -36,6 +36,13 @@
       return blank();
     }
     function validRun(r) { return r && r.id && Array.isArray(r.ids) && r.ans && typeof r.ans === 'object'; }
+    /* tl: minuti a disposizione (0 = senza tempo); fb: correzione subito dopo ogni risposta.
+       Le prove salvate prima avevano solo mode: 'tempo' | 'studio'. */
+    function norm(r) {
+      if (r && r.tl === undefined) r.tl = r.mode === 'tempo' ? (r.min || 0) : 0;
+      if (r && r.fb === undefined) r.fb = r.mode === 'studio';
+      return r;
+    }
     var SS = load();
     var pushTimer = null;
     function save(push) {
@@ -66,7 +73,7 @@
       var byId = {};
       SS.hist.forEach(function (h) { byId[h.id] = h; });
       (Array.isArray(remote.hist) ? remote.hist : []).forEach(function (h) {
-        if (validRun(h) && !byId[h.id]) { byId[h.id] = h; changed = true; }
+        if (validRun(h) && !byId[h.id]) { byId[h.id] = norm(h); changed = true; }
       });
       var hist = Object.keys(byId).map(function (k) { return byId[k]; })
         .filter(function (h) { return h.at > SS.resetAt; })
@@ -74,7 +81,7 @@
       if (hist.length !== SS.hist.length) changed = true;
       SS.hist = hist;
       var rc = remote.cur && Array.isArray(remote.cur.ids) ? remote.cur : null;
-      if (rc && (!SS.cur || (rc.upd || 0) > (SS.cur.upd || 0))) { SS.cur = rc; changed = true; }
+      if (rc && (!SS.cur || (rc.upd || 0) > (SS.cur.upd || 0))) { SS.cur = norm(rc); changed = true; }
       if (SS.cur && (byId[SS.cur.id] || SS.cur.at <= SS.resetAt)) { SS.cur = null; changed = true; }
       return changed;
     }
@@ -266,29 +273,107 @@
       return qs.map(function (q) { return q.id; });
     }
 
-    /* Ripresa degli errori: quesiti sbagliati od omessi nell'ultima prova in cui sono comparsi. */
-    function lastOutcomes() {
-      var last = {};
-      SS.hist.forEach(function (h) {
-        h.ids.forEach(function (id, i) { if (Q[id]) last[id] = score(Q[id], h.ans[i]); });
+    /* ---------------------------------------------------------- blocco per materia */
+
+    var SRC_LABEL = { sna: 'Preselettive SNA', formez: 'Formez' };
+    function bPrefs() {
+      var p = S.prefs.simB || (S.prefs.simB = {});
+      if (!Array.isArray(p.a)) p.a = [];
+      if (!Array.isArray(p.t)) p.t = [];
+      if (!p.src) p.src = { sna: true, formez: true };
+      if (!p.n) p.n = 10;
+      if (p.tm === undefined) p.tm = 0;
+      if (p.fb === undefined) p.fb = false;
+      return p;
+    }
+    function ePrefs() {
+      var p = S.prefs.simE || (S.prefs.simE = {});
+      if (!Array.isArray(p.a)) p.a = [];
+      if (!p.n) p.n = 15;
+      if (p.tm === undefined) p.tm = 0;
+      if (p.fb === undefined) p.fb = true;
+      return p;
+    }
+    function usable(q, f) {
+      if (!(q.inc === 'sì' || (f.ris && q.inc === 'riserva'))) return false;
+      return !!f.src[srcOf(q)];
+    }
+    function drillPool(f, ignoreArea) {
+      return SIM.q.filter(function (q) {
+        if (!usable(q, f)) return false;
+        if (ignoreArea) return true;
+        if (f.a.length && f.a.indexOf(q.a) < 0) return false;
+        if (f.a.length === 1 && f.t.length && f.t.indexOf(q.t) < 0) return false;
+        return true;
       });
-      return last;
     }
-    function reviewIds() {
-      var last = lastOutcomes();
-      return Object.keys(last).filter(function (id) { return last[id].pts < 1; });
+    /* Prima i mai visti, poi i meno visti; un brano entra con le sue domande. */
+    function drillPick(pool, n) {
+      var pk = new Picker({});
+      var units = {}, list = [];
+      pool.forEach(function (q) {
+        var k = q.t === 'brano' && q.p ? q.p + '|' + bustaOf(q) : q.id;
+        if (!units[k]) { units[k] = []; list.push(units[k]); }
+        units[k].push(q);
+      });
+      list = list.map(function (g) {
+        var seen = g.reduce(function (m, q) { return Math.max(m, pk.seen[q.id] || 0); }, 0);
+        return { g: g, k: [seen ? 1 : 0, seen, Math.random()] };
+      }).sort(function (a, b) {
+        for (var i = 0; i < a.k.length; i++) if (a.k[i] !== b.k[i]) return a.k[i] - b.k[i];
+        return 0;
+      });
+      list.forEach(function (x) {
+        if (pk.ids.length >= n || (x.g[0].p && x.g[0].t === 'brano' && pk.passages[x.g[0].p])) return;
+        x.g.slice().sort(function (a, b) { return qnum(a) - qnum(b); }).forEach(function (q) {
+          if (pk.ids.length < n && !pk.clash(q)) pk.take(q);
+        });
+      });
+      return order(pk.ids);
     }
-    function reviewPlan() {
-      var ids = order(shuffle(reviewIds()).slice(0, 30));
-      return {
-        id: REVIEW, nome: 'Ripresa degli errori', n: ids.length, min: Math.ceil(ids.length * 1.5),
-        scopo: 'Torni sui quesiti sbagliati od omessi nelle prove precedenti, finché non li risolvi.',
-        ids: ids
-      };
+    function areaNames(list) {
+      return list.map(function (a) { return AREA[a] ? AREA[a].label : a; }).join(', ');
+    }
+
+    /* ---------------------------------------------------------- ripasso errori */
+
+    /* Per ogni quesito: quante volte è uscito, quanti errori, l'esito dell'ultima volta.
+       Errore = risposta errata, o situazionale non migliore; gli omessi solo se richiesto. */
+    function errStats(withOmitted) {
+      var st = {};
+      SS.hist.slice().sort(function (a, b) { return a.end - b.end; }).forEach(function (h) {
+        h.ids.forEach(function (id, i) {
+          var q = Q[id];
+          if (!q) return;
+          var sc = score(q, h.ans[i]);
+          var r = st[id] || (st[id] = { n: 0, err: 0, first: 0, last: 0, bad: false });
+          var bad = sc.st === 'ko' || sc.st === 'mid' || (withOmitted && sc.st === 'omessa');
+          r.n++;
+          r.last = h.end;
+          if (bad) { r.err++; if (!r.first) r.first = h.end; }
+          r.bad = bad || (sc.st === 'omessa' && r.bad);
+        });
+      });
+      return st;
+    }
+    var DUE = 12 * 3600e3;
+    function errPool(f) {
+      var st = errStats(!!f.om), now = Date.now();
+      return Object.keys(st).filter(function (id) {
+        return st[id].bad && st[id].err > 0 && (!f.a.length || f.a.indexOf(Q[id].a) >= 0);
+      }).map(function (id) {
+        var r = st[id];
+        return { id: id, k: [now - r.last >= DUE ? 0 : 1, -r.err, r.first] };
+      }).sort(function (a, b) {
+        for (var i = 0; i < a.k.length; i++) if (a.k[i] !== b.k[i]) return a.k[i] - b.k[i];
+        return 0;
+      }).map(function (x) { return x.id; });
     }
 
     function planOf(run) {
       if (run.p === REVIEW) return { id: REVIEW, nome: 'Ripresa degli errori', min: run.min };
+      if (run.p === 'B') return { id: 'B', nome: 'Blocco' + (run.lab ? ': ' + run.lab : ''), min: run.min };
+      if (run.p === 'E') return { id: 'E', nome: 'Ripasso errori' + (run.lab ? ': ' + run.lab : ''), min: run.min };
       return PLAN[run.p] || { id: run.p, nome: run.p, min: run.min };
     }
 
@@ -322,26 +407,46 @@
 
     /* ---------------------------------------------------------- avvio, risposta, consegna */
 
-    function start(plan, mode) {
+    /* opt: { tl: minuti (0 = senza tempo), fb: correzione subito } */
+    function start(plan, opt) {
       var ids = plan.ids || build(plan);
-      if (!ids.length) { toast('Nessun quesito disponibile per questa prova'); return; }
+      if (!ids.length) { toast('Nessun quesito disponibile'); return; }
       var now = Date.now();
       SS.cur = { id: plan.id + '-' + now, p: plan.id, at: now, upd: now, ids: ids, ans: {}, fl: {},
-        el: 0, i: 0, mode: mode, min: plan.min };
+        el: 0, i: 0, mode: opt.fb ? 'studio' : 'tempo', tl: opt.tl, fb: !!opt.fb, min: plan.min };
+      if (plan.lab) SS.cur.lab = plan.lab;
       save();
       go({ tab: 'sim', s: 'run' });
     }
-    function begin(plan, mode) {
+    function begin(plan, opt) {
       if (SS.cur) {
         ask('Hai una prova in corso (' + planOf(SS.cur).nome + '). Abbandonarla e iniziarne una nuova?', 'Abbandona e inizia', function () {
-          SS.cur = null; start(plan, mode);
+          SS.cur = null; start(plan, opt);
         }, true);
-      } else start(plan, mode);
+      } else start(plan, opt);
     }
     ACTIONS.simStart = function (t) {
-      var id = t.getAttribute('data-p');
-      var plan = id === REVIEW ? reviewPlan() : PLAN[id];
-      if (plan) begin(plan, t.getAttribute('data-mode'));
+      var plan = PLAN[t.getAttribute('data-p')];
+      var studio = t.getAttribute('data-mode') === 'studio';
+      if (plan) begin(plan, { tl: studio ? 0 : plan.min, fb: studio });
+    };
+    ACTIONS.simDrill = function () {
+      var f = bPrefs();
+      var pool = drillPool(f);
+      var ids = drillPick(pool, f.n);
+      if (!ids.length) { toast('Nessun quesito con questi filtri'); return; }
+      if (ids.length < f.n) toast('Disponibili solo ' + ids.length + ' quesiti');
+      var lab = f.a.length ? areaNames(f.a) : 'tutte le materie';
+      if (f.a.length === 1 && f.t.length) lab += ' (' + f.t.join(', ') + ')';
+      begin({ id: 'B', ids: ids, lab: lab, min: Math.ceil(ids.length * 1.5) },
+        { tl: f.tm ? Math.ceil(ids.length * 1.5) : 0, fb: f.fb });
+    };
+    ACTIONS.simErr = function () {
+      var f = ePrefs();
+      var ids = order(errPool(f).slice(0, f.n));
+      if (!ids.length) { toast('Nessun errore da ripassare con questi filtri'); return; }
+      begin({ id: 'E', ids: ids, lab: f.a.length ? areaNames(f.a) : '', min: Math.ceil(ids.length * 1.5) },
+        { tl: f.tm ? Math.ceil(ids.length * 1.5) : 0, fb: f.fb });
     };
     ACTIONS.simResume = function () { go({ tab: 'sim', s: 'run' }); };
     ACTIONS.simDrop = function () {
@@ -352,13 +457,13 @@
 
     function cur() { return SS.cur; }
     function touch() { var c = cur(); if (c) c.upd = Date.now(); save(); }
-    function remaining(c) { return c.min * 60 - c.el; }
+    function remaining(c) { return c.tl * 60 - c.el; }
 
     ACTIONS.simAns = function (t) {
       var c = cur();
       if (!c) return;
       var l = t.getAttribute('data-l');
-      if (c.mode === 'studio' && c.ans[c.i]) return;
+      if (c.fb && c.ans[c.i]) return;
       if (c.ans[c.i] === l) delete c.ans[c.i]; else c.ans[c.i] = l;
       touch();
       render();
@@ -392,7 +497,8 @@
       tick();
       var t = totals(c);
       var run = { id: c.id, p: c.p, at: c.at, end: Date.now(), ids: c.ids, ans: c.ans, fl: c.fl, el: Math.round(c.el),
-        mode: c.mode, min: c.min, sc: Math.round(t.pts * 100) / 100, hi: t.hi };
+        mode: c.mode, tl: c.tl, fb: c.fb, min: c.min, sc: Math.round(t.pts * 100) / 100, hi: t.hi };
+      if (c.lab) run.lab = c.lab;
       SS.hist.push(run);
       SS.cur = null;
       save();
@@ -416,7 +522,7 @@
       tick();
       var c = cur();
       paintClock();
-      if (c.mode === 'tempo' && remaining(c) <= 0) { finish(true); return; }
+      if (c.tl && remaining(c) <= 0) { finish(true); return; }
       if (++saveEvery % 10 === 0) { c.upd = Date.now(); save(); }
     }
     function paintClock() {
@@ -424,9 +530,9 @@
       if (!c || !el) return;
       var done = Object.keys(c.ans).length;
       var p = planOf(c);
-      el.textContent = p.id + ' · ' + (c.mode === 'tempo' ? '⏱ ' + clock(remaining(c)) + ' rimasti' : 'senza tempo') +
-        ' · ' + done + '/' + c.ids.length + ' risposte';
-      el.classList.toggle('late', c.mode === 'tempo' && remaining(c) < 300);
+      el.textContent = (p.id === 'B' ? 'Blocco' : p.id === 'E' ? 'Errori' : p.id) + ' · ' +
+        (c.tl ? '⏱ ' + clock(remaining(c)) + ' rimasti' : '⏱ ' + clock(c.el)) + ' · ' + done + '/' + c.ids.length + ' risposte';
+      el.classList.toggle('late', !!c.tl && remaining(c) < Math.min(300, c.tl * 12));
     }
 
     /* ---------------------------------------------------------- barra della prova */
@@ -581,49 +687,189 @@
         (plan.note && plan.note.length ? '<ul class="pnote">' + plan.note.map(function (n) { return '<li>' + esc(n) + '</li>'; }).join('') + '</ul>' : '') +
         (best ? '<p class="small muted">Ultima volta: ' + when(best.end) + ' · ' + fmt(best.sc) + ' su ' + best.ids.length + '</p>' : '') +
         '<div class="row"><button class="btn primary" data-act="simStart" data-p="' + esc(plan.id) + '" data-mode="tempo">Inizia a tempo</button>' +
-        '<button class="btn" data-act="simStart" data-p="' + esc(plan.id) + '" data-mode="studio">Correzione subito</button></div>' +
+        '<button class="btn" data-act="simStart" data-p="' + esc(plan.id) + '" data-mode="studio">Senza tempo, correzione subito</button></div>' +
         '</section>';
     }
-    function homeScreen() {
-      var c = cur();
-      var h = '<h1>Simulazioni</h1>';
-      if (c) {
-        var p = planOf(c);
-        h += '<div class="panel resume"><h2>Prova in corso: ' + esc(p.nome) + '</h2>' +
-          '<p class="small">' + Object.keys(c.ans).length + ' risposte su ' + c.ids.length +
-          (c.mode === 'tempo' ? ' · ' + clock(remaining(c)) + ' rimasti' : ' · senza tempo') + '</p>' +
-          '<div class="row"><button class="btn primary" data-act="simResume">Riprendi</button>' +
-          '<button class="btn ghost" data-act="simDrop">Abbandona</button></div></div>';
+    var SUBS = ['prove', 'blocco', 'errori', 'storico'];
+    var SUB_LABELS = ['Prove', 'Materie', 'Errori', 'Storico'];
+    CHANGES.simTab = function (t) { S.prefs.simTab = t.value; saveLocal(); go({ tab: 'sim' }, true); };
+
+    function chip(group, value, label, on, n) {
+      return '<button type="button" class="chip pick" data-act="simChip" data-g="' + group + '" data-v="' + esc(value) + '" aria-pressed="' + !!on + '"' +
+        (n === 0 && !on ? ' disabled' : '') + '>' + label + (n !== undefined ? ' <span class="cn">' + n + '</span>' : '') + '</button>';
+    }
+    ACTIONS.simChip = function (t) {
+      var g = t.getAttribute('data-g'), v = t.getAttribute('data-v');
+      var f = g.charAt(0) === 'b' ? bPrefs() : ePrefs();
+      var key = g.charAt(1);
+      if (key === 's') f.src[v] = !f.src[v];
+      else if (key === 'r') f.ris = !f.ris;
+      else if (key === 'o') f.om = !f.om;
+      else if (key === 'f') f.fb = !f.fb;
+      else {
+        var list = f[key], i = list.indexOf(v);
+        if (i >= 0) list.splice(i, 1); else list.push(v);
+        if (key === 'a') f.t = [];
       }
-      h += '<p class="hint">Come la preselettiva XII: esatta <b>+1</b>, errata <b>−0,53</b>, omessa <b>0</b>; situazionali <b>1 / 0,50 / 0</b>. ' +
+      saveLocal();
+      go(view, true);
+    };
+    ACTIONS.simSet = function (t) {
+      var f = t.getAttribute('data-g') === 'b' ? bPrefs() : ePrefs();
+      f[t.getAttribute('data-k')] = Number(t.getAttribute('data-v'));
+      saveLocal();
+      go(view, true);
+    };
+    function choice(g, k, values, labels, cur) {
+      return '<div class="seg" role="group">' + values.map(function (v, i) {
+        return '<button type="button" data-act="simSet" data-g="' + g + '" data-k="' + k + '" data-v="' + v + '" aria-pressed="' + (v === cur) + '">' + labels[i] + '</button>';
+      }).join('') + '</div>';
+    }
+    function countBy(list, key) {
+      var c = {};
+      list.forEach(function (q) { c[q[key]] = (c[q[key]] || 0) + 1; });
+      return c;
+    }
+
+    function resumeHtml() {
+      var c = cur();
+      if (!c) return '';
+      var p = planOf(c);
+      return '<div class="panel resume"><h2>In corso: ' + esc(p.nome) + '</h2>' +
+        '<p class="small">' + Object.keys(c.ans).length + ' risposte su ' + c.ids.length +
+        (c.tl ? ' · ' + clock(remaining(c)) + ' rimasti' : ' · senza tempo') + (c.fb ? ' · correzione subito' : '') + '</p>' +
+        '<div class="row"><button class="btn primary" data-act="simResume">Riprendi</button>' +
+        '<button class="btn ghost" data-act="simDrop">Abbandona</button></div></div>';
+    }
+    function statsHtml() {
+      var seen = seenCounts();
+      var nSeen = SIM.q.filter(function (q) { return seen[q.id]; }).length;
+      var nErr = errPool({ a: [] }).length;
+      return '<div class="stats"><div><b>' + SIM.q.length + '</b><span>quesiti</span></div>' +
+        '<div><b>' + nSeen + '</b><span>già visti</span></div>' +
+        '<div><b>' + nErr + '</b><span>errori da rivedere</span></div></div>';
+    }
+
+    function homeScreen() {
+      var sub = SUBS.indexOf(S.prefs.simTab) >= 0 ? S.prefs.simTab : 'prove';
+      var h = '<h1>Simulazioni</h1>' + resumeHtml() + statsHtml() +
+        '<div class="subtabs">' + seg('simTab', SUBS, SUB_LABELS, sub) + '</div>';
+      if (sub === 'blocco') h += drillHtml();
+      else if (sub === 'errori') h += errHtml();
+      else if (sub === 'storico') h += histHtml();
+      else h += plansHtml();
+      return h;
+    }
+
+    function plansHtml() {
+      var h = '<p class="hint">Come la preselettiva XII: esatta <b>+1</b>, errata <b>−0,53</b>, omessa <b>0</b>; situazionali <b>1 / 0,50 / 0</b>. ' +
         'I quesiti sono quelli dei dossier (preselettive SNA 8-11 e concorsi Formez), con chiave e commento alla lettera; ' +
         'la nicchia esclusa dall’analisi non entra. Ogni prova pesca prima i quesiti che non hai ancora visto. ' +
         'Il cronometro conta solo mentre la prova è aperta.</p>' +
         '<p class="small muted sync" data-sync></p>';
       SIM.plans.forEach(function (plan) { h += planCard(plan); });
-      var rev = reviewIds().length;
-      h += '<section class="panel plan"><div class="plan-h"><span class="code">' + REVIEW + '</span><h2>Ripresa degli errori</h2></div>' +
-        '<p class="small">Fino a 30 quesiti sbagliati, omessi o non migliori nell’ultima prova in cui sono usciti, 1,5 minuti ciascuno.</p>' +
-        (rev ? '<div class="row"><button class="btn primary" data-act="simStart" data-p="' + REVIEW + '" data-mode="tempo">Inizia (' + Math.min(30, rev) + ' quesiti)</button>' +
-          '<button class="btn" data-act="simStart" data-p="' + REVIEW + '" data-mode="studio">Correzione subito</button></div>'
-          : '<p class="small muted">Si attiva dopo la prima prova consegnata.</p>') + '</section>';
-      if (SS.hist.length) {
-        h += '<div class="panel"><h2>Prove consegnate</h2><ul class="hist">' + SS.hist.slice().reverse().map(function (r) {
-          var p = planOf(r) || { nome: r.p };
-          return '<li><button class="linkish" data-act="simOpen" data-h="' + esc(r.id) + '"><span class="code">' + esc(r.p) + '</span> ' +
-            esc(p.nome) + '</button><span class="muted small">' + when(r.end) + ' · <b>' + fmt(r.sc) + '</b> su ' + r.ids.length +
-            ' · ' + Math.round(r.el / 60) + ' min' + (r.mode === 'studio' ? ' · correzione subito' : '') + '</span></li>';
-        }).join('') + '</ul><hr><button class="btn ghost block" data-act="simClear">Cancella lo storico delle prove</button></div>';
-      }
       var info = SIM.info;
       h += '<p class="small muted">Quesiti disponibili: ' + info.used + ' (dei ' + info.rows + ' classificati nell’analisi; ' + info.excluded +
         ' esclusi come nicchia). Non entrano i ' + info.missing + ' quesiti del Dossier 1 di cui il PDF dà solo un riassunto (situazionali SNA 10-11) o la sola lettera (buste 1 e 2 di SNA 9). ' +
         'Chiavi ufficiali: SNA 9 e Formez quando indicato; le altre sono ragionate e lo dice il commento.</p>';
       return h;
     }
+
+    function drillHtml() {
+      var f = bPrefs();
+      var all = drillPool(f, true);
+      var byArea = countBy(all, 'a');
+      var pool = drillPool(f);
+      var seen = seenCounts();
+      var fresh = pool.filter(function (q) { return !seen[q.id]; }).length;
+      var h = '<section class="panel"><h2>Blocco per materia</h2>' +
+        '<p class="small muted">Scegli una o più materie (nessuna = tutte). Con una sola materia puoi restringere alle schede o ai tipi di quesito. Escono prima i quesiti mai visti.</p>' +
+        '<div class="chips">' + SIM.areas.map(function (a) { return chip('ba', a[0], esc(a[1]), f.a.indexOf(a[0]) >= 0, byArea[a[0]] || 0); }).join('') + '</div>';
+      if (f.a.length === 1) {
+        var inArea = all.filter(function (q) { return q.a === f.a[0]; });
+        var byType = countBy(inArea, 't');
+        var types = Object.keys(byType).sort(function (x, y) {
+          var nx = /^[A-Z]+\d+$/.test(x), ny = /^[A-Z]+\d+$/.test(y);
+          if (nx && ny) return x.replace(/\d+/, '') === y.replace(/\d+/, '') ? Number(x.replace(/\D+/, '')) - Number(y.replace(/\D+/, '')) : (x < y ? -1 : 1);
+          return x < y ? -1 : 1;
+        });
+        if (types.length > 1) {
+          h += '<p class="lbl" style="margin-top:12px">' + (schedaOfCode[types[0]] ? 'Schede' : 'Tipi di quesito') + ' (nessuna = tutte)</p><div class="chips">' +
+            types.map(function (t) {
+              var lab = schedaOfCode[t] ? '<span class="code">' + esc(t) + '</span> ' + esc(schedaByKey[schedaOfCode[t]].sc.title) : esc(SIM.types[t] || t);
+              return chip('bt', t, lab, f.t.indexOf(t) >= 0, byType[t]);
+            }).join('') + '</div>';
+        }
+      }
+      var nSrc = countBy(SIM.q.filter(function (q) { return q.inc === 'sì' || (f.ris && q.inc === 'riserva'); }).map(function (q) { return { s: srcOf(q) }; }), 's');
+      var nRis = SIM.q.filter(function (q) { return q.inc === 'riserva' && f.src[srcOf(q)]; }).length;
+      h += '<p class="lbl" style="margin-top:12px">Banche</p><div class="chips">' +
+        ['sna', 'formez'].map(function (k) { return chip('bs', k, SRC_LABEL[k], f.src[k], nSrc[k] || 0); }).join('') +
+        chip('br', '1', 'Anche i quesiti di riserva', f.ris, nRis) + '</div>' +
+        '<p class="small muted">Riserva: formati usciti solo in SNA 8 o nei concorsi Formez (logica deduttiva e verbale), varianti con le lettere spostate, situazionali in inglese.</p>' +
+        '<div class="field"><span class="lbl">Quesiti</span>' + choice('b', 'n', [5, 10, 15, 20, 30], ['5', '10', '15', '20', '30'], f.n) + '</div>' +
+        '<div class="field"><span class="lbl">Tempo</span>' + choice('b', 'tm', [0, 1], ['Senza tempo', '1,5′ a quesito, come in prova'], f.tm) + '</div>' +
+        '<div class="chips">' + chip('bf', '1', 'Correzione subito dopo ogni risposta', f.fb) + '</div>' +
+        '<p class="small" style="margin-top:12px"><b>' + pool.length + '</b> quesiti con questi filtri, <b>' + fresh + '</b> mai visti.</p>' +
+        '<button class="btn primary block" data-act="simDrill"' + (pool.length ? '' : ' disabled') + '>Avvia blocco (' + Math.min(f.n, pool.length) + ')</button></section>';
+      return h;
+    }
+
+    function errHtml() {
+      var f = ePrefs();
+      var allErr = errPool({ a: [], om: f.om });
+      var byArea = countBy(allErr.map(function (id) { return Q[id]; }), 'a');
+      var pool = errPool(f);
+      var st = errStats(!!f.om), now = Date.now();
+      var due = pool.filter(function (id) { return now - st[id].last >= DUE; }).length;
+      var h = '<section class="panel"><h2>Ripasso errori</h2>' +
+        '<p class="small muted">Solo i quesiti che hai sbagliato (per i situazionali: non la migliore) e che non hai ancora risolto dopo; escono dal ripasso quando li fai giusti. ' +
+        'Priorità: quelli che non rivedi da almeno 12 ore, poi i più sbagliati, poi i più vecchi.</p>';
+      if (!SS.hist.length) return h + '<p class="empty">Si attiva dopo la prima prova o il primo blocco consegnato.</p></section>';
+      h += '<div class="chips">' + SIM.areas.map(function (a) { return chip('ea', a[0], esc(a[1]), f.a.indexOf(a[0]) >= 0, byArea[a[0]] || 0); }).join('') + '</div>' +
+        '<div class="chips" style="margin-top:10px">' + chip('eo', '1', 'Anche gli omessi', f.om) + '</div>' +
+        '<div class="field"><span class="lbl">Quesiti</span>' + choice('e', 'n', [10, 15, 20, 30], ['10', '15', '20', '30'], f.n) + '</div>' +
+        '<div class="field"><span class="lbl">Tempo</span>' + choice('e', 'tm', [0, 1], ['Senza tempo', '1,5′ a quesito, come in prova'], f.tm) + '</div>' +
+        '<div class="chips">' + chip('ef', '1', 'Correzione subito dopo ogni risposta', f.fb) + '</div>' +
+        '<p class="small" style="margin-top:12px"><b>' + pool.length + '</b> da ripassare' + (pool.length ? ', di cui <b>' + due + '</b> non rivisti da 12 ore' : '') + '.</p>' +
+        '<button class="btn primary block" data-act="simErr"' + (pool.length ? '' : ' disabled') + '>Avvia ripasso (' + Math.min(f.n, pool.length) + ')</button></section>';
+      return h;
+    }
+
+    function histHtml() {
+      if (!SS.hist.length) return '<p class="empty">Nessuna prova consegnata.</p>';
+      var seen = seenCounts(), st = errStats(false);
+      var agg = {};
+      SS.hist.forEach(function (h) {
+        h.ids.forEach(function (id, i) {
+          var q = Q[id];
+          if (!q) return;
+          var x = agg[q.a] || (agg[q.a] = { n: 0, ok: 0, pts: 0 });
+          var sc = score(q, h.ans[i]);
+          x.n++; x.pts += sc.pts; if (sc.st === 'ok') x.ok++;
+        });
+      });
+      var tot = countBy(SIM.q, 'a');
+      var h = '<div class="panel"><h2>Per materia</h2><p class="small muted">Tutte le risposte date finora, in prove, blocchi e ripassi.</p><ul class="areas">' +
+        SIM.areas.filter(function (a) { return agg[a[0]]; }).map(function (a) {
+          var x = agg[a[0]];
+          var distinct = SIM.q.filter(function (q) { return q.a === a[0] && seen[q.id]; }).length;
+          var todo = Object.keys(st).filter(function (id) { return Q[id].a === a[0] && st[id].bad && st[id].err; }).length;
+          return '<li><span class="an">' + esc(a[1]) + '</span><span class="ap"><b>' + Math.round(100 * x.ok / x.n) + '%</b> giuste</span>' +
+            '<span class="ad">' + x.n + ' risposte · ' + distinct + ' di ' + tot[a[0]] + ' quesiti visti · ' + fmt(x.pts / x.n) + ' punti a quesito' +
+            (todo ? ' · <b>' + todo + '</b> da ripassare' : '') + '</span></li>';
+        }).join('') + '</ul></div>';
+      h += '<div class="panel"><h2>Prove consegnate</h2><ul class="hist">' + SS.hist.slice().reverse().map(function (r) {
+        var p = planOf(r);
+        return '<li><button class="linkish" data-act="simOpen" data-h="' + esc(r.id) + '"><span class="code">' + esc(r.p) + '</span> ' +
+          esc(p.nome) + '</button><span class="muted small">' + when(r.end) + ' · <b>' + fmt(r.sc) + '</b> su ' + r.ids.length +
+          ' · ' + Math.round(r.el / 60) + ' min' + (r.fb ? ' · correzione subito' : '') + '</span></li>';
+      }).join('') + '</ul><hr><button class="btn ghost block" data-act="simClear">Cancella lo storico delle prove</button></div>';
+      return h;
+    }
     ACTIONS.simOpen = function (t) { go({ tab: 'sim', s: 'res', h: t.getAttribute('data-h') }); };
     ACTIONS.simClear = function () {
-      ask('Cancellare tutte le prove consegnate' + (sync.mode === 'cloud' ? ', anche dal tuo account' : '') + '? La ripresa degli errori ripartirà da zero.', 'Cancella', function () {
+      ask('Cancellare tutte le prove consegnate' + (sync.mode === 'cloud' ? ', anche dal tuo account' : '') + '? Il ripasso degli errori ripartirà da zero.', 'Cancella', function () {
         SS.hist = []; SS.resetAt = Date.now(); if (SS.cur) SS.cur = null;
         save(); pushNow(); render(); toast('Storico cancellato');
       }, true);
@@ -634,7 +880,7 @@
       var q = Q[c.ids[c.i]];
       if (!q) { c.i = 0; q = Q[c.ids[0]]; }
       var a = c.ans[c.i];
-      var reveal = c.mode === 'studio' && !!a;
+      var reveal = c.fb && !!a;
       return '<div class="qhead"><span class="qn">' + (c.i + 1) + '</span><span class="qa">' + esc(AREA[q.a].label) + '</span>' +
         '<button type="button" class="flagb" data-act="simFlag" aria-pressed="' + !!c.fl[c.i] + '">' + (c.fl[c.i] ? '● Dubbio' : '○ Dubbio') + '</button></div>' +
         (intro(q) ? '<p class="small muted">' + intro(q) + '</p>' : '') +
@@ -658,7 +904,7 @@
         '<div class="panel score"><p class="big"><b>' + fmt(t.pts) + '</b> <span class="muted">su ' + t.n + '</span></p>' +
         (t.hi ? '<p class="small muted">Fino a ' + fmt(t.pts + t.hi) + ' se le scelte non migliori dei modelli SNA 9 fossero le neutre: la Scuola ha pubblicato solo la migliore.</p>' : '') +
         '<p class="small">' + t.ok + ' esatte o migliori · ' + (t.mid ? t.mid + ' neutre · ' : '') + t.ko + ' errate · ' + t.om + ' omesse · ' +
-        Math.round(run.el / 60) + ' min' + (run.mode === 'studio' ? ' (correzione subito)' : ' su ' + run.min) + '</p></div>';
+        Math.round(run.el / 60) + ' min' + (run.tl ? ' su ' + run.tl : ' senza tempo') + (run.fb ? ' · correzione subito' : '') + '</p></div>';
       h += '<div class="panel"><h2>Per area</h2><ul class="areas">' +
         SIM.areas.filter(function (a) { return t.areas[a[0]]; }).map(function (a) {
           var x = t.areas[a[0]];
@@ -717,7 +963,7 @@
       e.stopImmediatePropagation();
     });
 
-    if (SS.cur && SS.cur.mode === 'tempo' && remaining(SS.cur) <= 0) {
+    if (SS.cur && SS.cur.tl && remaining(SS.cur) <= 0) {
       // il tempo era già finito alla chiusura
       after.push(function () { if (cur()) finish(true); });
     }

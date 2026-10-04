@@ -454,3 +454,18 @@ body.with-simbar .wrap { padding-bottom: 120px; }
 .areas .an { flex: 1 1 12em; min-width: 0; font-weight: 600; }
 .areas .ap { flex: none; font-variant-numeric: tabular-nums; }
 .areas .ad { flex: 0 0 100%; font-size: 13.5px; color: var(--muted); }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0 0 14px; }
+.stats div {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 10px 6px;
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+}
+.stats b { font-size: 22px; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.stats span { font-size: 13px; color: var(--muted); }
+.subtabs { margin: 0 0 16px; }
+.subtabs .seg button { flex: 1 1 0; padding-left: 4px; padding-right: 4px; font-size: 14.5px; }
+.chip.pick { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; }
+.chip.pick[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.chip.pick[aria-pressed="true"] .code { color: var(--accent-ink); }
+.chip.pick:disabled { opacity: .45; cursor: default; }
+.chip .cn { font-variant-numeric: tabular-nums; font-size: 12.5px; opacity: .75; }
+.panel .seg button[data-act="simSet"] { flex: 1 1 auto; }
