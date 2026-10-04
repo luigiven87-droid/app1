@@ -243,6 +243,19 @@
     btn.textContent = t === 'auto' ? '◐' : (t === 'light' ? '☀' : '☾');
     btn.setAttribute('aria-label', 'Tema: ' + ({ auto: 'automatico', light: 'chiaro', dark: 'scuro' })[t] + '. Tocca per cambiare');
   }
+  var SIZES = [1, 1.12, 1.25, 0.92];
+  function applySize() {
+    var z = SIZES.indexOf(S.prefs.fz) >= 0 ? S.prefs.fz : 1;
+    document.documentElement.style.setProperty('--fz', String(z));
+    var b = document.getElementById('fz-btn');
+    if (b) b.setAttribute('aria-label', 'Dimensione del testo: ' + Math.round(z * 100) + '%. Tocca per cambiare');
+  }
+  document.getElementById('fz-btn').addEventListener('click', function () {
+    var z = SIZES.indexOf(S.prefs.fz) >= 0 ? S.prefs.fz : 1;
+    S.prefs.fz = SIZES[(SIZES.indexOf(z) + 1) % SIZES.length];
+    saveLocal(); applySize();
+    toast('Testo al ' + Math.round(S.prefs.fz * 100) + '%');
+  });
   document.getElementById('theme-btn').addEventListener('click', function () {
     var t = S.prefs.theme || 'auto';
     S.prefs.theme = THEMES[(THEMES.indexOf(t) + 1) % THEMES.length];
@@ -253,7 +266,7 @@
     var now = new Date();
     var days = Math.round((EXAM - new Date(now.getFullYear(), now.getMonth(), now.getDate())) / 86400000);
     var el = document.getElementById('countdown');
-    if (days > 1) el.textContent = 'Preselettiva del 6 ottobre · mancano ' + days + ' giorni';
+    if (days > 1) el.textContent = 'Preselettiva del 6/10 · mancano ' + days + ' giorni';
     else if (days === 1) el.textContent = 'Preselettiva domani, 6 ottobre';
     else if (days === 0) el.textContent = 'Preselettiva oggi · in bocca al lupo';
     else el.textContent = 'Preselettiva del 6 ottobre 2026';
@@ -495,7 +508,8 @@
         if (sc.parte && sc.parte !== parte) { parte = sc.parte; h += '<h3 class="parte">' + esc(parte) + '</h3>'; }
         h += '<button class="srow" data-act="open" data-k="' + esc(sc.key) + '">' +
           '<span class="code">' + esc(sc.code || (sc.numeri ? 'Σ' : '◆')) + '</span>' +
-          '<span class="st"><span class="stt">' + esc(sc.title) + '</span><span class="sp" data-mini="' + esc(sc.key) + '">' + miniProg(sc.key) + '</span></span>' +
+          '<span class="st"><span class="stt">' + esc(sc.title) + '</span>' + (hooks.schedaInfo && sc.code ? hooks.schedaInfo(sc.code) : '') +
+          '<span class="sp" data-mini="' + esc(sc.key) + '">' + miniProg(sc.key) + '</span></span>' +
           '</button>';
       });
       h += '</section>';
@@ -551,6 +565,7 @@
       '</div>' +
       '<article class="rd">' + (body || '<p class="empty">' + empty + '</p>') + '</article>' +
       '<div class="endbox">' +
+      (hooks.schedaFoot && sc.code ? hooks.schedaFoot(sc.code) : '') +
       (counts(ptsOfScheda[sc.key]).none ? '<button class="btn block" data-act="restOk">Segna «lo so» tutti i punti non segnati</button>' : '') +
       '<div class="row">' +
       (prev ? '<button class="btn" data-act="open" data-k="' + esc(prev.sc.key) + '">← ' + esc(prev.sc.code || 'Precedente') + '</button>' : '') +
@@ -763,6 +778,7 @@
   /* ============================================================ avvio */
 
   applyTheme();
+  applySize();
   countdown();
   var pv = S.prefs.view;
   if (pv && SCREENS[pv.tab] && (pv.tab !== 'sch' || schedaByKey[pv.k])) view = pv;

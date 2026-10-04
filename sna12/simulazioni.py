@@ -118,6 +118,33 @@ def compact(q, row):
         out["rep"] = [x.strip() for x in row["ripetuto_in"].split(",") if x.strip()]
     if row.get("motivo"):
         out["mo"] = row["motivo"]
+    first = com[0] if com else ""
+    m = re.search(r"Vigenza ([AX])\b", first)
+    if m:
+        out["vg"] = m.group(1)  # A: risposta giusta ma norma o contesto cambiati; X: superato
+    if "affidabilità media" in first:
+        out["km"] = 1  # chiave ragionata ad affidabilità media, secondo il dossier
+    return out
+
+
+def schede(analysis):
+    """Per ogni scheda: fascia, quesiti attesi nel XII (quota dell'area × peso) e uscite d'archivio.
+
+    Alcune schede compaiono in più aree (E3, PE1, A1): vale la voce della loro area.
+    """
+    bp = analysis.get("blueprint_xii", {})
+    out = {}
+    for area, items in (analysis.get("argomenti") or {}).items():
+        for it in items:
+            code = it.get("scheda")
+            own = it.get("area_propria", area) == area
+            if not code or (code in out and not own):
+                continue
+            out[code] = {
+                "f": it.get("fascia", ""),
+                "x": round((bp.get(area) or 0) * (it.get("peso_xii") or 0), 2),
+                "n": it.get("totale_scheda", 0), "ne": it.get("in_estratte", 0), "nn": it.get("in_non_estratte", 0),
+            }
     return out
 
 
@@ -149,6 +176,7 @@ def build(materiali, with_images=True):
         "types": TYPES,
         "blueprint": analysis.get("blueprint_xii", {}),
         "plans": plans(analysis),
+        "schede": schede(analysis),
         "q": qs,
         "passages": passages,
         "info": {

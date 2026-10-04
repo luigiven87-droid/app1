@@ -15,6 +15,16 @@
     var schedaOfCode = {};
     SCHEDE.forEach(function (e) { if (e.sc.code) schedaOfCode[e.sc.code] = e.sc.key; });
     var SIM_KEY = 'sna12-simulazioni-v1';
+    /* Gemelli: lo stesso quesito in un altro dossier o quasi identico in un altro anno. */
+    var TWINS = {};
+    (function () {
+      var byCoord = {};
+      SIM.q.forEach(function (q) { if (q.c) (byCoord[q.c] = byCoord[q.c] || []).push(q.id); });
+      function link(a, b) { if (a !== b) { (TWINS[a] = TWINS[a] || {})[b] = 1; (TWINS[b] = TWINS[b] || {})[a] = 1; } }
+      SIM.q.forEach(function (q) {
+        [q.c].concat(q.rep || []).forEach(function (c) { (byCoord[c] || []).forEach(function (id) { link(q.id, id); }); });
+      });
+    })();
     var REVIEW = 'R';
 
     TABS.push({ id: 'sim', label: 'Simulazioni' });
@@ -136,15 +146,20 @@
 
     /* ---------------------------------------------------------- sorteggio */
 
-    function seenCounts() {
+    function seenCounts(withTwins) {
       var c = {};
       SS.hist.forEach(function (h) { h.ids.forEach(function (id) { c[id] = (c[id] || 0) + 1; }); });
+      if (withTwins) {
+        Object.keys(c).forEach(function (id) {
+          Object.keys(TWINS[id] || {}).forEach(function (t) { if (!c[t]) c[t] = 0.5; });
+        });
+      }
       return c;
     }
 
     function Picker(plan) {
       this.plan = plan;
-      this.seen = seenCounts();
+      this.seen = seenCounts(true);
       this.ids = [];
       this.taken = {};
       this.coords = {};
@@ -600,14 +615,21 @@
         '<div class="row"><button class="btn" type="button" id="modal-no">Chiudi</button></div></div>';
       $modal.hidden = false;
     }
+    ACTIONS.simToPassage = function () {
+      var el = document.getElementById('passage');
+      if (!el) return;
+      el.open = true;
+      window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - headerBottom() - 8, behavior: reduceMotion ? 'auto' : 'smooth' });
+    };
     ACTIONS.simZoom = function (t) { zoom(t.querySelector('img').getAttribute('src')); };
 
     /* ---------------------------------------------------------- disegno di un quesito */
 
-    function passageHtml(q, open) {
+    function passageHtml(q, open, bare) {
       var p = q.p && SIM.passages[q.p];
       if (!p) return '';
-      return '<details class="passage"' + (open ? ' open' : '') + '><summary>' + esc(p.title || 'Brano') + '</summary>' +
+      var title = bare ? (q.a === 'inglese' ? 'Text' : 'Brano') : (p.title || 'Brano');
+      return '<details class="passage" id="passage"' + (open ? ' open' : '') + '><summary>' + esc(title) + '</summary>' +
         p.text.map(function (t) { return '<p>' + esc(t) + '</p>'; }).join('') + '</details>';
     }
     function imagesHtml(q) {
@@ -630,6 +652,9 @@
       var key = schedaOfCode[q.t];
       return '<div class="fb ' + s.st + '"><p class="fb-h"><b>' + s.lbl + '</b> · ' + fmt(s.pts) + (s.hi ? ' (o 0,50)' : '') +
         (a ? ' · hai scelto ' + a : '') + ' · chiave ' + q.k + (q.kk ? ' (' + esc(q.kk) + ')' : '') + '</p>' +
+        (q.vg === 'A' ? '<p class="badge">Norma cambiata dopo la prova: la risposta resta giusta, ma leggi il commento.</p>' : '') +
+        (q.vg === 'X' ? '<p class="badge">Superato: la norma oggi è diversa, leggi il commento.</p>' : '') +
+        (q.km ? '<p class="badge">Chiave incerta: il dossier la dà ad affidabilità media.</p>' : '') +
         (keyNote(q) ? '<p class="small">' + keyNote(q) + '</p>' : '') +
         (q.cp ? '<p class="small"><b>' + esc(q.ti || '') + '</b> · ' + esc(q.cp) + '</p>' : '') +
         q.com.map(function (c) { return '<p class="com">' + esc(c) + '</p>'; }).join('') +
@@ -911,9 +936,10 @@
       return '<div class="qhead"><span class="qn">' + (c.i + 1) + '</span><span class="qa">' + esc(AREA[q.a].label) + '</span>' +
         '<button type="button" class="flagb" data-act="simFlag" aria-pressed="' + !!c.fl[c.i] + '">' + (c.fl[c.i] ? '● Dubbio' : '○ Dubbio') + '</button></div>' +
         (intro(q) ? '<p class="small muted">' + intro(q) + '</p>' : '') +
-        passageHtml(q, true) +
+        passageHtml(q, true, true) +
         '<div class="qtext">' + paras(q.q) + '</div>' +
         imagesHtml(q) +
+        (q.p ? '<button type="button" class="linkish up" data-act="simToPassage">↑ Rileggi il ' + (q.a === 'inglese' ? 'testo' : 'brano') + '</button>' : '') +
         optionsHtml(q, a, reveal) +
         (reveal ? feedbackHtml(q, a) : '') +
         (a && !reveal ? '<p class="small muted">Tocca di nuovo la risposta scelta per lasciarla in bianco.</p>' : '');
@@ -923,6 +949,75 @@
     var REV_LABELS = ['Tutti', 'Sbagliati', 'Omessi', 'Dubbi', 'Giusti'];
     CHANGES.simRev = function (t) { S.prefs.simRev = t.value; saveLocal(); go(view, true); };
 
+    function redoIds(run, withOm) {
+      return run.ids.filter(function (id, i) {
+        if (!Q[id]) return false;
+        var st = score(Q[id], run.ans[i]).st;
+        return st === 'ko' || st === 'mid' || (withOm && st === 'omessa');
+      });
+    }
+    function redoHtml(run, t) {
+      var ko = t.ko + t.mid;
+      if (!ko && !t.om) return '';
+      return '<div class="row">' +
+        (ko ? '<button class="btn" data-act="simRedo" data-h="' + esc(run.id) + '">Rifai i ' + ko + ' sbagliati</button>' : '') +
+        (t.om ? '<button class="btn" data-act="simRedo" data-h="' + esc(run.id) + '" data-om="1">Sbagliati e omessi (' + (ko + t.om) + ')</button>' : '') +
+        '</div>';
+    }
+    ACTIONS.simRedo = function (t) {
+      var run = SS.hist.filter(function (h) { return h.id === t.getAttribute('data-h'); })[0];
+      if (!run) return;
+      var ids = order(redoIds(run, t.getAttribute('data-om') === '1'));
+      if (!ids.length) return;
+      begin({ id: 'E', ids: ids, lab: 'da ' + planOf(run).nome, min: Math.ceil(ids.length * 1.5) }, { tl: 0, fb: true });
+    };
+
+    /* ---------------------------------------------------------- schede del ripasso: peso e risultati */
+
+    var scCache = { key: '', v: null };
+    function schedaStats() {
+      var key = SS.hist.length + ':' + (SS.hist.length ? SS.hist[SS.hist.length - 1].id : '');
+      if (scCache.key === key) return scCache.v;
+      var v = {};
+      SS.hist.forEach(function (h) {
+        h.ids.forEach(function (id, i) {
+          var q = Q[id];
+          if (!q || !schedaOfCode[q.t]) return;
+          var x = v[q.t] || (v[q.t] = { n: 0, ok: 0 });
+          x.n++;
+          if (score(q, h.ans[i]).st === 'ok') x.ok++;
+        });
+      });
+      scCache = { key: key, v: v };
+      return v;
+    }
+    var bankOf = countBy(SIM.q.filter(function (q) { return q.inc === 'sì'; }), 't');
+    hooks.schedaInfo = function (code) {
+      var info = SIM.schede && SIM.schede[code];
+      var st = schedaStats()[code];
+      var parts = [];
+      if (info && info.f) parts.push('<span class="fa ' + esc(info.f) + '">' + esc(info.f) + '</span>');
+      if (info && info.n) parts.push('uscita ' + info.n + ' volte in SNA 8-11');
+      if (st) parts.push('tue: <b>' + Math.round(100 * st.ok / st.n) + '%</b> su ' + st.n);
+      return parts.length ? '<span class="sinfo">' + parts.join(' · ') + '</span>' : '';
+    };
+    hooks.schedaFoot = function (code) {
+      var n = bankOf[code];
+      if (!n) return '';
+      var st = schedaStats()[code];
+      return '<div class="panel slim sfoot"><p><b>' + n + '</b> quesiti d’archivio su ' + esc(code) +
+        (st ? ' · le tue risposte: <b>' + Math.round(100 * st.ok / st.n) + '%</b> giuste su ' + st.n : '') + '</p>' +
+        '<button class="btn primary block" data-act="simDrillScheda" data-c="' + esc(code) + '">Fai i quesiti di ' + esc(code) + ' (correzione subito)</button></div>';
+    };
+    ACTIONS.simDrillScheda = function (t) {
+      var code = t.getAttribute('data-c');
+      var pool = SIM.q.filter(function (q) { return q.t === code && q.inc === 'sì'; });
+      if (!pool.length) return;
+      var ids = drillPick(pool, pool.length);
+      begin({ id: 'B', ids: ids, lab: code + ' · ' + (schedaByKey[schedaOfCode[code]] ? schedaByKey[schedaOfCode[code]].sc.title : ''), min: Math.ceil(ids.length * 1.5) },
+        { tl: 0, fb: true });
+    };
+
     function resultScreen(run) {
       var p = planOf(run) || { nome: run.p };
       var t = totals(run);
@@ -931,11 +1026,14 @@
         '<div class="panel score"><p class="big"><b>' + fmt(t.pts) + '</b> <span class="muted">su ' + t.n + '</span></p>' +
         (t.hi ? '<p class="small muted">Fino a ' + fmt(t.pts + t.hi) + ' se le scelte non migliori dei modelli SNA 9 fossero le neutre: la Scuola ha pubblicato solo la migliore.</p>' : '') +
         '<p class="small">' + t.ok + ' esatte o migliori · ' + (t.mid ? t.mid + ' neutre · ' : '') + t.ko + ' errate · ' + t.om + ' omesse · ' +
-        Math.round(run.el / 60) + ' min' + (run.tl ? ' su ' + run.tl : ' senza tempo') + (run.fb ? ' · correzione subito' : '') + '</p></div>';
+        Math.round(run.el / 60) + ' min' + (run.tl ? ' su ' + run.tl : ' senza tempo') + (run.fb ? ' · correzione subito' : '') + '</p>' +
+        redoHtml(run, t) + '</div>';
       h += '<div class="panel"><h2>Per area</h2><ul class="areas">' +
         SIM.areas.filter(function (a) { return t.areas[a[0]]; }).map(function (a) {
           var x = t.areas[a[0]];
+          var w = Math.min(100, Math.abs(x.pts) / x.n * 100);
           return '<li><span class="an">' + esc(a[1]) + '</span><span class="ap"><b>' + fmt(x.pts) + '</b> / ' + x.n + '</span>' +
+            '<span class="abar' + (x.pts < 0 ? ' neg' : '') + '" aria-hidden="true"><i style="width:' + w.toFixed(1) + '%"></i></span>' +
             '<span class="ad">' + x.ok + (a[0] === 'situazionali' ? ' migliori' : ' esatte') + (x.mid ? ' · ' + x.mid + ' neutre' : '') +
             ' · ' + x.ko + (a[0] === 'situazionali' ? ' meno efficaci o non migliori' : ' errate') + ' · ' + x.om + ' omesse</span></li>';
         }).join('') + '</ul></div>';
@@ -971,6 +1069,20 @@
       h += '<div class="endbox"><button class="btn primary block" data-act="tab" data-t="sim">Torna alle simulazioni</button></div>';
       return h;
     }
+
+    /* ---------------------------------------------------------- scorrimento col dito */
+
+    var sw = null;
+    function inRun() { return view.tab === 'sim' && view.s === 'run' && cur(); }
+    $app.addEventListener('touchstart', function (e) {
+      sw = inRun() && e.touches.length === 1 ? { x: e.touches[0].clientX, y: e.touches[0].clientY, t: Date.now() } : null;
+    }, { passive: true });
+    $app.addEventListener('touchend', function (e) {
+      if (!sw || !inRun()) return;
+      var t = e.changedTouches[0], dx = t.clientX - sw.x, dy = t.clientY - sw.y;
+      if (Math.abs(dx) > 70 && Math.abs(dy) < 45 && Date.now() - sw.t < 700) move(dx < 0 ? 1 : -1);
+      sw = null;
+    }, { passive: true });
 
     /* ---------------------------------------------------------- tastiera */
 

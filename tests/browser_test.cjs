@@ -311,6 +311,37 @@ const shot = (page, name, full) => page.screenshot({ path: path.join(SHOTS, name
   const nCost = D.q.filter(q => q.inc === 'sì' && q.a === 'diritto_costituzionale').length;
   check(nAll === nUe + nCost && all.length === nAll, '«Tutti»: diritto UE e costituzionale interi in una sessione (' + all.length + ')');
   check(all.every((id, i) => !i || D.areas.findIndex(a => a[0] === QD[id].a) >= D.areas.findIndex(a => a[0] === QD[all[i - 1]].a)), '«Tutti»: quesiti in ordine di materia');
+  // dalla scheda del ripasso ai suoi quesiti; scorrimento col dito; testo più grande; rifai gli errori
+  await ps.click('[data-tab=sim]');
+  await ps.click('[data-act=simDrop]');
+  await ps.click('#modal-yes');
+  await ps.click('[data-tab=idx]');
+  check((await ps.textContent('.srow[data-k="1:D4"] .sinfo')).includes('uscita 9 volte'), 'Indice: fascia e uscite d\'archivio della scheda');
+  await ps.click('.srow[data-k="1:D4"]');
+  await ps.click('[data-act=simDrillScheda]');
+  const sd = (await simState()).cur;
+  check(sd && sd.ids.length === D.q.filter(q => q.t === 'D4' && q.inc === 'sì').length && sd.fb, 'dalla scheda D4: tutti i suoi quesiti, con correzione subito');
+  await ps.evaluate(() => {
+    const el = document.getElementById('app');
+    const mk = (type, x) => { const t = new Touch({ identifier: 1, target: el, clientX: x, clientY: 300 }); el.dispatchEvent(new TouchEvent(type, { touches: type === 'touchend' ? [] : [t], changedTouches: [t], bubbles: true })); };
+    mk('touchstart', 320); mk('touchend', 80);
+  });
+  check((await ps.textContent('.qn')).trim() === '2', 'scorrere col dito porta al quesito successivo');
+  await ps.click('#fz-btn');
+  check((await ps.$eval('.qtext', e => parseFloat(getComputedStyle(e).fontSize))) > 19.5, 'Aa ingrandisce il testo');
+  await ps.click('#fz-btn'); await ps.click('#fz-btn'); await ps.click('#fz-btn');
+  const q1 = QD[sd.ids[1]];
+  await ps.click('.opt[data-l="' + q1.o.map(o => o[0]).find(x => x !== q1.k) + '"]');
+  await ps.click('[data-act=simEnd]');
+  await ps.click('#modal-yes');
+  await ps.click('[data-act=simRedo]');
+  check((await simState()).cur.ids.join() === sd.ids[1], '«Rifai gli sbagliati» riparte dall\'errore della prova');
+  await ps.click('[data-tab=sim]');
+  await ps.click('[data-act=simDrop]');
+  await ps.click('#modal-yes');
+  await ps.click('[data-act=seg][data-name=simTab][data-val=blocco]');
+  await ps.click('[data-act=simDrill]');
+  check((await simState()).cur.tl > 0, 'blocco a tempo pronto per la prova del tempo scaduto');
   check(ps.errors.length === 0, 'nessun errore JavaScript (' + ps.errors.join('; ') + ')');
   const ctxS = ps.context();
   await ps.close();
@@ -326,7 +357,7 @@ const shot = (page, name, full) => page.screenshot({ path: path.join(SHOTS, name
   await pt.goto('file://' + LOCAL);
   await pt.waitForTimeout(3500);
   const ts = await pt.evaluate(() => JSON.parse(localStorage.getItem('sna12-simulazioni-v1')));
-  check(!ts.cur && ts.hist.length === 3, 'tempo scaduto: prova consegnata da sola');
+  check(!ts.cur && ts.hist.length === 4, 'tempo scaduto: prova consegnata da sola');
   check(pt.errors.length === 0, 'nessun errore JavaScript (' + pt.errors.join('; ') + ')');
   await pt.close();
 
